@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MOTD 查看器 · Minecraft Java</title>
+  <meta name="description" content="在线查看 Minecraft Java 版服务器的 MOTD、版本、在线人数和延迟。直连服务器列表 Ping 协议。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070b09'/%3E%3Cpath d='M6 12h20v14H6z' fill='%2355ff55'/%3E%3Cpath d='M6 12h20v4H6z' fill='%2333aa33'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="glow" aria-hidden="true"></div>
+
+  <main class="app">
+    <header class="hero">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="34" height="34" role="img" aria-label="草方块">
+            <rect width="32" height="32" rx="2" fill="#0b120f"/>
+            <path d="M4 11h24v17H4z" fill="#6b4b2f"/>
+            <path d="M4 11h24v5H4z" fill="#55ff55"/>
+            <path d="M4 15h24v1.5H4z" fill="#2f8f2f"/>
+            <path d="M8 19v3M14 20v4M20 19v3M25 21v2" stroke="#3a2a1c" stroke-width="1.2"/>
+            <path d="M7 12v3M13 12v2M19 12v3M26 12v2" stroke="#88ff88" stroke-width="1.2"/>
+          </svg>
+        </span>
+        <div class="brand-text">
+          <h1><span class="pixel">MOTD</span> 查看器</h1>
+          <p>Minecraft: Java Edition · Server List Ping</p>
+        </div>
+      </div>
+    </header>
+
+    <form class="ping-form" id="form" autocomplete="off" novalidate>
+      <div class="field" id="field">
+        <span class="prefix" aria-hidden="true">›</span>
+        <label class="sr-only" for="address">服务器地址</label>
+        <input id="address" name="address" placeholder="play.example.com  或  host:25565"
+               spellcheck="false" autocapitalize="off" autocorrect="off" inputmode="url">
+      </div>
+      <button type="submit" id="submit"><span class="pixel">PING</span></button>
+    </form>
+
+    <div class="history" id="history" hidden>
+      <span class="history-label">最近</span>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <section class="output" id="output" aria-live="polite">
+      <div class="empty" id="empty">
+        <div class="empty-lines" aria-hidden="true"></div>
+        <p class="empty-title">输入服务器地址，直接读取它的 MOTD</p>
+        <p class="empty-sub">服务端直连 TCP 25565 · 自动 SRV 解析 · 不经过第三方 API</p>
+        <div class="examples">
+          <button type="button" class="example" data-address="play.cubecraft.net">play.cubecraft.net</button>
+          <button type="button" class="example" data-address="mc.hypixel.net">mc.hypixel.net</button>
+          <button type="button" class="example" data-address="2b2t.org">2b2t.org</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span>纯 Node.js，零依赖</span>
+      <span class="dot-sep">·</span>
+      <span>CLI 同源：<code>motd &lt;地址&gt;</code></span>
+    </footer>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

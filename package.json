@@ -1,0 +1,27 @@
+{
+  "name": "mc-motd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "查看 Minecraft Java 版服务器 MOTD 的命令行 + 网页工具，零运行时依赖",
+  "bin": {
+    "motd": "motd.js"
+  },
+  "main": "src/slp.js",
+  "scripts": {
+    "start": "node motd.js --web",
+    "web": "node motd.js --web",
+    "mock": "node tools/mock-server.js",
+    "test": "node --test test/",
+    "lint": "node --check motd.js && node --check src/slp.js && node --check src/motd.js && node --check src/web.js && node --check src/proxy.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "minecraft",
+    "motd",
+    "server-list-ping",
+    "slp"
+  ],
+  "license": "MIT"
+}
