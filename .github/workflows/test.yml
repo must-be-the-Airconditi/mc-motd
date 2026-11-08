@@ -1,0 +1,28 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: 语法检查
+        run: |
+          node --check motd.js
+          node --check src/slp.js
+          node --check src/motd.js
+          node --check src/web.js
+          node --check src/proxy.js
+          node --check tools/mock-server.js
+      - name: 单元测试
+        run: npm test
