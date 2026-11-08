@@ -1,0 +1,78 @@
+name: Bug 反馈
+description: 查询失败、MOTD 渲染不对、网页版出问题
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！提交前建议先跑一遍 `motd <地址> --json`，报错信息比截图更有用。
+        如果只是某个服务器连不上，先确认它有开放 25565（或对应转发端口）。
+
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      description: 操作系统 + Node 版本（`node -v`）
+      placeholder: Arch Linux · Node 22.11.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: 使用方式
+      options:
+        - 命令行
+        - 网页版
+        - 当作库调用
+    validations:
+      required: true
+
+  - type: input
+    id: address
+    attributes:
+      label: 服务器地址
+      description: 能公开的话填上，方便复现；不方便就写“私有服”
+      placeholder: play.example.com:25565
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 运行 `node motd.js play.example.com`
+        2. 看到 ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: result
+    attributes:
+      label: 期望结果 / 实际结果
+      placeholder: 期望显示 MOTD，实际报错“连接超时”
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 报错或 JSON 输出
+      description: 贴 `motd <地址> --json` 的输出，注意去掉敏感信息
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 确认项
+      options:
+        - label: 我搜索过已有 issue，没有重复
+          required: true
+        - label: 这是 Java 版服务器（基岩版 UDP 19132 不支持）
+          required: false
+        - label: 我试过直连和代理，结果一致
+          required: false

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 使用说明 / README
+    url: https://github.com/must-be-the-Airconditi/mc-motd#readme
+    about: 安装、参数、代理和自测方法都在这里
+  - name: 连不上服务器？
+    url: https://github.com/must-be-the-Airconditi/mc-motd#readme
+    about: 先确认端口/代理；很多海外服需要走代理才能 Ping
