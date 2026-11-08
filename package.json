@@ -23,5 +23,13 @@
     "server-list-ping",
     "slp"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/must-be-the-Airconditi/mc-motd.git"
+  },
+  "homepage": "https://github.com/must-be-the-Airconditi/mc-motd#readme",
+  "bugs": {
+    "url": "https://github.com/must-be-the-Airconditi/mc-motd/issues"
+  }
 }
