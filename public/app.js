@@ -421,11 +421,22 @@ document.addEventListener('keydown', (event) => {
 
 renderHistory();
 
+// 截图/测试用：外部可预置查询结果，直接同步渲染
+const preloaded = window.__MC_MOTD_PRELOAD__;
+if (preloaded && preloaded.result) {
+  input.value = preloaded.result.query || '';
+  renderResult(preloaded.result, {
+    elapsedMs: preloaded.elapsedMs || 0,
+    cached: Boolean(preloaded.cached),
+  });
+  saveHistory(preloaded.result.query || '');
+}
+
 const params = new URLSearchParams(location.search);
 const initial = params.get('address');
-if (initial) {
+if (initial && !preloaded) {
   input.value = initial;
   query(initial);
-} else {
+} else if (!preloaded) {
   input.focus();
 }
