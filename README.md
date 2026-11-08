@@ -2,7 +2,7 @@
 
 看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，直接实现服务器列表 Ping（Server List Ping）协议。
 
-[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml)
+[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml)
 
 ![网页版截图](screenshot.png)
 
@@ -157,7 +157,7 @@ public/               网页版前端（无构建步骤）
 gui/                  桌面版（Java Swing，见 gui/README.md）
 tools/mock-server.js  假服务器（含代码生成 favicon）
 test/run.test.js      node:test 用例
-.github/workflows/    test（Node）+ release-gui（三平台打包）
+.github/workflows/    cli（Node 测试/发布）+ gui（Java 打包）
 ```
 
 ## 协议备忘
@@ -167,6 +167,15 @@ test/run.test.js      node:test 用例
 3. 发 Status Request：`0x00`
 4. 收 VarInt 长度前缀 + `packetId=0x00` + JSON（version / players / description / favicon）
 5. 旧版：直接发 `0xFE 0x01`，收 `0xFF` + 长度 + UTF-16BE 字符串
+
+## 发版约定
+
+两条线独立发布，tag 前缀不同：
+
+- **CLI / 网页版（Node）**：打 `cli-vX.Y.Z`，触发 `cli` 工作流，测试通过后自动发布 npm tarball
+- **桌面 GUI（Java）**：打 `gui-vX.Y.Z`，触发 `gui` 工作流，自动打 Windows / Linux 安装包 + 通用 jar + portable 包
+
+拆分前的旧 tag `v1.0.0`（CLI / 网页）和 `v1.1.0`（GUI）仍有效，作为历史版本保留。
 
 ## 许可
 

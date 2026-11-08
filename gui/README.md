@@ -35,13 +35,13 @@ macOS 的 `.icns` 由 CI 里的 `sips` + `iconutil` 生成。
 
 ## 打包成安装包
 
-GitHub Actions 的三个原生 runner 分别跑 `jpackage`：
+打 `gui-vX.Y.Z` 的 tag 会触发 `gui` 工作流，在 GitHub Actions 的原生 runner 上跑 `jpackage`：
 
 | 平台 | 产物 |
 |---|---|
-| Linux | `mc-motd-1.1.0-linux-x64.tar.gz` |
-| Windows | `mc-motd-1.1.0-windows-x64.zip`（含 `mc-motd.exe`） |
-| macOS / BSD | `mc-motd-1.1.0-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
+| Linux | `mc-motd-<版本>-linux-x64.tar.gz` |
+| Windows | `mc-motd-<版本>-windows-x64.zip`（含 `mc-motd.exe`） |
+| macOS / BSD | `mc-motd-<版本>-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
 在 `bash gui/build.sh` 之后本地也可以手动打包：
 

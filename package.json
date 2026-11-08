@@ -1,6 +1,6 @@
 {
   "name": "mc-motd",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "查看 Minecraft Java 版服务器 MOTD 的命令行 + 网页工具，零运行时依赖",
   "bin": {
@@ -31,5 +31,12 @@
   "homepage": "https://github.com/must-be-the-Airconditi/mc-motd#readme",
   "bugs": {
     "url": "https://github.com/must-be-the-Airconditi/mc-motd/issues"
-  }
+  },
+  "files": [
+    "motd.js",
+    "src/",
+    "public/",
+    "tools/",
+    "test/"
+  ]
 }

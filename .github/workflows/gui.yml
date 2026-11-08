@@ -1,17 +1,38 @@
-name: release-gui
+name: gui
 
 on:
   workflow_dispatch:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+    tags: ['gui-v*']
+    paths:
+      - 'gui/**'
+      - '.github/workflows/gui.yml'
+  pull_request:
+    paths:
+      - 'gui/**'
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  compile:
+    name: compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: 编译 + 打 jar
+        shell: bash
+        run: bash gui/build.sh
+
+  package:
     name: ${{ matrix.name }}
+    needs: compile
+    if: startsWith(github.ref, 'refs/tags/gui-v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -21,10 +42,8 @@ jobs:
             os: ubuntu-latest
           - name: windows-x64
             os: windows-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -39,14 +58,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # 1) Linux 独立应用（自带 JRE）
           jpackage --type app-image --name mc-motd \
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
             --app-version 1.1.0 --icon gui/icon.png --dest release \
             --java-options "-Dfile.encoding=UTF-8"
           tar -czf release/mc-motd-1.1.0-linux-x64.tar.gz -C release mc-motd
 
-          # 2) 通用便携包：jar + 启动脚本，macOS / BSD / 任意带 Java 的系统都能用
           mkdir -p portable/mc-motd
           cp gui/dist/mc-motd-gui.jar portable/mc-motd/
           cp gui/launcher/mc-motd portable/mc-motd/
@@ -90,8 +107,8 @@ jobs:
 
   publish:
     name: publish release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/')
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/gui-v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +125,7 @@ jobs:
           sha256sum * > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
-      - name: 发布 pre-release
+      - name: 发布 release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}

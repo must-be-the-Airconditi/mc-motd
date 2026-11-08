@@ -1,0 +1,54 @@
+name: cli
+
+on:
+  push:
+    branches: [main]
+    tags: ['cli-v*']
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: 语法检查
+        run: |
+          node --check motd.js
+          node --check src/slp.js
+          node --check src/motd.js
+          node --check src/web.js
+          node --check src/proxy.js
+          node --check tools/mock-server.js
+      - name: 单元测试
+        run: npm test
+
+  release:
+    name: release
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/cli-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 打 npm 包
+        run: npm pack
+      - name: 发布
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: false
+          body_path: .github/release-notes-cli.md
+          files: mc-motd-*.tgz
