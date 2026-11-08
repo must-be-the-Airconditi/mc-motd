@@ -2,6 +2,8 @@
 
 看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行 + 本地网页版，直接实现服务器列表 Ping（Server List Ping）协议，零运行时依赖。
 
+[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml)
+
 ![网页版截图](screenshot.png)
 
 ## 特性
