@@ -1,4 +1,4 @@
-## 桌面版 GUI（预发布）
+## 桌面版 GUI
 
 Java Swing 写的原生窗口程序，不是网页。同一套代码跑 macOS / Windows / Linux / BSD。
 
@@ -15,7 +15,7 @@ macOS 没有单独的 dmg：GitHub 这台仓库的 macOS runner 暂不可用，�
 
 ### 未签名提示
 
-预发布包没有代码签名：
+安装包没有代码签名：
 
 - **macOS**：直接运行 jar，或对解压出的脚本用 `xattr -dr com.apple.quarantine` 放行
 - **Windows**：SmartScreen 里点“更多信息 → 仍要运行”

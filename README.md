@@ -108,7 +108,7 @@ Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
 | macOS / BSD / 其他 | `mc-motd-*-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
-预发布包没有签名：macOS 首次打开要右键 → 打开，Windows SmartScreen 选“仍要运行”。
+安装包没有签名：macOS 首次打开要右键 → 打开，Windows SmartScreen 选“仍要运行”。
 
 功能：服务器卡片（favicon / 两行 MOTD / 人数 / 延迟信号条）、详情、玩家列表、原始 JSON、查询历史、代理输入框。
 
