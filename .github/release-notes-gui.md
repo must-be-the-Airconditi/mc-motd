@@ -6,19 +6,18 @@ Java Swing 写的原生窗口程序，不是网页。同一套代码跑 macOS / 
 
 | 平台 | 文件 |
 |---|---|
-| Windows x64 | `mc-motd-1.1.0-windows-x64.zip`（解压后运行 `mc-motd.exe`） |
-| macOS Intel | `mc-motd-1.1.0-macos-x86_64.dmg` |
-| macOS Apple Silicon | `mc-motd-1.1.0-macos-arm64.dmg` |
+| Windows x64 | `mc-motd-1.1.0-windows-x64.zip`（解压运行 `mc-motd.exe`） |
 | Linux x64 | `mc-motd-1.1.0-linux-x64.tar.gz` |
-| 任意系统（需 Java 11+） | `mc-motd-gui.jar` |
+| macOS / BSD / 其他 | `mc-motd-1.1.0-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
-BSD 用户直接跑 jar：`pkg install openjdk` 之后 `java -jar mc-motd-gui.jar`。
+macOS 没有单独的 dmg：GitHub 这台仓库的 macOS runner 暂不可用，所以 macOS 用通用 jar / 便携包，
+解压后 `./mc-motd` 或直接 `java -jar mc-motd-gui.jar` 即可。BSD 同理。
 
 ### 未签名提示
 
 预发布包没有代码签名：
 
-- **macOS**：右键 → 打开；或 `xattr -dr com.apple.quarantine "/Applications/MOTD Viewer.app"`
+- **macOS**：直接运行 jar，或对解压出的脚本用 `xattr -dr com.apple.quarantine` 放行
 - **Windows**：SmartScreen 里点“更多信息 → 仍要运行”
 
 ### 功能

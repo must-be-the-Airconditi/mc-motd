@@ -105,9 +105,8 @@ Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux
 | 平台 | 下载 |
 |---|---|
 | Windows x64 | `mc-motd-*-windows-x64.zip`（解压运行 `mc-motd.exe`） |
-| macOS | `mc-motd-*-macos-{x86_64,arm64}.dmg` |
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
-| 任意系统 | `mc-motd-gui.jar`（需 Java 11+，BSD 也用它） |
+| macOS / BSD / 其他 | `mc-motd-*-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
 预发布包没有签名：macOS 首次打开要右键 → 打开，Windows SmartScreen 选“仍要运行”。
 

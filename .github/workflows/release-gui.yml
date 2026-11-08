@@ -19,16 +19,8 @@ jobs:
         include:
           - name: linux-x64
             os: ubuntu-latest
-            artifact: release/*.tar.gz
           - name: windows-x64
             os: windows-latest
-            artifact: release/*.zip
-          - name: macos-x64
-            os: macos-13
-            artifact: release/*.dmg
-          - name: macos-arm64
-            os: macos-14
-            artifact: release/*.dmg
 
     steps:
       - uses: actions/checkout@v4
@@ -42,30 +34,31 @@ jobs:
         shell: bash
         run: bash gui/build.sh
 
-      - name: 准备图标
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            node gui/tools/png-to-ico.js gui/icon.png icon.ico
-          elif [ "$RUNNER_OS" = "macOS" ]; then
-            mkdir -p icon.iconset
-            for s in 16 32 128 256 512; do
-              sips -z $s $s gui/icon.png --out icon.iconset/icon_${s}x${s}.png >/dev/null
-              sips -z $((s * 2)) $((s * 2)) gui/icon.png --out icon.iconset/icon_${s}x${s}@2x.png >/dev/null
-            done
-            iconutil -c icns icon.iconset -o icon.icns
-          fi
-
-      - name: 打包 Linux
+      - name: 打包 Linux + 通用 portable
         if: runner.os == 'Linux'
         shell: bash
         run: |
           set -euo pipefail
+          # 1) Linux 独立应用（自带 JRE）
           jpackage --type app-image --name mc-motd \
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
             --app-version 1.1.0 --icon gui/icon.png --dest release \
             --java-options "-Dfile.encoding=UTF-8"
           tar -czf release/mc-motd-1.1.0-linux-x64.tar.gz -C release mc-motd
+
+          # 2) 通用便携包：jar + 启动脚本，macOS / BSD / 任意带 Java 的系统都能用
+          mkdir -p portable/mc-motd
+          cp gui/dist/mc-motd-gui.jar portable/mc-motd/
+          cp gui/launcher/mc-motd portable/mc-motd/
+          cp gui/launcher/mc-motd.bat portable/mc-motd/
+          cp gui/icon.png portable/mc-motd/
+          chmod +x portable/mc-motd/mc-motd
+          (cd portable && zip -qr ../release/mc-motd-1.1.0-portable.zip mc-motd)
+
+      - name: 准备 Windows 图标
+        if: runner.os == 'Windows'
+        shell: bash
+        run: node gui/tools/png-to-ico.js gui/icon.png icon.ico
 
       - name: 打包 Windows
         if: runner.os == 'Windows'
@@ -78,24 +71,13 @@ jobs:
             --java-options "-Dfile.encoding=UTF-8"
           powershell -NoProfile -Command "Compress-Archive -Path release/mc-motd -DestinationPath release/mc-motd-1.1.0-windows-x64.zip"
 
-      - name: 打包 macOS
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          set -euo pipefail
-          jpackage --type dmg --name mc-motd \
-            --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
-            --app-version 1.1.0 --icon icon.icns --dest release \
-            --mac-package-name "MOTD Viewer" \
-            --java-options "-Dfile.encoding=UTF-8"
-          arch="$(uname -m)"
-          mv "release/mc-motd-1.1.0.dmg" "release/mc-motd-1.1.0-macos-${arch}.dmg"
-
       - name: 上传产物
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
-          path: ${{ matrix.artifact }}
+          path: |
+            release/*.tar.gz
+            release/*.zip
           if-no-files-found: error
 
       - name: 上传通用 jar

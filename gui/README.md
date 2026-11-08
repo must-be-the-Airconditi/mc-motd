@@ -41,7 +41,7 @@ GitHub Actions 的三个原生 runner 分别跑 `jpackage`：
 |---|---|
 | Linux | `mc-motd-1.1.0-linux-x64.tar.gz` |
 | Windows | `mc-motd-1.1.0-windows-x64.zip`（含 `mc-motd.exe`） |
-| macOS | `mc-motd-1.1.0-macos-{x86_64,arm64}.dmg` |
+| macOS / BSD | `mc-motd-1.1.0-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
 在 `bash gui/build.sh` 之后本地也可以手动打包：
 

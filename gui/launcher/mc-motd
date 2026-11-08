@@ -1,0 +1,5 @@
+#!/bin/sh
+# mc-motd GUI 启动脚本（macOS / Linux / BSD 通用）
+# 需要 PATH 里有 java（Java 11+）
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec java -jar "$DIR/mc-motd-gui.jar" "$@"
