@@ -1,6 +1,6 @@
 # mc-motd
 
-看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行 + 本地网页版，直接实现服务器列表 Ping（Server List Ping）协议，零运行时依赖。
+看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，直接实现服务器列表 Ping（Server List Ping）协议。
 
 [![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml)
 
@@ -17,13 +17,20 @@
 
 ## 快速开始
 
-需要 Node.js ≥ 18（无需 `npm install`）。
+命令行 / 网页版需要 Node.js ≥ 18（无需 `npm install`）：
 
 ```bash
 node motd.js play.cubecraft.net
 node motd.js play.cubecraft.net:25565 --timeout 8000
 node motd.js localhost --proxy http://127.0.0.1:31181   # 走 DevSidecar / Clash 等
 node motd.js --web                                      # 网页版 → http://127.0.0.1:8720
+```
+
+桌面版需要 Java 11+，从 [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) 下载对应安装包，
+或者直接：
+
+```bash
+java -jar mc-motd-gui.jar
 ```
 
 想装成全局命令：
@@ -89,6 +96,32 @@ GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:311
 
 服务只监听 `127.0.0.1`，带 40 次/分钟的限流和 20 秒结果缓存；查询过的地址存在浏览器 localStorage 里。
 
+## 桌面版（GUI）
+
+Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD。
+
+![桌面版截图](gui/screenshot.png)
+
+| 平台 | 下载 |
+|---|---|
+| Windows x64 | `mc-motd-*-windows-x64.zip`（解压运行 `mc-motd.exe`） |
+| macOS | `mc-motd-*-macos-{x86_64,arm64}.dmg` |
+| Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
+| 任意系统 | `mc-motd-gui.jar`（需 Java 11+，BSD 也用它） |
+
+预发布包没有签名：macOS 首次打开要右键 → 打开，Windows SmartScreen 选“仍要运行”。
+
+功能：服务器卡片（favicon / 两行 MOTD / 人数 / 延迟信号条）、详情、玩家列表、原始 JSON、查询历史、代理输入框。
+
+从源码构建只要 JDK：
+
+```bash
+bash gui/build.sh
+java -jar gui/dist/mc-motd-gui.jar
+```
+
+更多见 [gui/README.md](gui/README.md)。
+
 ## 连不上怎么办
 
 - 服务器没开 / 端口错：确认地址和端口，默认 25565
@@ -122,8 +155,10 @@ src/proxy.js          SOCKS5 / SOCKS4 / HTTP CONNECT 隧道
 src/motd.js           聊天组件 & § 码解析、ANSI / 前端片段、结果规范化
 src/web.js            HTTP 服务 + /api/ping
 public/               网页版前端（无构建步骤）
+gui/                  桌面版（Java Swing，见 gui/README.md）
 tools/mock-server.js  假服务器（含代码生成 favicon）
 test/run.test.js      node:test 用例
+.github/workflows/    test（Node）+ release-gui（三平台打包）
 ```
 
 ## 协议备忘

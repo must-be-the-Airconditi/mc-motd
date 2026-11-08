@@ -1,3 +1,11 @@
 node_modules/
 *.log
 .DS_Store
+gui/out/
+gui/dist/
+release/
+*.class
+icon.iconset/
+icon.icns
+icon.ico
+*.dmg
