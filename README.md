@@ -1,8 +1,10 @@
 # mc-motd
 
+**中文** | [English](README.en.md)
+
 看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，直接实现服务器列表 Ping（Server List Ping）协议。
 
-[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/test.yml)
+[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml)
 
 ![网页版截图](screenshot.png)
 
