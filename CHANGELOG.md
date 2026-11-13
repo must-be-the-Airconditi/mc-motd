@@ -14,6 +14,7 @@
 ### Changed
 
 - 网页版、CLI、GUI 和文档里的 “Java Edition” 文案统一改为 “Java / Bedrock”
+- release notes 改为从 `CHANGELOG.md` 的对应版本小节自动生成，更新内容为主，下载/安装说明放尾部
 
 ### Fixed
 

@@ -44,11 +44,16 @@ jobs:
           node-version: '20'
       - name: 打 npm 包
         run: npm pack
+
+      - name: 生成 release notes
+        shell: bash
+        run: node tools/release-notes.js --tag "$GITHUB_REF_NAME" --footer .github/release-footer-cli.md > release-notes.md
+
       - name: 发布
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           prerelease: false
-          body_path: .github/release-notes-cli.md
+          body_path: release-notes.md
           files: mc-motd-*.tgz

@@ -120,6 +120,10 @@ jobs:
           path: artifacts
           merge-multiple: true
 
+      - name: 生成 release notes
+        shell: bash
+        run: node tools/release-notes.js --tag "$GITHUB_REF_NAME" --footer .github/release-footer-gui.md > release-notes.md
+
       - name: 生成校验和
         shell: bash
         run: |
@@ -133,5 +137,5 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           prerelease: false
-          body_path: .github/release-notes-gui.md
+          body_path: release-notes.md
           files: artifacts/**

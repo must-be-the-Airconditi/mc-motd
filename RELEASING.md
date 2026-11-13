@@ -18,7 +18,9 @@
 ## 发版步骤
 
 1. 确认要发的改动都已合到 `main`，最近一次 CI 是绿的
-2. 更新 `CHANGELOG.md`：把 `Unreleased` 的内容移进新版本小节，写上日期
+2. 更新 `CHANGELOG.md`：把 `Unreleased` 的内容移进新版本小节，写上日期。
+   小节标题要和 tag 完全对应（`## [cli-v1.3.0]` / `## [gui-v1.3.0]`），
+   release notes 会自动从这个小节生成，更新内容是主体，下载/安装说明只是尾部附录
 3. 改版本号：
    - CLI / 网页版：`package.json` 的 `version`
    - 桌面 GUI：`gui/src/mcmotd/Main.java` 的 `VERSION`
