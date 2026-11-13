@@ -54,6 +54,8 @@
 
 ## 截图
 
+![网页版演示](assets/demo.gif)
+
 | 网页版 | 桌面版 |
 | :---: | :---: |
 | <img src="screenshot.png" width="520" alt="web ui" /> | <img src="gui/screenshot.png" width="420" alt="desktop gui" /> |
@@ -232,3 +234,7 @@ RELEASING.md          发版流程
 ## 许可
 
 MIT。网页里的像素字体 [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) 为 SIL Open Font License 1.1。
+
+---
+
+如果这个小工具帮到你，点个 ⭐ 能让更多人找到它。

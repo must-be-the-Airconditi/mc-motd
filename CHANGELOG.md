@@ -9,6 +9,7 @@
 ### Fixed
 
 - 旧版 Ping 改用 socket 空闲超时，去掉用户可控时长的 JS 定时器（CodeQL #6）
+- 网页版没有历史记录时，「最近」栏仍然显示（`hidden` 被 CSS `display:flex` 覆盖）
 
 ## [cli-v1.2.0] - 2026-11-13
 

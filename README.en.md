@@ -54,6 +54,8 @@
 
 ## Screenshots
 
+![Web UI demo](assets/demo.gif)
+
 | Web UI | Desktop |
 | :---: | :---: |
 | <img src="screenshot-en.png" width="520" alt="web ui" /> | <img src="gui/screenshot-en.png" width="420" alt="desktop gui" /> |
@@ -231,3 +233,7 @@ See [RELEASING.md](RELEASING.md) for the steps and [CHANGELOG.md](CHANGELOG.md) 
 ## License
 
 MIT. The pixel font [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) used by the web UI is licensed under the SIL Open Font License 1.1.
+
+---
+
+If this little tool helps you, a ⭐ helps others find it.

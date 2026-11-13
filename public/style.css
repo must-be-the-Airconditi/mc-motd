@@ -226,6 +226,10 @@ body {
 .ping-form button .pixel { font-size: 11px; }
 
 /* ------------------------------------------------------------------ 历史 */
+.history[hidden] {
+  display: none;
+}
+
 .history {
   display: flex;
   align-items: center;
