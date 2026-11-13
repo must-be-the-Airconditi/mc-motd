@@ -99,9 +99,9 @@ The server only listens on `127.0.0.1`, rate-limits to 40 requests per minute an
 
 ## Desktop GUI
 
-A native Java Swing window (not a web page); one codebase runs on macOS / Windows / Linux / BSD.
+A native Java Swing window (not a web page); one codebase runs on macOS / Windows / Linux / BSD. The UI ships in **Chinese and English** (auto-detected from the system language, switchable in the top-right corner).
 
-![Desktop screenshot](gui/screenshot.png)
+![Desktop screenshot](gui/screenshot-en.png)
 
 | Platform | Download |
 |---|---|

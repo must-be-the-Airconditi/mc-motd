@@ -11,12 +11,15 @@ import java.awt.image.BufferedImage;
 /** 入口：窗口模式 / 截图模式 */
 public final class Main {
 
-    public static final String VERSION = "1.1.0";
+    public static final String VERSION = "1.2.0";
+
+    private static JFrame frame;
 
     private Main() {
     }
 
     public static void main(String[] args) {
+        Strings.init(null);
         if (args.length > 0 && args[0].equals("--shot")) {
             try {
                 String out = args.length > 1 ? args[1] : "shot.png";
@@ -64,15 +67,17 @@ public final class Main {
             // 用默认外观
         }
         applyDarkDefaults();
+        Strings.init(java.util.prefs.Preferences.userNodeForPackage(Ui.class));
 
-        Ui ui = new Ui();
-        JFrame frame = new JFrame("MOTD 查看器 · Minecraft Java");
+        frame = new JFrame(Strings.t("window.title"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(ui);
+        frame.setIconImage(makeIcon());
         frame.setSize(1040, 940);
         frame.setMinimumSize(new Dimension(900, 700));
         frame.setLocationRelativeTo(null);
-        frame.setIconImage(makeIcon());
+
+        Ui ui = new Ui(Main::switchLanguage);
+        frame.setContentPane(ui);
         frame.setVisible(true);
 
         String address = initial != null && !initial.trim().isEmpty()
@@ -80,6 +85,22 @@ public final class Main {
                 : System.getProperty("mcmotd.address", "");
         if (address != null && !address.trim().isEmpty()) {
             ui.ping(address);
+        }
+    }
+
+    /** 切换语言：重建界面，并把上次查询的地址重新查一遍 */
+    private static void switchLanguage() {
+        if (frame == null) {
+            return;
+        }
+        String last = java.util.prefs.Preferences.userNodeForPackage(Ui.class).get("address", "");
+        Ui ui = new Ui(Main::switchLanguage);
+        frame.setContentPane(ui);
+        frame.setTitle(Strings.t("window.title"));
+        frame.revalidate();
+        frame.repaint();
+        if (!last.isEmpty()) {
+            ui.ping(last);
         }
     }
 

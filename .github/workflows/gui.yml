@@ -47,6 +47,10 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: 计算版本
+        shell: bash
+        run: echo "APP_VERSION=${GITHUB_REF_NAME#gui-v}" >> "$GITHUB_ENV"
+
       - name: 编译 GUI
         shell: bash
         run: bash gui/build.sh
@@ -58,9 +62,9 @@ jobs:
           set -euo pipefail
           jpackage --type app-image --name mc-motd \
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
-            --app-version 1.1.0 --icon gui/icon.png --dest release \
+            --app-version "$APP_VERSION" --icon gui/icon.png --dest release \
             --java-options "-Dfile.encoding=UTF-8"
-          tar -czf release/mc-motd-1.1.0-linux-x64.tar.gz -C release mc-motd
+          tar -czf "release/mc-motd-${APP_VERSION}-linux-x64.tar.gz" -C release mc-motd
 
           mkdir -p portable/mc-motd
           cp gui/dist/mc-motd-gui.jar portable/mc-motd/
@@ -68,7 +72,7 @@ jobs:
           cp gui/launcher/mc-motd.bat portable/mc-motd/
           cp gui/icon.png portable/mc-motd/
           chmod +x portable/mc-motd/mc-motd
-          (cd portable && zip -qr ../release/mc-motd-1.1.0-portable.zip mc-motd)
+          (cd portable && zip -qr "../release/mc-motd-${APP_VERSION}-portable.zip" mc-motd)
 
       - name: 准备 Windows 图标
         if: runner.os == 'Windows'
@@ -82,9 +86,9 @@ jobs:
           set -euo pipefail
           jpackage --type app-image --name mc-motd \
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
-            --app-version 1.1.0 --icon icon.ico --dest release \
+            --app-version "$APP_VERSION" --icon icon.ico --dest release \
             --java-options "-Dfile.encoding=UTF-8"
-          powershell -NoProfile -Command "Compress-Archive -Path release/mc-motd -DestinationPath release/mc-motd-1.1.0-windows-x64.zip"
+          powershell -NoProfile -Command "Compress-Archive -Path release/mc-motd -DestinationPath release/mc-motd-${APP_VERSION}-windows-x64.zip"
 
       - name: 上传产物
         uses: actions/upload-artifact@v4

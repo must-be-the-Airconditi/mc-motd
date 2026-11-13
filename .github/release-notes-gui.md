@@ -2,16 +2,24 @@
 
 Java Swing 写的原生窗口程序，不是网页。同一套代码跑 macOS / Windows / Linux / BSD。
 
+**这个版本新增：界面支持中文 / English，右上角一键切换，也会跟随系统语言。**
+
 ### 下载哪个
 
 | 平台 | 文件 |
 |---|---|
-| Windows x64 | `mc-motd-1.1.0-windows-x64.zip`（解压运行 `mc-motd.exe`） |
-| Linux x64 | `mc-motd-1.1.0-linux-x64.tar.gz` |
-| macOS / BSD / 其他 | `mc-motd-1.1.0-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
+| Windows x64 | `mc-motd-<版本>-windows-x64.zip`（解压运行 `mc-motd.exe`） |
+| Linux x64 | `mc-motd-<版本>-linux-x64.tar.gz` |
+| macOS / BSD / 其他 | `mc-motd-<版本>-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
-macOS 没有单独的 dmg：GitHub 这台仓库的 macOS runner 暂不可用，所以 macOS 用通用 jar / 便携包，
+macOS 没有单独的 dmg：仓库的 macOS runner 暂不可用，所以 macOS 用通用 jar / 便携包，
 解压后 `./mc-motd` 或直接 `java -jar mc-motd-gui.jar` 即可。BSD 同理。
+
+### 语言
+
+- 默认跟随系统语言：`zh*` 显示中文，其余显示 English
+- 右上角 `EN` / `中文` 按钮随时切换，选择会被记住
+- 也可以强制指定：`java -Dmcmotd.lang=en -jar mc-motd-gui.jar` 或环境变量 `MC_MOTD_LANG=en`
 
 ### 未签名提示
 

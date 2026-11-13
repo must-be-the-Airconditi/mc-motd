@@ -100,7 +100,7 @@ GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:311
 
 ## 桌面版（GUI）
 
-Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD。
+Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD，界面支持中文 / English（跟随系统语言，右上角可切换）。
 
 ![桌面版截图](gui/screenshot.png)
 

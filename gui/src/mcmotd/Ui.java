@@ -63,12 +63,18 @@ public final class Ui extends JPanel {
     private final FlatButton pingButton = new FlatButton("PING", true);
     private final JPanel output = new ScrollablePanel();
     private final JPanel historyRow = new JPanel();
+    private final Runnable onLangToggle;
     private final JScrollPane scroll;
     private final Preferences prefs = Preferences.userNodeForPackage(Ui.class);
     private final List<String> history = new ArrayList<>();
 
     public Ui() {
+        this(null);
+    }
+
+    public Ui(Runnable onLangToggle) {
         super(new BorderLayout());
+        this.onLangToggle = onLangToggle;
         setBackground(Theme.BG);
         setBorder(new EmptyBorder(26, 30, 18, 30));
 
@@ -107,7 +113,7 @@ public final class Ui extends JPanel {
         titles.setOpaque(false);
         titles.setLayout(new BoxLayout(titles, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("MOTD 查看器");
+        JLabel title = new JLabel(Strings.t("app.title"));
         title.setFont(Theme.sans(23, Font.BOLD));
         title.setForeground(Theme.TEXT);
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -121,6 +127,17 @@ public final class Ui extends JPanel {
         titles.add(Box.createVerticalStrut(4));
         titles.add(subtitle);
         brand.add(titles, BorderLayout.CENTER);
+
+        FlatButton langButton = new FlatButton(Strings.isEnglish() ? "中文" : "EN", false);
+        langButton.setFont(Theme.sans(10, Font.BOLD));
+        langButton.addActionListener(e -> {
+            Strings.toggle();
+            prefs.put("lang", Strings.isEnglish() ? "en" : "zh");
+            if (onLangToggle != null) {
+                onLangToggle.run();
+            }
+        });
+        brand.add(langButton, BorderLayout.EAST);
 
         JPanel form = new JPanel(new BorderLayout(10, 0));
         form.setOpaque(false);
@@ -147,7 +164,7 @@ public final class Ui extends JPanel {
         advanced.setAlignmentX(Component.CENTER_ALIGNMENT);
         advanced.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
 
-        JLabel proxyLabel = new JLabel("代理");
+        JLabel proxyLabel = new JLabel(Strings.t("proxy.label"));
         proxyLabel.setFont(Theme.sans(11, Font.PLAIN));
         proxyLabel.setForeground(Theme.MUTED_2);
         proxyLabel.setPreferredSize(new Dimension(32, 26));
@@ -163,7 +180,7 @@ public final class Ui extends JPanel {
 
         advanced.add(proxyLabel, BorderLayout.WEST);
         advanced.add(proxyField, BorderLayout.CENTER);
-        JLabel proxyHint = new JLabel("socks5:// 或 http://");
+        JLabel proxyHint = new JLabel(Strings.t("proxy.hint"));
         proxyHint.setFont(Theme.mono(10, Font.PLAIN));
         proxyHint.setForeground(Theme.MUTED_2);
         proxyHint.setPreferredSize(new Dimension(130, 26));
@@ -188,7 +205,7 @@ public final class Ui extends JPanel {
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
         footer.setBorder(new EmptyBorder(12, 0, 0, 0));
-        JLabel label = new JLabel("纯 Java，零依赖  ·  CLI 同源：motd <地址>", SwingConstants.CENTER);
+        JLabel label = new JLabel(Strings.t("footer"), SwingConstants.CENTER);
         label.setFont(Theme.sans(11, Font.PLAIN));
         label.setForeground(Theme.MUTED_2);
         footer.add(label, BorderLayout.CENTER);
@@ -212,7 +229,7 @@ public final class Ui extends JPanel {
     public void ping(String address) {
         final String target = address == null ? "" : address.trim();
         if (target.isEmpty()) {
-            showError("", "请输入服务器地址");
+            showError("", Strings.t("input.empty"));
             return;
         }
         setBusy(true);
@@ -273,12 +290,12 @@ public final class Ui extends JPanel {
         panel.setBorder(new EmptyBorder(30, 26, 26, 26));
         panel.setPreferredSize(new Dimension(900, 300));
 
-        JLabel title = new JLabel("输入服务器地址，直接读取它的 MOTD", SwingConstants.CENTER);
+        JLabel title = new JLabel(Strings.t("empty.title"), SwingConstants.CENTER);
         title.setFont(Theme.sans(15, Font.BOLD));
         title.setForeground(Theme.TEXT);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel sub = new JLabel("服务端直连 TCP 25565  ·  自动 SRV 解析  ·  不经过第三方 API", SwingConstants.CENTER);
+        JLabel sub = new JLabel(Strings.t("empty.sub"), SwingConstants.CENTER);
         sub.setFont(Theme.sans(11, Font.PLAIN));
         sub.setForeground(Theme.MUTED_2);
         sub.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -313,7 +330,7 @@ public final class Ui extends JPanel {
         panel.setBorder(new EmptyBorder(18, 18, 18, 18));
         panel.setPreferredSize(new Dimension(900, 84));
 
-        JLabel label = new JLabel("正在连接 " + address + " …");
+        JLabel label = new JLabel(Strings.f("loading", address));
         label.setFont(Theme.sans(13, Font.PLAIN));
         label.setForeground(Theme.MUTED);
 
@@ -357,7 +374,7 @@ public final class Ui extends JPanel {
         body.setOpaque(false);
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 
-        String titleText = address.isEmpty() ? "查询失败" : "连不上 " + address;
+        String titleText = address.isEmpty() ? Strings.t("error.empty.title") : Strings.f("error.title", address);
         JLabel title = new JLabel(titleText);
         title.setFont(Theme.sans(14, Font.BOLD));
         title.setForeground(new Color(0xFFD7D7));
@@ -367,9 +384,9 @@ public final class Ui extends JPanel {
         detail.setForeground(new Color(0xC98D8D));
 
         JLabel hints = new JLabel("<html><div style='width:620px; color:#5B7365'>"
-                + "检查地址和端口（默认 25565）· 群组服可能只开转发端口<br>"
-                + "连不上海外服时在下面填代理，比如 http://127.0.0.1:31181<br>"
-                + "只支持 Java 版，基岩版是 UDP 19132"
+                + Strings.t("error.hint1") + "<br>"
+                + Strings.t("error.hint2") + "<br>"
+                + Strings.t("error.hint3")
                 + "</div></html>");
         hints.setFont(Theme.sans(11, Font.PLAIN));
 
@@ -477,7 +494,9 @@ public final class Ui extends JPanel {
             rendered++;
         }
         if (rendered == 0) {
-            html.append("<span style='color:#5B7365;font-style:italic'>（服务器没有设置 MOTD）</span>");
+            html.append("<span style='color:#5B7365;font-style:italic'>")
+                    .append(escape(Strings.t("motd.empty")))
+                    .append("</span>");
         }
         html.append("</div></html>");
         return html.toString();
@@ -509,12 +528,12 @@ public final class Ui extends JPanel {
         JPanel head = new JPanel(new BorderLayout());
         head.setOpaque(false);
         head.setBorder(new EmptyBorder(9, 16, 9, 16));
-        JLabel title = new JLabel("服务器信息");
+        JLabel title = new JLabel(Strings.t("facts.title"));
         title.setFont(Theme.sans(10, Font.BOLD));
         title.setForeground(Theme.MUTED);
         head.add(title, BorderLayout.WEST);
 
-        JLabel badge = new JLabel("SRV 解析" + (info.srv != null ? " ✓" : ""));
+        JLabel badge = new JLabel(Strings.t("facts.srv") + (info.srv != null ? " ✓" : ""));
         badge.setFont(Theme.sans(10, Font.PLAIN));
         badge.setForeground(info.srv != null ? Theme.GREEN : Theme.MUTED_2);
         head.add(badge, BorderLayout.EAST);
@@ -523,12 +542,14 @@ public final class Ui extends JPanel {
         grid.setBackground(Theme.withAlpha(Theme.GREEN, 28));
 
         String target = info.target() + (info.srv != null ? "  ·  SRV" : "");
-        grid.add(fact("目标", target));
-        grid.add(fact("版本", info.versionLine()));
-        grid.add(fact("在线玩家", String.format("%,d / %,d", info.online, info.max)));
-        grid.add(fact("延迟", String.format("%.1f ms", info.latencyMs)));
-        grid.add(fact("协议", info.legacy ? "旧版 Ping" : "现代 Ping"));
-        grid.add(fact("安全聊天", info.secureChat ? "强制开启" : "未强制"));
+        grid.add(fact(Strings.t("fact.target"), target));
+        grid.add(fact(Strings.t("fact.version"), info.versionLine()));
+        grid.add(fact(Strings.t("fact.players"), String.format("%,d / %,d", info.online, info.max)));
+        grid.add(fact(Strings.t("fact.latency"), String.format("%.1f ms", info.latencyMs)));
+        grid.add(fact(Strings.t("fact.protocol"),
+                info.legacy ? Strings.t("ping.legacy") : Strings.t("ping.modern")));
+        grid.add(fact(Strings.t("fact.secure"),
+                info.secureChat ? Strings.t("secure.on") : Strings.t("secure.off")));
 
         panel.add(head, BorderLayout.NORTH);
         panel.add(grid, BorderLayout.CENTER);
@@ -565,10 +586,10 @@ public final class Ui extends JPanel {
         JPanel head = new JPanel(new BorderLayout());
         head.setOpaque(false);
         head.setBorder(new EmptyBorder(9, 16, 9, 16));
-        JLabel title = new JLabel("玩家列表");
+        JLabel title = new JLabel(Strings.t("players.title"));
         title.setFont(Theme.sans(10, Font.BOLD));
         title.setForeground(Theme.MUTED);
-        JLabel count = new JLabel("可见 " + info.sample.size() + " 人");
+        JLabel count = new JLabel(Strings.f("players.count", info.sample.size()));
         count.setFont(Theme.sans(10, Font.PLAIN));
         count.setForeground(Theme.GREEN);
         head.add(title, BorderLayout.WEST);
@@ -605,19 +626,19 @@ public final class Ui extends JPanel {
         head.setOpaque(false);
         head.setBorder(new EmptyBorder(6, 16, 6, 12));
 
-        JCheckBox toggle = new JCheckBox("原始状态 JSON");
+        JCheckBox toggle = new JCheckBox(Strings.t("raw.title"));
         toggle.setFont(Theme.sans(10, Font.BOLD));
         toggle.setForeground(Theme.MUTED);
         toggle.setOpaque(false);
         toggle.setFocusPainted(false);
 
-        FlatButton copy = new FlatButton("复制 JSON", false);
+        FlatButton copy = new FlatButton(Strings.t("raw.copy"), false);
         copy.setFont(Theme.sans(10, Font.PLAIN));
         copy.setPreferredSize(new Dimension(96, 24));
         copy.addActionListener(e -> {
             Toolkit.getDefaultToolkit().getSystemClipboard()
                     .setContents(new StringSelection(pretty(info.rawJson)), null);
-            copy.setText("已复制");
+            copy.setText(Strings.t("raw.copied"));
         });
 
         head.add(toggle, BorderLayout.WEST);
@@ -664,7 +685,7 @@ public final class Ui extends JPanel {
     private void renderHistory() {
         historyRow.removeAll();
         if (!history.isEmpty()) {
-            JLabel label = new JLabel("最近");
+            JLabel label = new JLabel(Strings.t("history.label"));
             label.setFont(Theme.sans(10, Font.PLAIN));
             label.setForeground(Theme.MUTED_2);
             historyRow.add(label);
