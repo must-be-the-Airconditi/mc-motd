@@ -1,0 +1,36 @@
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '30 1 * * 0'   # 每周日 09:30 北京时间
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'java']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 初始化 CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: 构建 Java（GUI）
+        if: matrix.language == 'java'
+        shell: bash
+        run: bash gui/build.sh
+
+      - name: 分析
+        uses: github/codeql-action/analyze@v3

@@ -5,12 +5,10 @@ on:
   push:
     branches: [main]
     tags: ['gui-v*']
-    paths:
-      - 'gui/**'
-      - '.github/workflows/gui.yml'
   pull_request:
     paths:
       - 'gui/**'
+      - '.github/workflows/gui.yml'
 
 permissions:
   contents: write
