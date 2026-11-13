@@ -190,7 +190,7 @@ node motd.js localhost:25565
 跑测试：
 
 ```bash
-npm test        # node --test，17 个用例，覆盖协议、解析、代理和网页 API
+npm test        # node --test，21 个用例，覆盖协议、解析、代理、i18n 和网页 API
 ```
 
 ## 项目结构

@@ -431,7 +431,15 @@ public final class Slp {
             if (first != 0xFF) {
                 throw new IOException("旧版 Ping 响应格式不正确");
             }
-            int chars = (in.read() << 8) | in.read();
+            int high = in.read();
+            int low = in.read();
+            if (high < 0 || low < 0) {
+                throw new IOException("旧版 Ping 响应不完整");
+            }
+            int chars = (high << 8) | low;
+            if (chars <= 0 || chars > 32767) {
+                throw new IOException("旧版 Ping 响应长度异常");
+            }
             byte[] data = readFully(in, chars * 2);
             String text = new String(data, StandardCharsets.UTF_16BE);
             double latencyMs = (System.nanoTime() - started) / 1e6;

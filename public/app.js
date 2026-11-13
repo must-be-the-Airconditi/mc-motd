@@ -628,7 +628,9 @@ if (preloaded && preloaded.result) {
   lastMeta = { elapsedMs: preloaded.elapsedMs || 0, cached: Boolean(preloaded.cached) };
   lastAddress = preloaded.result.query || '';
   input.value = lastAddress;
-  saveHistory(lastAddress);
+  if (lastAddress) {
+    saveHistory(lastAddress);
+  }
 }
 
 applyLanguage();

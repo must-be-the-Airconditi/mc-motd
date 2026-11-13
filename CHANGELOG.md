@@ -10,6 +10,13 @@
 
 - 旧版 Ping 改用 socket 空闲超时，去掉用户可控时长的 JS 定时器（CodeQL #6）
 - 网页版没有历史记录时，「最近」栏仍然显示（`hidden` 被 CSS `display:flex` 覆盖）
+- `https://` 代理未写端口时默认成了 1080，正确应为 443
+- 截图预载路径会把空地址写进历史记录
+- Java 旧版协议响应读到 EOF 时 `chars` 可能为负，导致 `NegativeArraySizeException`
+
+### Tests
+
+- 补充 i18n 插值、语言判断和代理默认端口的用例（17 → 21）
 
 ## [cli-v1.2.0] - 2026-11-13
 

@@ -25,7 +25,7 @@ function normalizeProxy(input, lang = 'zh') {
   const type = url.protocol.replace(':', '').toLowerCase();
   if (!PROXY_TYPES.has(type)) throw new Error(t(lang, 'proxy.unsupported', type));
 
-  const port = Number(url.port || (type === 'http' ? 80 : 1080));
+  const port = Number(url.port || (type === 'http' ? 80 : type === 'https' ? 443 : 1080));
   if (!url.hostname) throw new Error(t(lang, 'proxy.missingHost'));
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error(t(lang, 'proxy.badPort'));
 
