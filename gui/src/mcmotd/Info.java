@@ -14,6 +14,7 @@ public final class Info {
     public Slp.Srv srv;
     public double latencyMs;
     public boolean legacy;
+    public String edition = "java";
 
     public String versionName = "未知";
     public Integer protocol;
@@ -36,6 +37,7 @@ public final class Info {
         info.srv = ping.srv;
         info.latencyMs = ping.latencyMs;
         info.legacy = ping.legacy;
+        info.edition = ping.bedrock ? "bedrock" : "java";
         info.rawJson = ping.rawJson;
 
         Map<String, Object> status = ping.status;

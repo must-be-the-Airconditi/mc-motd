@@ -6,6 +6,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -59,6 +60,7 @@ public final class Ui extends JPanel {
     private static final int TIMEOUT_MS = 8000;
 
     private final JTextField addressField = new PlaceholderField("play.example.com:25565");
+    private final JComboBox<String> editionBox = new JComboBox<>(new String[]{"Java", "Bedrock"});
     private final JTextField proxyField = new PlaceholderField("http://127.0.0.1:31181");
     private final FlatButton pingButton = new FlatButton("PING", true);
     private final JPanel output = new ScrollablePanel();
@@ -118,7 +120,7 @@ public final class Ui extends JPanel {
         title.setForeground(Theme.TEXT);
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel subtitle = new JLabel("MINECRAFT: JAVA EDITION  ·  SERVER LIST PING");
+        JLabel subtitle = new JLabel("MINECRAFT: JAVA / BEDROCK  ·  SERVER LIST PING");
         subtitle.setFont(Theme.mono(10, Font.PLAIN));
         subtitle.setForeground(Theme.MUTED_2);
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -156,8 +158,21 @@ public final class Ui extends JPanel {
         pingButton.setPreferredSize(new Dimension(118, 52));
         pingButton.setFont(Theme.mono(12, Font.BOLD));
 
+        editionBox.setFont(Theme.sans(12, Font.PLAIN));
+        editionBox.setBackground(Theme.PANEL_SOFT);
+        editionBox.setForeground(Theme.TEXT);
+        editionBox.setFocusable(false);
+        editionBox.setPreferredSize(new Dimension(96, 52));
+
+        JPanel actions = new JPanel();
+        actions.setOpaque(false);
+        actions.setLayout(new BoxLayout(actions, BoxLayout.X_AXIS));
+        actions.add(editionBox);
+        actions.add(Box.createHorizontalStrut(8));
+        actions.add(pingButton);
+
         form.add(addressField, BorderLayout.CENTER);
-        form.add(pingButton, BorderLayout.EAST);
+        form.add(actions, BorderLayout.EAST);
 
         JPanel advanced = new JPanel(new BorderLayout(10, 0));
         advanced.setOpaque(false);
@@ -234,6 +249,7 @@ public final class Ui extends JPanel {
         }
         setBusy(true);
         showLoading(target);
+        final boolean bedrock = editionBox.getSelectedIndex() == 1;
 
         new SwingWorker<Info, Void>() {
             @Override
@@ -242,7 +258,10 @@ public final class Ui extends JPanel {
                 if (proxy.isEmpty()) {
                     proxy = System.getenv("MC_MOTD_PROXY");
                 }
-                return Info.of(Slp.ping(target, TIMEOUT_MS, proxy));
+                Slp.Ping result = bedrock
+                        ? Bedrock.ping(target, TIMEOUT_MS, "zh")
+                        : Slp.ping(target, TIMEOUT_MS, proxy);
+                return Info.of(result);
             }
 
             @Override
@@ -517,6 +536,10 @@ public final class Ui extends JPanel {
             html.append("<span style='color:#5B7365'>  ·  </span>")
                     .append("<span style='color:#FFFF55'>LEGACY</span>");
         }
+        if ("bedrock".equals(info.edition)) {
+            html.append("<span style='color:#5B7365'>  ·  </span>")
+                    .append("<span style='color:#55FF55'>BEDROCK</span>");
+        }
         html.append("</html>");
         return html.toString();
     }
@@ -546,10 +569,14 @@ public final class Ui extends JPanel {
         grid.add(fact(Strings.t("fact.version"), info.versionLine()));
         grid.add(fact(Strings.t("fact.players"), String.format("%,d / %,d", info.online, info.max)));
         grid.add(fact(Strings.t("fact.latency"), String.format("%.1f ms", info.latencyMs)));
-        grid.add(fact(Strings.t("fact.protocol"),
-                info.legacy ? Strings.t("ping.legacy") : Strings.t("ping.modern")));
-        grid.add(fact(Strings.t("fact.secure"),
-                info.secureChat ? Strings.t("secure.on") : Strings.t("secure.off")));
+        String protocolText = info.legacy
+                ? Strings.t("ping.legacy")
+                : "bedrock".equals(info.edition) ? Strings.t("ping.bedrock") : Strings.t("ping.modern");
+        grid.add(fact(Strings.t("fact.protocol"), protocolText));
+        String secureText = "bedrock".equals(info.edition)
+                ? Strings.t("fact.na")
+                : (info.secureChat ? Strings.t("secure.on") : Strings.t("secure.off"));
+        grid.add(fact(Strings.t("fact.secure"), secureText));
 
         panel.add(head, BorderLayout.NORTH);
         panel.add(grid, BorderLayout.CENTER);
@@ -724,6 +751,9 @@ public final class Ui extends JPanel {
         if (!last.isEmpty()) {
             addressField.setText(last);
         }
+        if ("bedrock".equals(prefs.get("edition", ""))) {
+            editionBox.setSelectedIndex(1);
+        }
         renderHistory();
     }
 
@@ -731,6 +761,7 @@ public final class Ui extends JPanel {
     public void rememberAddress(String address) {
         prefs.put("address", address);
         prefs.put("proxy", proxyField.getText().trim());
+        prefs.put("edition", editionBox.getSelectedIndex() == 1 ? "bedrock" : "java");
     }
 
     private static void stretch(JComponent component) {
@@ -754,13 +785,19 @@ public final class Ui extends JPanel {
     /* ------------------------------------------------------------ 截图辅助 */
 
     /** 无头渲染一张界面截图（用于仓库里的预览图） */
-    public static void renderShot(String address, File out, int width, int height) throws Exception {
+    public static void renderShot(String address, File out, int width, int height, boolean bedrock) throws Exception {
         System.setProperty("java.awt.headless", "true");
         Ui ui = new Ui();
+        if (bedrock) {
+            ui.editionBox.setSelectedIndex(1);
+        }
         ui.setSize(width, height);
         if (address != null && !address.isEmpty()) {
             try {
-                ui.showResult(Info.of(Slp.ping(address, TIMEOUT_MS, null)));
+                Slp.Ping ping = bedrock
+                        ? Bedrock.ping(address, TIMEOUT_MS, "zh")
+                        : Slp.ping(address, TIMEOUT_MS, null);
+                ui.showResult(Info.of(ping));
             } catch (Exception e) {
                 ui.showError(address, e.getMessage());
             }

@@ -21,7 +21,7 @@ let lang = detectLang();
 
 const TEXT = {
   zh: {
-    'help': `mc-motd {0} — 看 Minecraft Java 版服务器的 MOTD
+    'help': `mc-motd {0} — 看 Minecraft Java / 基岩版服务器的 MOTD
 
 用法:
   motd <地址...> [选项]        查询服务器（可一次查多个）
@@ -69,7 +69,7 @@ const TEXT = {
     'card.players': '玩家',
   },
   en: {
-    'help': `mc-motd {0} — view Minecraft Java Edition server MOTDs
+    'help': `mc-motd {0} — view Minecraft Java and Bedrock server MOTDs
 
 Usage:
   motd <address...> [options]   query one or more servers

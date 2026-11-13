@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  看 Minecraft <b>Java 版</b>服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，<br />
+  看 Minecraft <b>Java / 基岩版</b>服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，<br />
   直接实现服务器列表 Ping（Server List Ping）协议，零运行时依赖。
 </p>
 
@@ -152,7 +152,7 @@ GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:311
 
 ## 桌面版 GUI
 
-Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD，界面支持中文 / English（跟随系统语言，右上角可切换）。
+Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD，界面支持中文 / English（跟随系统语言，右上角可切换），地址框右侧可选 **Java / 基岩版**。
 
 | 平台 | 下载 |
 |---|---|
@@ -162,7 +162,7 @@ Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux
 
 安装包没有签名：macOS 首次打开要右键 → 打开，Windows SmartScreen 选“仍要运行”。
 
-功能：服务器卡片（favicon / 两行 MOTD / 人数 / 延迟信号条）、详情、玩家列表、原始 JSON、查询历史、代理输入框。
+功能：服务器卡片（favicon / 两行 MOTD / 人数 / 延迟信号条）、详情、玩家列表、原始 JSON、查询历史、代理输入框、Java / 基岩版切换。
 
 从源码构建只要 JDK：
 

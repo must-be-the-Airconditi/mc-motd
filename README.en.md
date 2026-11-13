@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  A tiny tool for reading Minecraft <b>Java Edition</b> server MOTDs — CLI, local web UI and desktop GUI,<br />
+  A tiny tool for reading Minecraft <b>Java and Bedrock</b> server MOTDs — CLI, local web UI and desktop GUI,<br />
   built directly on the Server List Ping protocol with zero runtime dependencies.
 </p>
 
@@ -151,7 +151,7 @@ The server only listens on `127.0.0.1`, rate-limits to 40 requests per minute an
 
 ## Desktop GUI
 
-A native Java Swing window (not a web page); one codebase runs on macOS / Windows / Linux / BSD. The UI ships in **Chinese and English** (auto-detected from the system language, switchable in the top-right corner).
+A native Java Swing window (not a web page); one codebase runs on macOS / Windows / Linux / BSD. The UI ships in **Chinese and English** (auto-detected from the system language, switchable in the top-right corner) and has a **Java / Bedrock** selector next to the address box.
 
 | Platform | Download |
 |---|---|
@@ -161,7 +161,7 @@ A native Java Swing window (not a web page); one codebase runs on macOS / Window
 
 The builds are unsigned: on macOS, right-click → Open the first time; on Windows, pick "More info → Run anyway" in SmartScreen.
 
-Features: server card (favicon / two-line MOTD / player count / latency bars), details, player list, raw JSON, query history and a proxy field.
+Features: server card (favicon / two-line MOTD / player count / latency bars), details, player list, raw JSON, query history, a proxy field and Java / Bedrock switching.
 
 Building from source only needs a JDK:
 

@@ -26,7 +26,11 @@ public final class Main {
                 String address = args.length > 2 ? args[2] : "play.cubecraft.net";
                 int width = args.length > 3 ? Integer.parseInt(args[3]) : 1040;
                 int height = args.length > 4 ? Integer.parseInt(args[4]) : 940;
-                Ui.renderShot(address, new java.io.File(out), width, height);
+                boolean bedrock = false;
+                for (String arg : args) {
+                    if ("--bedrock".equals(arg)) bedrock = true;
+                }
+                Ui.renderShot(address, new java.io.File(out), width, height, bedrock);
             } catch (Exception e) {
                 System.err.println("截图失败：" + e.getMessage());
                 System.exit(1);

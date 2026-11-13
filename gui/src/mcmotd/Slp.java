@@ -41,6 +41,7 @@ public final class Slp {
         public Srv srv;
         public double latencyMs;
         public boolean legacy;
+        public boolean bedrock;
         public String rawJson;
         public Map<String, Object> status;
     }

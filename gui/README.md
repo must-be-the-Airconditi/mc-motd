@@ -1,6 +1,6 @@
 # mc-motd GUI
 
-桌面版：Java Swing 原生窗口，不是浏览器页面。同一份源码在 macOS / Windows / Linux / BSD 上运行。
+桌面版：Java Swing 原生窗口，不是浏览器页面。同一份源码在 macOS / Windows / Linux / BSD 上运行，支持 **Java / 基岩版**（地址框右侧切换）。
 
 ![桌面版截图](screenshot.png)
 

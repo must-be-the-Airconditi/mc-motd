@@ -24,7 +24,7 @@ public final class Strings {
     }
 
     static {
-        add("window.title", "MOTD 查看器 · Minecraft Java", "MOTD Viewer · Minecraft Java");
+        add("window.title", "MOTD 查看器 · Minecraft", "MOTD Viewer · Minecraft");
         add("app.title", "MOTD 查看器", "MOTD Viewer");
 
         add("proxy.label", "代理", "Proxy");
@@ -59,6 +59,8 @@ public final class Strings {
         add("fact.protocol", "协议", "Protocol");
         add("fact.secure", "安全聊天", "Secure chat");
         add("ping.modern", "现代 Ping", "Modern ping");
+        add("ping.bedrock", "基岩版 RakNet", "Bedrock RakNet");
+        add("fact.na", "不适用", "N/A");
         add("ping.legacy", "旧版 Ping", "Legacy ping");
         add("secure.on", "强制开启", "Enforced");
         add("secure.off", "未强制", "Not enforced");
