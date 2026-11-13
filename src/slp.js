@@ -17,6 +17,13 @@ const DEFAULT_PORT = 25565;
 const HANDSHAKE_PROTOCOL = 769; // 1.21.4；状态查询不校验版本，取个较新的值即可
 const MAX_PACKET = 2 * 1024 * 1024;
 
+/** 把超时钳制到合理区间，避免用户传入离谱值 */
+function clampTimeout(ms) {
+  const value = Number(ms);
+  if (!Number.isFinite(value)) return 5000;
+  return Math.min(Math.max(value, 100), 60000);
+}
+
 /* ---------------------------------------------------------------- VarInt */
 
 function writeVarInt(value) {
@@ -127,7 +134,7 @@ class FrameReader {
         waiter.timer = setTimeout(() => {
           this.waiters = this.waiters.filter((w) => w !== waiter);
           reject(new Error('等待服务器响应超时'));
-        }, timeoutMs);
+        }, clampTimeout(timeoutMs));
       }
       this.waiters.push(waiter);
       this.pump(); // 可能刚巧数据已经到了
@@ -201,7 +208,7 @@ function pingLegacy({ host, port, timeout = 5000, connect }) {
       if (err) reject(err); else resolve(value);
     };
 
-    const timer = setTimeout(() => finish(new Error('旧版 Ping 超时')), timeout);
+    const timer = setTimeout(() => finish(new Error('旧版 Ping 超时')), clampTimeout(timeout));
 
     connect(host, port, timeout)
       .then((sock) => {
@@ -247,7 +254,8 @@ function isIp(host) {
 function parseAddress(input) {
   let raw = String(input || '').trim();
   if (!raw) throw new Error('地址不能为空');
-  raw = raw.replace(/^minecraft:\/\//i, '').replace(/\/+$/, '');
+  raw = raw.replace(/^minecraft:\/\//i, '');
+  while (raw.endsWith('/')) raw = raw.slice(0, -1);
 
   let host;
   let port = null;
