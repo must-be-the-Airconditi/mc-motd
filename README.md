@@ -1,24 +1,62 @@
-# mc-motd
+<p align="center">
+  <img src="assets/banner.svg" alt="mc-motd" width="880" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml"><img src="https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg" alt="cli" /></a>
+  <a href="https://github.com/must-be-the-Airconditi/mc-motd/releases"><img src="https://img.shields.io/github/v/release/must-be-the-Airconditi/mc-motd?include_prereleases&label=release&style=flat-square" alt="release" /></a>
+  <img src="https://img.shields.io/badge/license-MIT-4a9e5c?style=flat-square" alt="license" />
+  <img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="node" />
+  <img src="https://img.shields.io/badge/Java-11%2B-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="java" />
+</p>
 
 <p align="center">
   <b>简体中文</b> &nbsp;·&nbsp; <a href="README.en.md">English</a>
 </p>
 
-看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，直接实现服务器列表 Ping（Server List Ping）协议。
+<p align="center">
+  看 Minecraft <b>Java 版</b>服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，<br />
+  直接实现服务器列表 Ping（Server List Ping）协议，零运行时依赖。
+</p>
 
-[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml)
+---
 
-![网页版截图](screenshot.png)
+<details>
+<summary><b>目录</b></summary>
+
+- [特性](#特性)
+- [截图](#截图)
+- [快速开始](#快速开始)
+- [命令行](#命令行)
+- [网页版](#网页版)
+- [桌面版 GUI](#桌面版-gui)
+- [连不上怎么办](#连不上怎么办)
+- [离线自测](#离线自测)
+- [项目结构](#项目结构)
+- [协议备忘](#协议备忘)
+- [发版约定](#发版约定)
+- [许可](#许可)
+
+</details>
 
 ## 特性
 
-- **直连协议**：手写 SLP，1.7+ 现代协议 + 1.6 及以前的旧版协议自动回退
-- **MOTD 完整渲染**：`§` 颜色码、`§x` 十六进制色、粗体/斜体/下划线/删除线/乱码（网页里会动）、JSON 聊天组件嵌套
-- **自动 SRV**：没写端口时查 `_minecraft._tcp` 记录，和游戏客户端行为一致
-- **服务器图标**：网页里显示 favicon，终端里显示彩色信息卡
-- **代理**：支持 `socks5://`、`socks4://`、`http(s)://`，连不上时走代理
-- **网页版**：本地起服务，浏览器里输入地址就能看，带历史记录、玩家列表、原始 JSON
-- **中英文界面**：CLI 和网页版都支持中文 / English；网页版右上角切换、默认跟随浏览器语言，CLI 用 `--lang en`；报错也会跟着语言走
+| | 能力 | 说明 |
+| :---: | --- | --- |
+| 🔌 | **直连协议** | 手写 SLP，1.7+ 现代协议 + 1.6 及以前自动回退 |
+| 🎨 | **MOTD 渲染** | `§` 颜色码、`§x` 十六进制、粗体/斜体/下划线/删除线/乱码、JSON 组件嵌套 |
+| 🌐 | **自动 SRV** | 没写端口时查 `_minecraft._tcp`，和游戏客户端行为一致 |
+| 🖼 | **服务器图标** | 网页显示 favicon，桌面端显示成图标 |
+| 🔀 | **代理** | `socks5://`、`socks4://`、`http(s)://` |
+| 💬 | **中英双语** | CLI 与网页版都能切中英文 |
+| 🖥 | **三种形态** | 命令行、本地网页、Java 桌面端 |
+| 📦 | **零依赖** | Node 只用内置模块，Java 只用标准库 |
+
+## 截图
+
+| 网页版 | 桌面版 |
+| :---: | :---: |
+| <img src="screenshot.png" width="520" alt="web ui" /> | <img src="gui/screenshot.png" width="420" alt="desktop gui" /> |
 
 ## 快速开始
 
@@ -101,16 +139,14 @@ node motd.js --web --port 9000 --proxy socks5://127.0.0.1:7890
 浏览器没有裸 TCP，所以页面通过本地 `/api/ping` 由 Node 发起连接：
 
 ```
-GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:31181
+GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:31181&lang=zh
 ```
 
 服务只监听 `127.0.0.1`，带 40 次/分钟的限流和 20 秒结果缓存；查询过的地址存在浏览器 localStorage 里。
 
-## 桌面版（GUI）
+## 桌面版 GUI
 
 Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD，界面支持中文 / English（跟随系统语言，右上角可切换）。
-
-![桌面版截图](gui/screenshot.png)
 
 | 平台 | 下载 |
 |---|---|
@@ -162,12 +198,14 @@ motd.js               CLI 入口（参数解析、终端渲染）
 src/slp.js            SLP 协议：VarInt、分帧、现代/旧版 Ping、SRV
 src/proxy.js          SOCKS5 / SOCKS4 / HTTP CONNECT 隧道
 src/motd.js           聊天组件 & § 码解析、ANSI / 前端片段、结果规范化
+src/i18n.js           服务端中英文案
 src/web.js            HTTP 服务 + /api/ping
 public/               网页版前端（无构建步骤）
 gui/                  桌面版（Java Swing，见 gui/README.md）
 tools/mock-server.js  假服务器（含代码生成 favicon）
 test/run.test.js      node:test 用例
-.github/workflows/    cli（Node 测试/发布）+ gui（Java 打包）
+assets/               仓库素材（banner 等）
+.github/workflows/    cli（Node 测试/发布）+ gui（Java 打包）+ codeql
 ```
 
 ## 协议备忘

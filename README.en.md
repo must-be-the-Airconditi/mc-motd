@@ -1,24 +1,62 @@
-# mc-motd
+<p align="center">
+  <img src="assets/banner.svg" alt="mc-motd" width="880" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml"><img src="https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg" alt="cli" /></a>
+  <a href="https://github.com/must-be-the-Airconditi/mc-motd/releases"><img src="https://img.shields.io/github/v/release/must-be-the-Airconditi/mc-motd?include_prereleases&label=release&style=flat-square" alt="release" /></a>
+  <img src="https://img.shields.io/badge/license-MIT-4a9e5c?style=flat-square" alt="license" />
+  <img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="node" />
+  <img src="https://img.shields.io/badge/Java-11%2B-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="java" />
+</p>
 
 <p align="center">
   <a href="README.md">简体中文</a> &nbsp;·&nbsp; <b>English</b>
 </p>
 
-A tiny tool for reading **Minecraft Java Edition** server MOTDs — a CLI, a local web UI and a desktop GUI, all built directly on the Server List Ping protocol.
+<p align="center">
+  A tiny tool for reading Minecraft <b>Java Edition</b> server MOTDs — CLI, local web UI and desktop GUI,<br />
+  built directly on the Server List Ping protocol with zero runtime dependencies.
+</p>
 
-[![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml)
+---
 
-![Web UI screenshot](screenshot-en.png)
+<details>
+<summary><b>Table of contents</b></summary>
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Quick start](#quick-start)
+- [CLI](#cli)
+- [Web UI](#web-ui)
+- [Desktop GUI](#desktop-gui)
+- [Can't connect?](#cant-connect)
+- [Offline testing](#offline-testing)
+- [Project layout](#project-layout)
+- [Protocol notes](#protocol-notes)
+- [Release conventions](#release-conventions)
+- [License](#license)
+
+</details>
 
 ## Features
 
-- **Direct protocol**: hand-written SLP with the 1.7+ modern handshake and automatic fallback to the legacy 1.6-and-earlier ping
-- **Full MOTD rendering**: `§` color codes, `§x` hex colors, bold / italic / underline / strikethrough / obfuscated (animated in the web UI), nested JSON chat components
-- **Automatic SRV**: looks up `_minecraft._tcp` when no port is given, matching game-client behavior
-- **Server icons**: favicon in the web UI, a colored card in the terminal
-- **Proxy support**: `socks5://`, `socks4://`, `http(s)://` for servers you cannot reach directly
-- **Web UI**: runs locally, type an address in the browser — history, player list and raw JSON included
-- **Bilingual UI**: both the CLI and the web UI ship in Chinese and English. The web UI has a top-right toggle and follows the browser language; the CLI takes `--lang en`. Error messages are localized too
+| | Feature | Details |
+| :---: | --- | --- |
+| 🔌 | **Direct protocol** | Hand-written SLP: 1.7+ modern handshake with legacy fallback |
+| 🎨 | **Full MOTD rendering** | `§` codes, `§x` hex colors, bold / italic / underline / strike / obfuscated, nested JSON components |
+| 🌐 | **Automatic SRV** | Looks up `_minecraft._tcp` when no port is given, like the game client |
+| 🖼 | **Server icon** | Favicon in the web UI, icon in the desktop app |
+| 🔀 | **Proxies** | `socks5://`, `socks4://`, `http(s)://` |
+| 💬 | **Bilingual** | CLI and web UI in Chinese and English |
+| 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app |
+| 📦 | **Zero dependencies** | Node built-ins only; Java stdlib only |
+
+## Screenshots
+
+| Web UI | Desktop |
+| :---: | :---: |
+| <img src="screenshot-en.png" width="520" alt="web ui" /> | <img src="gui/screenshot-en.png" width="420" alt="desktop gui" /> |
 
 ## Quick start
 
@@ -100,7 +138,7 @@ node motd.js --web --port 9000 --proxy socks5://127.0.0.1:7890
 Browsers do not expose raw TCP sockets, so the page calls a local `/api/ping` endpoint and Node makes the connection:
 
 ```
-GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:31181
+GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:31181&lang=en
 ```
 
 The server only listens on `127.0.0.1`, rate-limits to 40 requests per minute and caches results for 20 seconds; recent addresses are stored in the browser's localStorage.
@@ -108,8 +146,6 @@ The server only listens on `127.0.0.1`, rate-limits to 40 requests per minute an
 ## Desktop GUI
 
 A native Java Swing window (not a web page); one codebase runs on macOS / Windows / Linux / BSD. The UI ships in **Chinese and English** (auto-detected from the system language, switchable in the top-right corner).
-
-![Desktop screenshot](gui/screenshot-en.png)
 
 | Platform | Download |
 |---|---|
@@ -161,12 +197,14 @@ motd.js               CLI entry (argument parsing, terminal rendering)
 src/slp.js            SLP: VarInt, framing, modern/legacy ping, SRV
 src/proxy.js          SOCKS5 / SOCKS4 / HTTP CONNECT tunnelling
 src/motd.js           chat components & § codes, ANSI / frontend segments, normalization
+src/i18n.js           server-side messages (Chinese / English)
 src/web.js            HTTP server + /api/ping
 public/               web UI front end (no build step)
 gui/                  desktop app (Java Swing, see gui/README.md)
 tools/mock-server.js  fake server (generates its favicon in code)
 test/run.test.js      node:test cases
-.github/workflows/    cli (Node test/release) + gui (Java packaging)
+assets/               repository assets (banner, etc.)
+.github/workflows/    cli (Node test/release) + gui (Java packaging) + codeql
 ```
 
 ## Protocol notes
