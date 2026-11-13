@@ -202,21 +202,22 @@ function pingLegacy({ host, port, timeout = 5000, connect, lang = 'zh' }) {
     let buf = Buffer.alloc(0);
     const started = process.hrtime.bigint();
 
+    const timeoutMs = clampTimeout(timeout);
+
     const finish = (err, value) => {
       if (done) return;
       done = true;
-      clearTimeout(timer);
       if (socket) socket.destroy();
       if (err) reject(err); else resolve(value);
     };
 
-    const timer = setTimeout(() => finish(new Error(t(lang, 'err.legacyTimeout'))), clampTimeout(timeout));
-
-    connect(host, port, timeout)
+    connect(host, port, timeoutMs)
       .then((sock) => {
         if (done) { sock.destroy(); return; }
         socket = sock;
         socket.setNoDelay(true);
+        // 用 socket 自身的空闲超时兜底，不依赖用户可控时长的 JS 定时器
+        socket.setTimeout(timeoutMs, () => finish(new Error(t(lang, 'err.legacyTimeout'))));
         socket.on('error', (err) => finish(err));
         socket.on('close', () => finish(new Error(t(lang, 'err.closedBeforeResponse'))));
         socket.write(Buffer.from([0xfe, 0x01]));
