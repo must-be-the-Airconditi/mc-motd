@@ -40,6 +40,7 @@ const MESSAGES = {
   },
   'conn.timeout': { zh: '连接超时：{0}:{1}', en: 'Connection timed out: {0}:{1}' },
   'conn.dns': { zh: '找不到主机：{0}（DNS 解析失败）', en: 'Unknown host: {0} (DNS lookup failed)' },
+  'bedrock.timeout': { zh: '基岩版服务器无响应：{0}:{1}', en: 'No response from Bedrock server: {0}:{1}' },
   'conn.proxyRefused': { zh: 'HTTP 代理拒绝 CONNECT：{0}', en: 'HTTP proxy refused CONNECT: {0}' },
   'conn.dnsTimeout': { zh: 'DNS 查询超时：{0}', en: 'DNS lookup timed out: {0}' },
   'conn.reset': { zh: '连接被服务器重置：{0}:{1}', en: 'Connection reset by server: {0}:{1}' },

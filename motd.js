@@ -12,6 +12,7 @@
 
 const path = require('path');
 const { ping } = require('./src/slp');
+const { pingBedrock } = require('./src/bedrock');
 const { buildResult, toAnsi } = require('./src/motd');
 
 const pkg = require('./package.json');
@@ -35,6 +36,7 @@ const TEXT = {
   --json           输出 JSON
   --timeout <ms>   超时时间，默认 5000
   --proxy <url>    走代理，如 http://127.0.0.1:31181 / socks5://127.0.0.1:7890
+  --bedrock        查询基岩版服务器（UDP 19132）
   --no-srv         不解析 SRV 记录
   --no-legacy      现代协议失败时不回退旧版 Ping
   --no-color       关闭颜色（也支持 NO_COLOR 环境变量）
@@ -82,6 +84,7 @@ Options:
   --json           JSON output
   --timeout <ms>   timeout, default 5000
   --proxy <url>    proxy, e.g. http://127.0.0.1:31181 / socks5://127.0.0.1:7890
+  --bedrock        query a Bedrock Edition server (UDP 19132)
   --no-srv         skip SRV lookup
   --no-legacy      don't fall back to the legacy ping
   --no-color       disable colors (also honors NO_COLOR)
@@ -147,6 +150,7 @@ function parseArgs(argv) {
     proxy: process.env.MC_MOTD_PROXY || null,
     srv: true,
     legacy: true,
+    bedrock: false,
     color: !process.env.NO_COLOR,
     web: false,
     port: 8720,
@@ -191,6 +195,7 @@ function parseArgs(argv) {
       case '-v':
       case '--version': options.version = true; break;
       case '--json': options.json = true; break;
+      case '--bedrock': options.bedrock = true; break;
       case '--no-srv': options.srv = false; break;
       case '--no-legacy': options.legacy = false; break;
       case '--no-color': options.color = false; break;
@@ -339,7 +344,8 @@ function renderResult(result, options) {
 
   const versionText = `${result.version.name}${result.version.protocol ? ` (${result.version.protocol})` : ''}`;
   const playerText = `${result.players.online}/${result.players.max} ${t('card.online')}`;
-  const meta = clipPlain(`${playerText}  ·  ${versionText}`, inner - 3);
+  const editionTag = result.edition === 'bedrock' ? '  ·  BEDROCK' : '';
+  const meta = clipPlain(`${playerText}  ·  ${versionText}${editionTag}`, inner - 3);
   lines.push(`│  ${padAnsi(meta, inner - 3)} │`);
 
   const target = result.srv
@@ -361,13 +367,15 @@ function renderResult(result, options) {
 
 async function pingOne(address, options) {
   const started = Date.now();
-  const raw = await ping(address, {
-    timeout: options.timeout,
-    srv: options.srv,
-    legacy: options.legacy,
-    proxy: options.proxy,
-    lang,
-  });
+  const raw = options.bedrock
+    ? await pingBedrock(address, { timeout: options.timeout, lang })
+    : await ping(address, {
+        timeout: options.timeout,
+        srv: options.srv,
+        legacy: options.legacy,
+        proxy: options.proxy,
+        lang,
+      });
   const result = buildResult(raw);
   result.elapsedMs = Date.now() - started;
   return result;

@@ -50,6 +50,7 @@
 | 🔀 | **代理** | `socks5://`、`socks4://`、`http(s)://` |
 | 💬 | **中英双语** | CLI 与网页版都能切中英文 |
 | 🖥 | **三种形态** | 命令行、本地网页、Java 桌面端 |
+| 🎮 | **双版本** | Java 版（TCP 25565）+ 基岩版（UDP 19132，RakNet） |
 | 📦 | **零依赖** | Node 只用内置模块，Java 只用标准库 |
 
 ## 截图
@@ -69,6 +70,7 @@ node motd.js play.cubecraft.net
 node motd.js play.cubecraft.net:25565 --timeout 8000
 node motd.js localhost --proxy http://127.0.0.1:31181   # 走 DevSidecar / Clash 等
 node motd.js play.cubecraft.net --lang en               # 英文输出
+node motd.js --bedrock play.cubecraft.net               # 基岩版
 node motd.js --web                                      # 网页版 → http://127.0.0.1:8720
 ```
 
@@ -98,6 +100,7 @@ mc-motd 1.2.0 — 看 Minecraft Java 版服务器的 MOTD
   --json           输出 JSON
   --timeout <ms>   超时时间，默认 5000
   --proxy <url>    走代理，如 http://127.0.0.1:31181 / socks5://127.0.0.1:7890
+  --bedrock        查询基岩版服务器（UDP 19132）
   --no-srv         不解析 SRV 记录
   --no-legacy      现代协议失败时不回退旧版 Ping
   --no-color       关闭颜色（也支持 NO_COLOR 环境变量）
@@ -131,6 +134,7 @@ node motd.js --json play.cubecraft.net | jq '.results[0].players'
 ## 网页版
 
 界面支持中文 / English：右上角 `EN` / `中文` 切换，默认跟随浏览器语言，选择会记住（localStorage）。
+地址框右边可以选 **Java / Bedrock**，基岩版走 UDP 19132；接口参数是 `edition=bedrock`。
 报错信息由服务端按 `lang` 参数本地化，也会一起切换。
 
 ```bash
@@ -190,7 +194,7 @@ node motd.js localhost:25565
 跑测试：
 
 ```bash
-npm test        # node --test，22 个用例，覆盖协议、解析、代理、i18n 和网页 API
+npm test        # node --test，27 个用例，覆盖 Java/基岩协议、解析、代理、i18n 和网页 API
 ```
 
 ## 项目结构
@@ -201,11 +205,13 @@ src/slp.js            SLP 协议：VarInt、分帧、现代/旧版 Ping、SRV
 src/proxy.js          SOCKS5 / SOCKS4 / HTTP CONNECT 隧道
 src/motd.js           聊天组件 & § 码解析、ANSI / 前端片段、结果规范化
 src/i18n.js           服务端中英文案
+src/bedrock.js        基岩版 RakNet 查询（UDP）
 src/web.js            HTTP 服务 + /api/ping
 public/               网页版前端（无构建步骤）
 gui/                  桌面版（Java Swing，见 gui/README.md）
 tools/mock-server.js  假服务器（含代码生成 favicon）
 test/run.test.js      node:test 用例
+test/bedrock.test.js  基岩版解析与本地 UDP 假服务器测试
 assets/               仓库素材（banner 等）
 CHANGELOG.md          版本变更记录
 RELEASING.md          发版流程

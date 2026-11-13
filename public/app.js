@@ -9,6 +9,7 @@ const output = document.getElementById('output');
 const historyEl = document.getElementById('history');
 const chipsEl = document.getElementById('chips');
 const field = document.getElementById('field');
+const editionEl = document.getElementById('edition');
 const langBtn = document.getElementById('lang');
 const addrLabel = document.getElementById('addr-label');
 const historyLabel = document.getElementById('history-label');
@@ -18,6 +19,7 @@ const metaDesc = document.querySelector('meta[name="description"]');
 const brandTitle = document.querySelector('.brand-text h1');
 
 const HISTORY_KEY = 'mc-motd:history';
+const EDITION_KEY = 'mc-motd:edition';
 const OBF_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#$%&*+-=/\\|<>';
 const GRASS_SVG = `
 <svg viewBox="0 0 32 32" width="100%" height="100%" role="img" aria-label="服务器图标">
@@ -65,6 +67,8 @@ const I18N = {
     'fact.secure': '安全聊天',
     'ping.legacy': '旧版 Ping',
     'ping.modern': '现代 Ping',
+    'ping.bedrock': '基岩版 RakNet',
+    'fact.na': '不适用',
     'secure.on': '强制开启',
     'secure.off': '未强制',
     'players.title': '玩家列表',
@@ -111,6 +115,8 @@ const I18N = {
     'fact.secure': 'Secure chat',
     'ping.legacy': 'Legacy ping',
     'ping.modern': 'Modern ping',
+    'ping.bedrock': 'Bedrock RakNet',
+    'fact.na': 'N/A',
     'secure.on': 'Enforced',
     'secure.off': 'Not enforced',
     'players.title': 'Players',
@@ -376,6 +382,9 @@ function buildTile(result) {
   if (result.protocolUsed === 'legacy') {
     sub.appendChild(el('span', 'tag', 'LEGACY'));
   }
+  if (result.edition === 'bedrock') {
+    sub.appendChild(el('span', 'tag', 'BEDROCK'));
+  }
 
   body.append(motd, sub);
 
@@ -417,8 +426,16 @@ function buildFacts(result, elapsedMs, cached) {
   addFact(t('fact.version'), `${result.version.name}${result.version.protocol ? ` · ${result.version.protocol}` : ''}`);
   addFact(t('fact.players'), `${formatNumber(result.players.online)} / ${formatNumber(result.players.max)}`);
   addFact(t('fact.latency'), `${result.latencyMs} ms`, result.latencyMs < 120 ? 'good' : result.latencyMs < 300 ? '' : 'bad');
-  addFact(t('fact.protocol'), result.protocolUsed === 'legacy' ? t('ping.legacy') : t('ping.modern'));
-  addFact(t('fact.secure'), result.checks && result.checks.secureChat ? t('secure.on') : t('secure.off'));
+  const protocolText = result.protocolUsed === 'legacy'
+    ? t('ping.legacy')
+    : result.protocolUsed === 'bedrock' ? t('ping.bedrock') : t('ping.modern');
+  addFact(t('fact.protocol'), protocolText);
+  addFact(
+    t('fact.secure'),
+    result.edition === 'bedrock'
+      ? t('fact.na')
+      : (result.checks && result.checks.secureChat ? t('secure.on') : t('secure.off')),
+  );
 
   panel.append(head, facts);
   return panel;
@@ -565,7 +582,7 @@ async function query(address) {
   renderLoading(target);
 
   try {
-    const response = await fetch(`/api/ping?address=${encodeURIComponent(target)}&lang=${lang}`);
+    const response = await fetch(`/api/ping?address=${encodeURIComponent(target)}&lang=${lang}&edition=${encodeURIComponent(editionEl.value)}`);
     const payload = await response.json();
     if (!payload.ok) throw new Error(payload.error || t('error.http', response.status));
 
@@ -576,6 +593,11 @@ async function query(address) {
     lastError = null;
     renderResult(payload.result, meta);
     saveHistory(target);
+    try {
+      localStorage.setItem(EDITION_KEY, editionEl.value);
+    } catch {
+      /* 忽略 */
+    }
     document.title = `${payload.result.motd.plain.split('\n')[0].trim() || target} · MOTD`;
   } catch (err) {
     lastResult = null;
@@ -624,16 +646,27 @@ document.addEventListener('keydown', (event) => {
 // 截图/测试用：外部可预置查询结果，直接同步渲染
 const preloaded = window.__MC_MOTD_PRELOAD__;
 if (preloaded && preloaded.result) {
+  document.documentElement.dataset.preload = '1';
   lastResult = preloaded.result;
   lastMeta = { elapsedMs: preloaded.elapsedMs || 0, cached: Boolean(preloaded.cached) };
   lastAddress = preloaded.result.query || '';
   input.value = lastAddress;
+  if (editionEl) {
+    editionEl.value = preloaded.result.edition === 'bedrock' ? 'bedrock' : 'java';
+  }
   if (lastAddress) {
     saveHistory(lastAddress);
   }
 }
 
 applyLanguage();
+
+try {
+  const savedEdition = localStorage.getItem(EDITION_KEY);
+  if (savedEdition === 'bedrock') editionEl.value = 'bedrock';
+} catch {
+  /* 忽略 */
+}
 
 const params = new URLSearchParams(location.search);
 const initial = params.get('address');

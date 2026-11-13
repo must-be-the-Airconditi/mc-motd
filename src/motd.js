@@ -293,6 +293,7 @@ function buildResult(pingResult) {
 
   return {
     online: true,
+    edition: pingResult.edition || 'java',
     query: pingResult.query,
     host: pingResult.host,
     port: pingResult.port,

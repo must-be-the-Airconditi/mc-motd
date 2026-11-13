@@ -157,7 +157,7 @@ body {
 /* ------------------------------------------------------------------ 输入 */
 .ping-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 10px;
 }
 
@@ -202,6 +202,26 @@ body {
 .field input::placeholder { color: var(--muted-2); }
 
 .field.shake { animation: shake 0.32s ease; }
+
+.edition {
+  height: 56px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #08110d, #060b08);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.edition:hover,
+.edition:focus {
+  outline: none;
+  color: var(--text);
+  border-color: var(--line-strong);
+}
 
 .ping-form button {
   position: relative;
@@ -696,6 +716,10 @@ body {
 }
 
 /* ---------------------------------------------------------------- 动画 */
+[data-preload] .result {
+  animation: none;
+}
+
 @keyframes rise {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -748,7 +772,9 @@ body {
 
 .brand-text p { font-size: 11px; letter-spacing: 0.03em; }
 
-  .ping-form { grid-template-columns: minmax(0, 1fr); }
+  .ping-form { grid-template-columns: minmax(0, 1fr) auto; }
+  .field { grid-column: 1 / -1; }
+  .edition { height: 46px; }
   .ping-form button { height: 46px; }
 
   .tile {

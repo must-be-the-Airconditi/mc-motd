@@ -6,6 +6,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- 基岩版（Bedrock Edition）支持：RakNet Unconnected Ping，CLI 加 `--bedrock`，网页版可选 Java / Bedrock，接口参数 `edition=bedrock`
+
 ### Fixed
 
 - 旧版 Ping 改用 socket 空闲超时，去掉用户可控时长的 JS 定时器（CodeQL #6）
@@ -17,7 +21,8 @@
 
 ### Tests
 
-- 补充 i18n 插值、语言判断和代理默认端口的用例（17 → 22）
+- 补充 i18n 插值、语言判断和代理默认端口的用例
+- 新增基岩版解析与本地 UDP 假服务器测试（22 → 27）
 
 ## [cli-v1.2.0] - 2026-11-13
 

@@ -50,6 +50,7 @@
 | 🔀 | **Proxies** | `socks5://`, `socks4://`, `http(s)://` |
 | 💬 | **Bilingual** | CLI and web UI in Chinese and English |
 | 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app |
+| 🎮 | **Both editions** | Java (TCP 25565) and Bedrock (UDP 19132, RakNet) |
 | 📦 | **Zero dependencies** | Node built-ins only; Java stdlib only |
 
 ## Screenshots
@@ -69,6 +70,7 @@ node motd.js play.cubecraft.net
 node motd.js play.cubecraft.net:25565 --timeout 8000
 node motd.js localhost --proxy http://127.0.0.1:31181   # e.g. DevSidecar / Clash
 node motd.js play.cubecraft.net --lang en               # English output
+node motd.js --bedrock play.cubecraft.net               # Bedrock Edition
 node motd.js --web                                      # web UI → http://127.0.0.1:8720
 ```
 
@@ -97,6 +99,7 @@ Options:
   --json           JSON output
   --timeout <ms>   timeout, default 5000
   --proxy <url>    proxy, e.g. http://127.0.0.1:31181 / socks5://127.0.0.1:7890
+  --bedrock        query a Bedrock Edition server (UDP 19132)
   --no-srv         skip SRV lookup
   --no-legacy      don't fall back to the legacy ping
   --no-color       disable colors (also honors NO_COLOR)
@@ -130,6 +133,7 @@ node motd.js --json play.cubecraft.net | jq '.results[0].players'
 ## Web UI
 
 The UI is available in Chinese and English: use the `EN` / `中文` button in the top-right corner, it defaults to your browser language and remembers your choice (localStorage).
+A **Java / Bedrock** selector sits next to the address box; Bedrock uses UDP 19132 (API: `edition=bedrock`).
 Error messages are localized server-side via the `lang` parameter as well.
 
 ```bash
@@ -189,7 +193,7 @@ node motd.js localhost:25565
 Run the tests:
 
 ```bash
-npm test        # node --test, 22 cases covering protocol, parsing, proxy, i18n and web API
+npm test        # node --test, 27 cases covering Java/Bedrock protocol, parsing, proxy, i18n and web API
 ```
 
 ## Project layout
@@ -200,11 +204,13 @@ src/slp.js            SLP: VarInt, framing, modern/legacy ping, SRV
 src/proxy.js          SOCKS5 / SOCKS4 / HTTP CONNECT tunnelling
 src/motd.js           chat components & § codes, ANSI / frontend segments, normalization
 src/i18n.js           server-side messages (Chinese / English)
+src/bedrock.js        Bedrock Edition RakNet query (UDP)
 src/web.js            HTTP server + /api/ping
 public/               web UI front end (no build step)
 gui/                  desktop app (Java Swing, see gui/README.md)
 tools/mock-server.js  fake server (generates its favicon in code)
 test/run.test.js      node:test cases
+test/bedrock.test.js  Bedrock parsing and local UDP mock tests
 assets/               repository assets (banner, etc.)
 CHANGELOG.md          release history
 RELEASING.md          release process

@@ -12,6 +12,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { ping } = require('./slp');
+const { pingBedrock } = require('./bedrock');
 const { t, normalizeLang } = require('./i18n');
 const { buildResult } = require('./motd');
 
@@ -102,8 +103,9 @@ function createWebServer(options = {}) {
     const timeout = clamp(Number.isFinite(timeoutParam) ? timeoutParam : defaultTimeout, 1000, 20000);
     const proxy = allowedProxy(url.searchParams.get('proxy')) || defaultProxy;
     const allowLegacy = url.searchParams.get('legacy') !== '0';
+    const edition = url.searchParams.get('edition') === 'bedrock' ? 'bedrock' : 'java';
 
-    const key = `${address}|${timeout}|${proxy || ''}`;
+    const key = `${edition}|${address}|${timeout}|${proxy || ''}`;
     const now = Date.now();
     const cached = cache.get(key);
     if (cached && now - cached.time < CACHE_TTL) {
@@ -127,7 +129,9 @@ function createWebServer(options = {}) {
     }
 
     concurrent += 1;
-    const task = ping(address, { timeout, proxy, legacy: allowLegacy, lang })
+    const task = (edition === 'bedrock'
+      ? pingBedrock(address, { timeout, lang })
+      : ping(address, { timeout, proxy, legacy: allowLegacy, lang }))
       .then((raw) => buildResult(raw))
       .finally(() => {
         concurrent -= 1;
