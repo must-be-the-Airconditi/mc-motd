@@ -203,14 +203,15 @@ function createWebServer(options = {}) {
 function startWeb(options = {}) {
   const host = options.host || '127.0.0.1';
   const port = Number(options.port) || 8720;
+  const lang = normalizeLang(options.lang || 'zh');
   const server = createWebServer(options);
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      process.stderr.write(`\n  端口 ${port} 已被占用，换一个：motd --web --port 8721\n\n`);
+      process.stderr.write(`\n  ${t(lang, 'web.portInUse', port)}\n\n`);
       process.exit(1);
     }
-    process.stderr.write(`\n  启动失败：${err.message}\n`);
+    process.stderr.write(`\n  ${t(lang, 'web.startFail', err.message)}\n`);
     process.exit(1);
   });
 
@@ -218,11 +219,11 @@ function startWeb(options = {}) {
     const shownHost = host === '0.0.0.0' || host === '::' ? '127.0.0.1' : host;
     const lines = [
       '',
-      '  \x1b[38;2;85;255;85m▌\x1b[0m MOTD 查看器已启动',
+      `  \x1b[38;2;85;255;85m▌\x1b[0m ${t(lang, 'web.started')}`,
       `  \x1b[2m➜\x1b[0m  http://${shownHost}:${port}`,
     ];
-    if (options.proxy) lines.push(`  \x1b[2m代理 ${options.proxy}\x1b[0m`);
-    lines.push('  \x1b[2mCtrl+C 退出\x1b[0m', '');
+    if (options.proxy) lines.push(`  \x1b[2m${t(lang, 'web.proxyLine', options.proxy)}\x1b[0m`);
+    lines.push(`  \x1b[2m${t(lang, 'web.ctrlC')}\x1b[0m`, '');
     process.stdout.write(`${lines.join('\n')}\n`);
   });
 

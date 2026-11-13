@@ -13,6 +13,7 @@
 - `https://` 代理未写端口时默认成了 1080，正确应为 443
 - 截图预载路径会把空地址写进历史记录
 - Java 旧版协议响应读到 EOF 时 `chars` 可能为负，导致 `NegativeArraySizeException`
+- `motd --web --lang en` 的启动横幅仍是中文
 
 ### Tests
 

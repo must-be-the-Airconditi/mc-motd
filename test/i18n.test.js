@@ -15,6 +15,12 @@ test('i18n 中文 / 英文文案', () => {
   assert.equal(t('en', 'nope.key'), 'nope.key');
 });
 
+test('i18n 网页启动文案', () => {
+  assert.equal(t('zh', 'web.started'), 'MOTD 查看器已启动');
+  assert.equal(t('en', 'web.started'), 'MOTD viewer started');
+  assert.equal(t('en', 'web.portInUse', 8720), 'Port 8720 is in use — try: motd --web --port 8721');
+});
+
 test('i18n 占位符插值', () => {
   assert.equal(t('zh', 'conn.timeout', 'a.com', 25565), '连接超时：a.com:25565');
   assert.equal(t('en', 'conn.timeout', 'a.com', 25565), 'Connection timed out: a.com:25565');

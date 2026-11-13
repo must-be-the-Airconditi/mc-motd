@@ -84,6 +84,14 @@ const MESSAGES = {
   },
   'web.getOnly': { zh: '只支持 GET', en: 'GET only' },
   'web.internal': { zh: '服务器内部错误', en: 'Internal server error' },
+  'web.started': { zh: 'MOTD 查看器已启动', en: 'MOTD viewer started' },
+  'web.proxyLine': { zh: '代理 {0}', en: 'Proxy {0}' },
+  'web.ctrlC': { zh: 'Ctrl+C 退出', en: 'Ctrl+C to quit' },
+  'web.portInUse': {
+    zh: '端口 {0} 已被占用，换一个：motd --web --port 8721',
+    en: 'Port {0} is in use — try: motd --web --port 8721',
+  },
+  'web.startFail': { zh: '启动失败：{0}', en: 'Failed to start: {0}' },
 };
 
 function normalizeLang(lang) {
