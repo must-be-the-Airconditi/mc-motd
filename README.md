@@ -1,6 +1,8 @@
 # mc-motd
 
-**中文** | [English](README.en.md)
+<p align="center">
+  <b>简体中文</b> &nbsp;·&nbsp; <a href="README.en.md">English</a>
+</p>
 
 看 Minecraft **Java 版**服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，直接实现服务器列表 Ping（Server List Ping）协议。
 

@@ -1,6 +1,8 @@
 # mc-motd
 
-[中文](README.md) | **English**
+<p align="center">
+  <a href="README.md">简体中文</a> &nbsp;·&nbsp; <b>English</b>
+</p>
 
 A tiny tool for reading **Minecraft Java Edition** server MOTDs — a CLI, a local web UI and a desktop GUI, all built directly on the Server List Ping protocol.
 
