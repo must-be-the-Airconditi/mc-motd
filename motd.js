@@ -16,8 +16,11 @@ const { buildResult, toAnsi } = require('./src/motd');
 
 const pkg = require('./package.json');
 
-const HELP = `
-mc-motd ${pkg.version} — 看 Minecraft Java 版服务器的 MOTD
+let lang = detectLang();
+
+const TEXT = {
+  zh: {
+    'help': `mc-motd {0} — 看 Minecraft Java 版服务器的 MOTD
 
 用法:
   motd <地址...> [选项]        查询服务器（可一次查多个）
@@ -35,6 +38,7 @@ mc-motd ${pkg.version} — 看 Minecraft Java 版服务器的 MOTD
   --no-srv         不解析 SRV 记录
   --no-legacy      现代协议失败时不回退旧版 Ping
   --no-color       关闭颜色（也支持 NO_COLOR 环境变量）
+  --lang <zh|en>   输出语言，默认跟随系统
   --web            启动网页版
   --port <n>       网页端口，默认 8720
   --host <h>       网页监听地址，默认 127.0.0.1
@@ -43,14 +47,95 @@ mc-motd ${pkg.version} — 看 Minecraft Java 版服务器的 MOTD
 
 环境变量:
   MC_MOTD_PROXY    默认代理（--proxy 优先）
+  MC_MOTD_LANG     输出语言，zh 或 en
   NO_COLOR         任意值即关闭颜色
 
 示例:
   motd play.cubecraft.net
   motd mc.hypixel.net --timeout 8000
   motd 2b2t.org --proxy socks5://127.0.0.1:7890
-  motd --web --port 8720
-`.trim();
+  motd --web --port 8720`,
+    'err.optionNeedsValue': '选项 {0} 需要一个值',
+    'err.unknownOption': '未知选项：{0}',
+    'err.number': '{0} 必须是数字',
+    'err.args': '参数错误：{0}',
+    'err.fatal': '出错了：{0}',
+    'progress': '正在 Ping {0} …',
+    'fail': '✖ {0}：{1}',
+    'card.online': '在线',
+    'card.target': '目标',
+    'card.players': '玩家',
+  },
+  en: {
+    'help': `mc-motd {0} — view Minecraft Java Edition server MOTDs
+
+Usage:
+  motd <address...> [options]   query one or more servers
+  motd --web                    start the web UI
+
+Address:
+  play.example.com           auto SRV lookup, default port 25565
+  play.example.com:25565
+  [::1]:25565                IPv6
+
+Options:
+  --json           JSON output
+  --timeout <ms>   timeout, default 5000
+  --proxy <url>    proxy, e.g. http://127.0.0.1:31181 / socks5://127.0.0.1:7890
+  --no-srv         skip SRV lookup
+  --no-legacy      don't fall back to the legacy ping
+  --no-color       disable colors (also honors NO_COLOR)
+  --lang <zh|en>   output language, defaults to the system locale
+  --web            start the web UI
+  --port <n>       web UI port, default 8720
+  --host <h>       bind address, default 127.0.0.1
+  -h, --help       show help
+  -v, --version    show version
+
+Environment:
+  MC_MOTD_PROXY    default proxy (--proxy wins)
+  MC_MOTD_LANG     output language, zh or en
+  NO_COLOR         any value disables colors
+
+Examples:
+  motd play.cubecraft.net
+  motd mc.hypixel.net --timeout 8000
+  motd 2b2t.org --proxy socks5://127.0.0.1:7890
+  motd --web --port 8720`,
+    'err.optionNeedsValue': 'Option {0} requires a value',
+    'err.unknownOption': 'Unknown option: {0}',
+    'err.number': '{0} must be a number',
+    'err.args': 'Invalid arguments: {0}',
+    'err.fatal': 'Error: {0}',
+    'progress': 'Pinging {0} …',
+    'fail': '✖ {0}: {1}',
+    'card.online': 'online',
+    'card.target': 'Target',
+    'card.players': 'Players',
+  },
+};
+
+function normalizeLang(value) {
+  return String(value || '').toLowerCase().startsWith('en') ? 'en' : 'zh';
+}
+
+function detectLang() {
+  const env = process.env.MC_MOTD_LANG;
+  if (env) return normalizeLang(env);
+  const locale = process.env.LC_ALL || process.env.LANG || '';
+  if (!locale) return 'zh';
+  return normalizeLang(locale);
+}
+
+function t(key, ...args) {
+  let text = TEXT[lang][key];
+  if (text === undefined) text = TEXT.zh[key] !== undefined ? TEXT.zh[key] : key;
+  if (!args.length) return text;
+  return text.replace(/\{(\d+)\}/g, (match, index) => {
+    const value = args[Number(index)];
+    return value === undefined ? match : String(value);
+  });
+}
 
 /* ------------------------------------------------------------ 参数解析 */
 
@@ -66,11 +151,12 @@ function parseArgs(argv) {
     web: false,
     port: 8720,
     host: '127.0.0.1',
+    lang,
     help: false,
     version: false,
   };
 
-  const takesValue = new Set(['--timeout', '--proxy', '--port', '--host']);
+  const takesValue = new Set(['--timeout', '--proxy', '--port', '--host', '--lang']);
 
   for (let i = 0; i < argv.length; i += 1) {
     let arg = argv[i];
@@ -87,11 +173,15 @@ function parseArgs(argv) {
         value = argv[i + 1];
         i += 1;
       }
-      if (value === undefined) throw new Error(`选项 ${arg} 需要一个值`);
+      if (value === undefined) throw new Error(t('err.optionNeedsValue', arg));
       if (arg === '--timeout') options.timeout = clampNumber(Number(value), 500, 60000, '--timeout');
       else if (arg === '--port') options.port = clampNumber(Number(value), 1, 65535, '--port');
       else if (arg === '--host') options.host = String(value);
       else if (arg === '--proxy') options.proxy = String(value);
+      else if (arg === '--lang') {
+        lang = normalizeLang(value);
+        options.lang = lang;
+      }
       continue;
     }
 
@@ -107,7 +197,7 @@ function parseArgs(argv) {
       case '--color': options.color = true; break;
       case '--web': options.web = true; break;
       default:
-        if (arg.startsWith('-')) throw new Error(`未知选项：${arg}`);
+        if (arg.startsWith('-')) throw new Error(t('err.unknownOption', arg));
         options.addresses.push(arg);
     }
   }
@@ -116,7 +206,7 @@ function parseArgs(argv) {
 }
 
 function clampNumber(num, min, max, name) {
-  if (!Number.isFinite(num)) throw new Error(`${name} 必须是数字`);
+  if (!Number.isFinite(num)) throw new Error(t('err.number', name));
   return Math.min(max, Math.max(min, Math.round(num)));
 }
 
@@ -248,19 +338,19 @@ function renderResult(result, options) {
   lines.push(c.dim(`│ ${' '.repeat(inner - 2)} │`));
 
   const versionText = `${result.version.name}${result.version.protocol ? ` (${result.version.protocol})` : ''}`;
-  const playerText = `${result.players.online}/${result.players.max} 在线`;
+  const playerText = `${result.players.online}/${result.players.max} ${t('card.online')}`;
   const meta = clipPlain(`${playerText}  ·  ${versionText}`, inner - 3);
   lines.push(`│  ${padAnsi(meta, inner - 3)} │`);
 
   const target = result.srv
     ? `${result.srv.host}:${result.srv.port}  (SRV)`
     : `${result.host}:${result.port}`;
-  const targetLine = c.dim(clipPlain(`目标 ${target}`, inner - 3));
+  const targetLine = c.dim(clipPlain(`${t('card.target')} ${target}`, inner - 3));
   lines.push(`│  ${padAnsi(targetLine, inner - 3)} │`);
 
   if (result.players.sample.length) {
     const names = result.players.sample.map((p) => p.name).join(', ');
-    const sampleLine = c.gray(clipPlain(`玩家 ${names}`, inner - 3));
+    const sampleLine = c.gray(clipPlain(`${t('card.players')} ${names}`, inner - 3));
     lines.push(`│  ${padAnsi(sampleLine, inner - 3)} │`);
   }
 
@@ -276,6 +366,7 @@ async function pingOne(address, options) {
     srv: options.srv,
     legacy: options.legacy,
     proxy: options.proxy,
+    lang,
   });
   const result = buildResult(raw);
   result.elapsedMs = Date.now() - started;
@@ -287,7 +378,7 @@ async function runQuery(options) {
   const failures = [];
 
   for (const address of options.addresses) {
-    if (!options.json) process.stdout.write(`${makePalette(options.color).dim(`正在 Ping ${address} …`)}\n`);
+    if (!options.json) process.stdout.write(`${makePalette(options.color).dim(t('progress', address))}\n`);
     try {
       const result = await pingOne(address, options);
       results.push(result);
@@ -297,7 +388,7 @@ async function runQuery(options) {
     } catch (err) {
       failures.push({ address, error: err.message });
       if (!options.json) {
-        process.stderr.write(`${makePalette(options.color).red(`✖ ${address}：${err.message}`)}\n`);
+        process.stderr.write(`${makePalette(options.color).red(t('fail', address, err.message))}\n`);
       }
     }
   }
@@ -314,12 +405,14 @@ async function main() {
   try {
     options = parseArgs(process.argv.slice(2));
   } catch (err) {
-    process.stderr.write(`参数错误：${err.message}\n\n${HELP}\n`);
+    process.stderr.write(`${t('err.args', err.message)}\n\n${t('help', pkg.version)}\n`);
     process.exit(2);
   }
 
+  lang = options.lang || lang;
+
   if (options.help) {
-    process.stdout.write(`${HELP}\n`);
+    process.stdout.write(`${t('help', pkg.version)}\n`);
     return;
   }
   if (options.version) {
@@ -335,7 +428,7 @@ async function main() {
   }
 
   if (!options.addresses.length) {
-    process.stdout.write(`${HELP}\n`);
+    process.stdout.write(`${t('help', pkg.version)}\n`);
     process.exit(2);
   }
 
@@ -343,6 +436,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  process.stderr.write(`出错了：${err.message}\n`);
+  process.stderr.write(`${t('err.fatal', err.message)}\n`);
   process.exit(1);
 });

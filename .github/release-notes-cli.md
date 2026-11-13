@@ -27,6 +27,7 @@ motd --json <地址>          # 机器可读输出
 
 - 附件 `mc-motd-*.tgz` 是 `npm pack` 打的包，`npm install -g` 后可直接用 `motd` 命令
 - 也支持 `node motd.js` 直接跑，不需要安装
-- 网页版界面支持中文 / English：右上角切换，默认跟随浏览器语言；报错也会跟着语言走
-- CLI 终端输出目前仍是中文
+- 网页版界面支持中文 / English：右上角切换，默认跟随浏览器语言
+- CLI 也支持中英文：`--lang en`（或 `MC_MOTD_LANG=en`），默认跟随系统语言
+- 服务端报错信息会按语言本地化
 - 桌面 GUI 请下 `gui-v*` 那条 tag 的 release

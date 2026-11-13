@@ -16,7 +16,7 @@ A tiny tool for reading **Minecraft Java Edition** server MOTDs — a CLI, a loc
 - **Server icons**: favicon in the web UI, a colored card in the terminal
 - **Proxy support**: `socks5://`, `socks4://`, `http(s)://` for servers you cannot reach directly
 - **Web UI**: runs locally, type an address in the browser — history, player list and raw JSON included
-- **Bilingual UI**: the web UI ships in Chinese and English (top-right toggle, follows the browser language), and server-side errors are localized too
+- **Bilingual UI**: both the CLI and the web UI ship in Chinese and English. The web UI has a top-right toggle and follows the browser language; the CLI takes `--lang en`. Error messages are localized too
 
 ## Quick start
 
@@ -26,6 +26,7 @@ The CLI and web UI need Node.js ≥ 18 (no `npm install` required):
 node motd.js play.cubecraft.net
 node motd.js play.cubecraft.net:25565 --timeout 8000
 node motd.js localhost --proxy http://127.0.0.1:31181   # e.g. DevSidecar / Clash
+node motd.js play.cubecraft.net --lang en               # English output
 node motd.js --web                                      # web UI → http://127.0.0.1:8720
 ```
 
@@ -44,7 +45,7 @@ npm link          # then simply: motd <address>
 ## CLI
 
 ```
-mc-motd 1.0.0 — view Minecraft Java Edition server MOTDs
+mc-motd 1.2.0 — view Minecraft Java Edition server MOTDs
 
 Usage:
   motd <address...> [options]   query one or more servers
@@ -57,6 +58,7 @@ Options:
   --no-srv         skip SRV lookup
   --no-legacy      don't fall back to the legacy ping
   --no-color       disable colors (also honors NO_COLOR)
+  --lang <zh|en>   output language, defaults to the system locale
   --web            start the web UI
   --port <n>       web UI port, default 8720
   --host <h>       bind address, default 127.0.0.1

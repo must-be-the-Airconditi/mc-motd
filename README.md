@@ -16,7 +16,7 @@
 - **服务器图标**：网页里显示 favicon，终端里显示彩色信息卡
 - **代理**：支持 `socks5://`、`socks4://`、`http(s)://`，连不上时走代理
 - **网页版**：本地起服务，浏览器里输入地址就能看，带历史记录、玩家列表、原始 JSON
-- **中英文界面**：网页版支持中文 / English，右上角切换、默认跟随浏览器语言；查询报错也会跟着语言走
+- **中英文界面**：CLI 和网页版都支持中文 / English；网页版右上角切换、默认跟随浏览器语言，CLI 用 `--lang en`；报错也会跟着语言走
 
 ## 快速开始
 
@@ -26,6 +26,7 @@
 node motd.js play.cubecraft.net
 node motd.js play.cubecraft.net:25565 --timeout 8000
 node motd.js localhost --proxy http://127.0.0.1:31181   # 走 DevSidecar / Clash 等
+node motd.js play.cubecraft.net --lang en               # 英文输出
 node motd.js --web                                      # 网页版 → http://127.0.0.1:8720
 ```
 
@@ -45,7 +46,7 @@ npm link          # 之后直接用 motd <地址>
 ## 命令行
 
 ```
-mc-motd 1.0.0 — 看 Minecraft Java 版服务器的 MOTD
+mc-motd 1.2.0 — 看 Minecraft Java 版服务器的 MOTD
 
 用法:
   motd <地址...> [选项]        查询服务器（可一次查多个）
@@ -58,6 +59,7 @@ mc-motd 1.0.0 — 看 Minecraft Java 版服务器的 MOTD
   --no-srv         不解析 SRV 记录
   --no-legacy      现代协议失败时不回退旧版 Ping
   --no-color       关闭颜色（也支持 NO_COLOR 环境变量）
+  --lang <zh|en>   输出语言，默认跟随系统
   --web            启动网页版
   --port <n>       网页端口，默认 8720
   --host <h>       网页监听地址，默认 127.0.0.1
