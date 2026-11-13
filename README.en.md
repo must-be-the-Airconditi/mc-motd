@@ -204,6 +204,8 @@ gui/                  desktop app (Java Swing, see gui/README.md)
 tools/mock-server.js  fake server (generates its favicon in code)
 test/run.test.js      node:test cases
 assets/               repository assets (banner, etc.)
+CHANGELOG.md          release history
+RELEASING.md          release process
 .github/workflows/    cli (Node test/release) + gui (Java packaging) + codeql
 ```
 
@@ -223,6 +225,8 @@ Two lines ship independently, with different tag prefixes:
 - **Desktop GUI (Java)**: tag `gui-vX.Y.Z`, triggers the `gui` workflow, builds Windows / Linux packages + a universal jar + a portable zip
 
 The pre-split tags `v1.0.0` (CLI / web) and `v1.1.0` (GUI) remain valid as historical releases.
+
+See [RELEASING.md](RELEASING.md) for the steps and [CHANGELOG.md](CHANGELOG.md) for the history. Releases are batched — no release per commit.
 
 ## License
 

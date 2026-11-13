@@ -205,6 +205,8 @@ gui/                  桌面版（Java Swing，见 gui/README.md）
 tools/mock-server.js  假服务器（含代码生成 favicon）
 test/run.test.js      node:test 用例
 assets/               仓库素材（banner 等）
+CHANGELOG.md          版本变更记录
+RELEASING.md          发版流程
 .github/workflows/    cli（Node 测试/发布）+ gui（Java 打包）+ codeql
 ```
 
@@ -224,6 +226,8 @@ assets/               仓库素材（banner 等）
 - **桌面 GUI（Java）**：打 `gui-vX.Y.Z`，触发 `gui` 工作流，自动打 Windows / Linux 安装包 + 通用 jar + portable 包
 
 拆分前的旧 tag `v1.0.0`（CLI / 网页）和 `v1.1.0`（GUI）仍有效，作为历史版本保留。
+
+具体步骤见 [RELEASING.md](RELEASING.md)，改动记录见 [CHANGELOG.md](CHANGELOG.md)。原则是**攒一批再发**，不按提交发版。
 
 ## 许可
 
