@@ -12,6 +12,7 @@
 const net = require('net');
 const dns = require('dns');
 const { connectTunnel, normalizeProxy } = require('./proxy');
+const { t } = require('./i18n');
 
 const DEFAULT_PORT = 25565;
 const HANDSHAKE_PROTOCOL = 769; // 1.21.4；状态查询不校验版本，取个较新的值即可
@@ -42,7 +43,7 @@ function writeVarInt(value) {
  * 从 buf 的 offset 处读一个 VarInt。
  * 数据不完整时返回 null，调用方可以等待更多数据。
  */
-function readVarInt(buf, offset = 0) {
+function readVarInt(buf, offset = 0, lang = 'zh') {
   let value = 0;
   let size = 0;
   let byte;
@@ -51,7 +52,7 @@ function readVarInt(buf, offset = 0) {
     byte = buf[offset + size];
     value += (byte & 0x7f) * 2 ** (7 * size);
     size += 1;
-    if (size > 5) throw new Error('VarInt 过长（数据损坏）');
+    if (size > 5) throw new Error(t(lang, 'err.varintTooLong'));
   } while (byte & 0x80);
   return { value: value >>> 0, size };
 }
@@ -65,8 +66,9 @@ function writeString(str) {
 
 /** 按「VarInt 长度前缀 + 包体」从 socket 里拆包 */
 class FrameReader {
-  constructor(socket) {
+  constructor(socket, lang = 'zh') {
     this.socket = socket;
+    this.lang = lang;
     this.buf = Buffer.alloc(0);
     this.queue = [];
     this.waiters = [];
@@ -87,14 +89,14 @@ class FrameReader {
     for (;;) {
       let head;
       try {
-        head = readVarInt(this.buf, 0);
+        head = readVarInt(this.buf, 0, this.lang);
       } catch (err) {
         this.error = err;
         break;
       }
       if (!head || head.size + head.value > this.buf.length) break;
       if (head.value > MAX_PACKET) {
-        this.error = new Error('服务器返回的包过大');
+        this.error = new Error(t(this.lang, 'err.packetTooLarge'));
         break;
       }
       const payload = this.buf.subarray(head.size, head.size + head.value);
@@ -108,7 +110,7 @@ class FrameReader {
     if (this.error || this.closed) {
       while (this.waiters.length) {
         const waiter = this.waiters.shift();
-        this.settleError(waiter, this.error || new Error('服务器关闭了连接'));
+        this.settleError(waiter, this.error || new Error(t(this.lang, 'err.connClosed')));
       }
     }
   }
@@ -126,14 +128,14 @@ class FrameReader {
   read(timeoutMs = 0) {
     if (this.queue.length) return Promise.resolve(this.queue.shift());
     if (this.error) return Promise.reject(this.error);
-    if (this.closed) return Promise.reject(new Error('服务器关闭了连接'));
+    if (this.closed) return Promise.reject(new Error(t(this.lang, 'err.connClosed')));
 
     return new Promise((resolve, reject) => {
       const waiter = { resolve, reject, timer: null };
       if (timeoutMs > 0) {
         waiter.timer = setTimeout(() => {
           this.waiters = this.waiters.filter((w) => w !== waiter);
-          reject(new Error('等待服务器响应超时'));
+          reject(new Error(t(this.lang, 'err.readTimeout')));
         }, clampTimeout(timeoutMs));
       }
       this.waiters.push(waiter);
@@ -157,12 +159,12 @@ function handshakePacket(host, port, protocol) {
   return Buffer.concat([writeVarInt(body.length), body]);
 }
 
-async function pingModern({ host, port, protocol = HANDSHAKE_PROTOCOL, timeout = 5000, connect, hostHeader }) {
+async function pingModern({ host, port, protocol = HANDSHAKE_PROTOCOL, timeout = 5000, connect, hostHeader, lang = 'zh' }) {
   const socket = await connect(host, port, timeout);
   socket.setNoDelay(true);
 
   try {
-    const reader = new FrameReader(socket);
+    const reader = new FrameReader(socket, lang);
     socket.write(handshakePacket(hostHeader || host, port, protocol));
     socket.write(Buffer.from([0x01, 0x00])); // Status Request：长度 1，包 id 0x00
 
@@ -171,10 +173,10 @@ async function pingModern({ host, port, protocol = HANDSHAKE_PROTOCOL, timeout =
     const latencyMs = Number(process.hrtime.bigint() - started) / 1e6;
 
     const packetId = readVarInt(packet, 0);
-    if (!packetId || packetId.value !== 0x00) throw new Error('状态响应格式不正确');
+    if (!packetId || packetId.value !== 0x00) throw new Error(t(lang, 'err.badStatus'));
 
     const len = readVarInt(packet, packetId.size);
-    if (!len) throw new Error('状态响应长度不完整');
+    if (!len) throw new Error(t(lang, 'err.statusIncomplete'));
     const jsonStart = packetId.size + len.size;
     const text = packet.subarray(jsonStart, jsonStart + len.value).toString('utf8');
 
@@ -182,9 +184,9 @@ async function pingModern({ host, port, protocol = HANDSHAKE_PROTOCOL, timeout =
     try {
       status = JSON.parse(text);
     } catch (err) {
-      throw new Error('服务器返回的 JSON 无法解析');
+      throw new Error(t(lang, 'err.badJson'));
     }
-    if (!status || typeof status !== 'object') throw new Error('状态数据为空');
+    if (!status || typeof status !== 'object') throw new Error(t(lang, 'err.emptyStatus'));
     return { status, latencyMs, protocolUsed: 'modern' };
   } finally {
     socket.destroy();
@@ -193,7 +195,7 @@ async function pingModern({ host, port, protocol = HANDSHAKE_PROTOCOL, timeout =
 
 /* ------------------------------------------------------------ 旧版协议 */
 
-function pingLegacy({ host, port, timeout = 5000, connect }) {
+function pingLegacy({ host, port, timeout = 5000, connect, lang = 'zh' }) {
   return new Promise((resolve, reject) => {
     let socket = null;
     let done = false;
@@ -208,7 +210,7 @@ function pingLegacy({ host, port, timeout = 5000, connect }) {
       if (err) reject(err); else resolve(value);
     };
 
-    const timer = setTimeout(() => finish(new Error('旧版 Ping 超时')), clampTimeout(timeout));
+    const timer = setTimeout(() => finish(new Error(t(lang, 'err.legacyTimeout'))), clampTimeout(timeout));
 
     connect(host, port, timeout)
       .then((sock) => {
@@ -216,13 +218,13 @@ function pingLegacy({ host, port, timeout = 5000, connect }) {
         socket = sock;
         socket.setNoDelay(true);
         socket.on('error', (err) => finish(err));
-        socket.on('close', () => finish(new Error('服务器在响应前关闭了连接')));
+        socket.on('close', () => finish(new Error(t(lang, 'err.closedBeforeResponse'))));
         socket.write(Buffer.from([0xfe, 0x01]));
 
         socket.on('data', (chunk) => {
           buf = Buffer.concat([buf, chunk]);
           if (buf.length < 3) return;
-          if (buf[0] !== 0xff) return finish(new Error('旧版 Ping 响应格式不正确'));
+          if (buf[0] !== 0xff) return finish(new Error(t(lang, 'err.badLegacy')));
           const chars = buf.readUInt16BE(1);
           const total = 3 + chars * 2;
           if (buf.length < total) return;
@@ -251,9 +253,9 @@ function isIp(host) {
 }
 
 /** 把用户输入拆成 {host, port|null}，支持 IPv6 的 [::1]:25565 写法 */
-function parseAddress(input) {
+function parseAddress(input, lang = 'zh') {
   let raw = String(input || '').trim();
-  if (!raw) throw new Error('地址不能为空');
+  if (!raw) throw new Error(t(lang, 'addr.empty'));
   raw = raw.replace(/^minecraft:\/\//i, '');
   while (raw.endsWith('/')) raw = raw.slice(0, -1);
 
@@ -262,11 +264,11 @@ function parseAddress(input) {
 
   if (raw.startsWith('[')) {
     const end = raw.indexOf(']');
-    if (end === -1) throw new Error('IPv6 地址缺少 ]');
+    if (end === -1) throw new Error(t(lang, 'addr.ipv6Bracket'));
     host = raw.slice(1, end);
     const rest = raw.slice(end + 1);
     if (rest.startsWith(':')) port = Number(rest.slice(1));
-    else if (rest) throw new Error('地址格式不正确');
+    else if (rest) throw new Error(t(lang, 'addr.badFormat'));
   } else {
     const colons = (raw.match(/:/g) || []).length;
     if (colons > 1) {
@@ -275,7 +277,7 @@ function parseAddress(input) {
       const idx = raw.lastIndexOf(':');
       host = raw.slice(0, idx);
       const p = raw.slice(idx + 1);
-      if (!/^\d+$/.test(p)) throw new Error('端口必须是数字');
+      if (!/^\d+$/.test(p)) throw new Error(t(lang, 'addr.badPort'));
       port = Number(p);
     } else {
       host = raw;
@@ -283,10 +285,10 @@ function parseAddress(input) {
   }
 
   host = host.trim();
-  if (!host) throw new Error('缺少主机名');
-  if (host.length > 253) throw new Error('主机名过长');
-  if (!isIp(host) && !/^[a-zA-Z0-9._-]+$/.test(host)) throw new Error('主机名包含非法字符');
-  if (port !== null && (!Number.isInteger(port) || port < 1 || port > 65535)) throw new Error('端口超出范围 (1-65535)');
+  if (!host) throw new Error(t(lang, 'addr.noHost'));
+  if (host.length > 253) throw new Error(t(lang, 'addr.hostTooLong'));
+  if (!isIp(host) && !/^[a-zA-Z0-9._-]+$/.test(host)) throw new Error(t(lang, 'addr.badHost'));
+  if (port !== null && (!Number.isInteger(port) || port < 1 || port > 65535)) throw new Error(t(lang, 'addr.portRange'));
 
   return { host: host.toLowerCase(), port };
 }
@@ -312,12 +314,12 @@ function lookupSrv(host, timeoutMs = 2000) {
 
 /* -------------------------------------------------------------- 默认连接 */
 
-function directConnect(host, port, timeoutMs) {
+function directConnect(host, port, timeoutMs, lang = 'zh') {
   return new Promise((resolve, reject) => {
     const socket = net.createConnection({ host, port });
     const timer = setTimeout(() => {
       socket.destroy();
-      reject(new Error(`连接 ${host}:${port} 超时`));
+      reject(new Error(t(lang, 'conn.timeout', host, port)));
     }, timeoutMs);
 
     socket.once('connect', () => {
@@ -326,35 +328,35 @@ function directConnect(host, port, timeoutMs) {
     });
     socket.once('error', (err) => {
       clearTimeout(timer);
-      reject(friendlyError(err, host, port));
+      reject(friendlyError(err, host, port, lang));
     });
   });
 }
 
-function friendlyError(err, host, port) {
+function friendlyError(err, host, port, lang = 'zh') {
   const code = err && err.code;
   const map = {
-    ECONNREFUSED: `连接被拒绝：${host}:${port} 上没有服务在监听，或端口写错了`,
-    ENOTFOUND: `找不到主机：${host}（DNS 解析失败）`,
-    EAI_AGAIN: `DNS 查询超时：${host}`,
-    ECONNRESET: `连接被服务器重置：${host}:${port}`,
-    ETIMEDOUT: `连接超时：${host}:${port}`,
-    EHOSTUNREACH: `主机不可达：${host}`,
-    ENETUNREACH: `网络不可达：${host}`,
+    ECONNREFUSED: () => t(lang, 'conn.refused', host, port),
+    ENOTFOUND: () => t(lang, 'conn.dns', host),
+    EAI_AGAIN: () => t(lang, 'conn.dnsTimeout', host),
+    ECONNRESET: () => t(lang, 'conn.reset', host, port),
+    ETIMEDOUT: () => t(lang, 'conn.timeout', host, port),
+    EHOSTUNREACH: () => t(lang, 'conn.hostUnreachable', host),
+    ENETUNREACH: () => t(lang, 'conn.netUnreachable', host),
   };
-  const message = map[code] || (err && err.message) || String(err);
+  const message = (map[code] && map[code]()) || (err && err.message) || String(err);
   const out = new Error(message);
   out.code = code;
   return out;
 }
 
 /** 组合：直连优先，配置了代理就走代理 */
-function makeConnector(proxyUrl) {
-  const proxy = proxyUrl ? normalizeProxy(proxyUrl) : null;
+function makeConnector(proxyUrl, lang = 'zh') {
+  const proxy = proxyUrl ? normalizeProxy(proxyUrl, lang) : null;
   return (host, port, timeout) =>
     proxy
-      ? connectTunnel(proxy, host, port, timeout)
-      : directConnect(host, port, timeout);
+      ? connectTunnel(proxy, host, port, timeout, lang)
+      : directConnect(host, port, timeout, lang);
 }
 
 /* ------------------------------------------------------------------ 主函数 */
@@ -376,10 +378,11 @@ async function ping(address, options = {}) {
     srv = true,
     legacy = true,
     proxy = null,
+    lang = 'zh',
   } = options;
 
-  const parsed = parseAddress(address);
-  const connect = makeConnector(proxy || process.env.MC_MOTD_PROXY || null);
+  const parsed = parseAddress(address, lang);
+  const connect = makeConnector(proxy || process.env.MC_MOTD_PROXY || null, lang);
 
   let host = parsed.host;
   let port = parsed.port;
@@ -412,6 +415,7 @@ async function ping(address, options = {}) {
       timeout,
       connect,
       hostHeader: parsed.host,
+      lang,
     });
     return { ...base, ...result };
   } catch (modernErr) {
@@ -420,10 +424,10 @@ async function ping(address, options = {}) {
       throw modernErr;
     }
     try {
-      const result = await pingLegacy({ host, port, timeout, connect });
+      const result = await pingLegacy({ host, port, timeout, connect, lang });
       return { ...base, ...result, modernError: modernErr.message };
     } catch (legacyErr) {
-      const err = new Error(`Ping 失败：${modernErr.message}`);
+      const err = new Error(t(lang, 'err.pingFailed', modernErr.message));
       err.cause = legacyErr;
       throw err;
     }

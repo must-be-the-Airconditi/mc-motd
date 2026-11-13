@@ -29,13 +29,14 @@
           <h1><span class="pixel">MOTD</span> 查看器</h1>
           <p>Minecraft: Java Edition · Server List Ping</p>
         </div>
+        <button type="button" class="lang-btn" id="lang" aria-label="Switch language">EN</button>
       </div>
     </header>
 
     <form class="ping-form" id="form" autocomplete="off" novalidate>
       <div class="field" id="field">
         <span class="prefix" aria-hidden="true">›</span>
-        <label class="sr-only" for="address">服务器地址</label>
+        <label class="sr-only" id="addr-label" for="address">服务器地址</label>
         <input id="address" name="address" placeholder="play.example.com  或  host:25565"
                spellcheck="false" autocapitalize="off" autocorrect="off" inputmode="url">
       </div>
@@ -43,7 +44,7 @@
     </form>
 
     <div class="history" id="history" hidden>
-      <span class="history-label">最近</span>
+      <span class="history-label" id="history-label">最近</span>
       <div class="chips" id="chips"></div>
     </div>
 
@@ -61,9 +62,9 @@
     </section>
 
     <footer class="foot">
-      <span>纯 Node.js，零依赖</span>
+      <span id="foot-1">纯 Node.js，零依赖</span>
       <span class="dot-sep">·</span>
-      <span>CLI 同源：<code>motd &lt;地址&gt;</code></span>
+      <span id="foot-2">CLI 同源：<code>motd &lt;地址&gt;</code></span>
     </footer>
   </main>
 

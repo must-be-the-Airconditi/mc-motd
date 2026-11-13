@@ -127,6 +127,25 @@ body {
   text-shadow: 0 0 18px rgba(85, 255, 85, 0.45);
 }
 
+.lang-btn {
+  margin-left: auto;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  background: rgba(85, 255, 85, 0.04);
+  color: var(--muted);
+  font-family: var(--pixel);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.lang-btn:hover {
+  color: var(--green);
+  border-color: var(--line-strong);
+  background: rgba(85, 255, 85, 0.08);
+}
+
 .brand-text p {
   margin: 2px 0 0;
   color: var(--muted);
@@ -704,7 +723,26 @@ body {
 
   .brand-text h1 { font-size: 20px; }
   .brand-text h1 .pixel { font-size: 11px; }
-  .brand-text p { font-size: 11px; letter-spacing: 0.03em; }
+  .lang-btn {
+  margin-left: auto;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  background: rgba(85, 255, 85, 0.04);
+  color: var(--muted);
+  font-family: var(--pixel);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.lang-btn:hover {
+  color: var(--green);
+  border-color: var(--line-strong);
+  background: rgba(85, 255, 85, 0.08);
+}
+
+.brand-text p { font-size: 11px; letter-spacing: 0.03em; }
 
   .ping-form { grid-template-columns: minmax(0, 1fr); }
   .ping-form button { height: 46px; }

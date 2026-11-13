@@ -6,7 +6,7 @@ A tiny tool for reading **Minecraft Java Edition** server MOTDs — a CLI, a loc
 
 [![test](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml/badge.svg)](https://github.com/must-be-the-Airconditi/mc-motd/actions/workflows/cli.yml)
 
-![Web UI screenshot](screenshot.png)
+![Web UI screenshot](screenshot-en.png)
 
 ## Features
 
@@ -16,6 +16,7 @@ A tiny tool for reading **Minecraft Java Edition** server MOTDs — a CLI, a loc
 - **Server icons**: favicon in the web UI, a colored card in the terminal
 - **Proxy support**: `socks5://`, `socks4://`, `http(s)://` for servers you cannot reach directly
 - **Web UI**: runs locally, type an address in the browser — history, player list and raw JSON included
+- **Bilingual UI**: the web UI ships in Chinese and English (top-right toggle, follows the browser language), and server-side errors are localized too
 
 ## Quick start
 
@@ -83,6 +84,9 @@ node motd.js --json play.cubecraft.net | jq '.results[0].players'
 ```
 
 ## Web UI
+
+The UI is available in Chinese and English: use the `EN` / `中文` button in the top-right corner, it defaults to your browser language and remembers your choice (localStorage).
+Error messages are localized server-side via the `lang` parameter as well.
 
 ```bash
 node motd.js --web            # http://127.0.0.1:8720 by default

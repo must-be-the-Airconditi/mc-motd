@@ -12,6 +12,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { ping } = require('./slp');
+const { t, normalizeLang } = require('./i18n');
 const { buildResult } = require('./motd');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -84,15 +85,16 @@ function createWebServer(options = {}) {
   }
 
   async function handlePing(req, res, url) {
+    const lang = normalizeLang(url.searchParams.get('lang'));
     const ip = req.socket.remoteAddress || 'local';
     if (rateLimited(ip)) {
-      sendJson(res, 429, { ok: false, error: '请求太频繁了，稍等一下再试' });
+      sendJson(res, 429, { ok: false, error: t(lang, 'web.tooFrequent') });
       return;
     }
 
     const address = (url.searchParams.get('address') || '').trim().slice(0, 253);
     if (!address) {
-      sendJson(res, 400, { ok: false, error: '请输入服务器地址' });
+      sendJson(res, 400, { ok: false, error: t(lang, 'web.noAddress') });
       return;
     }
 
@@ -120,12 +122,12 @@ function createWebServer(options = {}) {
     }
 
     if (concurrent >= MAX_CONCURRENT) {
-      sendJson(res, 429, { ok: false, error: '同时查询的服务器太多，请稍后再试' });
+      sendJson(res, 429, { ok: false, error: t(lang, 'web.tooMany') });
       return;
     }
 
     concurrent += 1;
-    const task = ping(address, { timeout, proxy, legacy: allowLegacy })
+    const task = ping(address, { timeout, proxy, legacy: allowLegacy, lang })
       .then((raw) => buildResult(raw))
       .finally(() => {
         concurrent -= 1;
@@ -140,7 +142,7 @@ function createWebServer(options = {}) {
       if (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value);
       sendJson(res, 200, { ok: true, result, cached: false });
     } catch (err) {
-      const isTimeout = /超时|timeout/i.test(err.message);
+      const isTimeout = /超时|timeout|timed out/i.test(err.message);
       sendJson(res, isTimeout ? 504 : 502, { ok: false, error: err.message });
     }
   }
@@ -173,11 +175,11 @@ function createWebServer(options = {}) {
 
     if (url.pathname === '/api/ping') {
       if (req.method !== 'GET') {
-        sendJson(res, 405, { ok: false, error: '只支持 GET' });
+        sendJson(res, 405, { ok: false, error: t(normalizeLang(url.searchParams.get('lang')), 'web.getOnly') });
         return;
       }
       handlePing(req, res, url).catch((err) => {
-        sendJson(res, 500, { ok: false, error: err.message || '服务器内部错误' });
+        sendJson(res, 500, { ok: false, error: err.message || t(normalizeLang(url.searchParams.get('lang')), 'web.internal') });
       });
       return;
     }
