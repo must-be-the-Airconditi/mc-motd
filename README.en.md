@@ -189,7 +189,7 @@ node motd.js localhost:25565
 Run the tests:
 
 ```bash
-npm test        # node --test, 21 cases covering protocol, parsing, proxy, i18n and web API
+npm test        # node --test, 22 cases covering protocol, parsing, proxy, i18n and web API
 ```
 
 ## Project layout
