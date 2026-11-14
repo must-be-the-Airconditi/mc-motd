@@ -163,7 +163,8 @@ HOME="$H" SHELL=/usr/bin/fish bash "$INSTALL" --shell fish >/dev/null 2>&1
 check_file "fish: completion installed to ~/.config/fish/completions" \
   "$H/.config/fish/completions/motd.fish"
 check_absent "fish: config.fish left alone" "$H/.config/fish/config.fish" 'mc-motd'
-if [ "$(stat -c %a "$H/.config/fish/completions/motd.fish" 2>/dev/null)" = "644" ]; then
+# ls -l 的权限位在两个平台格式一致；BSD 的 stat 没有 -c
+if [ "$(ls -ld "$H/.config/fish/completions/motd.fish" 2>/dev/null | cut -c1-10)" = "-rw-r--r--" ]; then
   ok "fish: completion file is world readable"
 else
   ng "fish: completion file mode is not 644"
