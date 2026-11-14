@@ -132,6 +132,15 @@ remove_block() {
   local file=$1
   has_block "$file" || return 1
   local tmp
+  if ! grep -qF -- "$BLOCK_END" "$file"; then
+    # Half-written block (older version or hand-edited): drop the marker line
+    # only, so the user's config below it survives.
+    tmp=$(mktemp)
+    awk -v start="$BLOCK_START" 'index($0, start) { next } { print }' "$file" > "$tmp"
+    mv "$tmp" "$file"
+    warn "dropped a stray '$BLOCK_START' line from $file (no end marker found)"
+    return 0
+  fi
   tmp=$(mktemp)
   awk -v start="$BLOCK_START" -v end="$BLOCK_END" '
     index($0, start) { inblock = 1; next }
@@ -159,7 +168,11 @@ install_zsh() {
   say "installed  $dest_dir/_motd"
   if [ "$need_fpath" -eq 1 ]; then
     if insert_block_before_compinit "$HOME/.zshrc" 'fpath=("$HOME/.zfunc" $fpath)'; then
-      say "updated    ~/.zshrc (added \$HOME/.zfunc to fpath)"
+      if grep -qF -- 'fpath=("$HOME/.zfunc"' "$HOME/.zshrc"; then
+        say "updated    ~/.zshrc (added \$HOME/.zfunc to fpath)"
+      else
+        warn "could not write the fpath line to ~/.zshrc; add it manually before compinit: fpath=(\"\$HOME/.zfunc\" \$fpath)"
+      fi
     else
       say "kept       ~/.zshrc (fpath entry already present)"
     fi

@@ -28,6 +28,10 @@ ng() {
   fi
 }
 
+squash() { # squash <text> -> single line, truncated
+  printf '%s' "$1" | tr '\n' '|' | cut -c1-400
+}
+
 check() { # check <name> <command...>
   local name=$1
   shift
@@ -100,9 +104,13 @@ check "install.sh is executable" test -x "$INSTALL"
 H="$TMP/zsh-plain"
 mkdir -p "$H"
 printf 'setopt hist_ignore_all_dups\nautoload -Uz compinit && compinit\n' > "$H/.zshrc"
-HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh >/dev/null 2>&1
+out=$(HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh 2>&1)
 check_file "zsh: _motd installed to ~/.zfunc" "$H/.zfunc/_motd"
-check_present "zsh: fpath line added to ~/.zshrc" "$H/.zshrc" 'fpath=("$HOME/.zfunc" $fpath)'
+if grep -qF -- 'fpath=("$HOME/.zfunc" $fpath)' "$H/.zshrc"; then
+  ok "zsh: fpath line added to ~/.zshrc"
+else
+  ng "zsh: fpath line missing (installer: $(squash "$out")) (zshrc: $(squash "$(cat "$H/.zshrc" 2>/dev/null)"))"
+fi
 check_order "zsh: fpath inserted before compinit" "$H/.zshrc" 'fpath=("$HOME/.zfunc"' 'compinit'
 
 HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh >/dev/null 2>&1
