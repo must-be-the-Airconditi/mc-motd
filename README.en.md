@@ -132,22 +132,24 @@ node motd.js --json play.cubecraft.net | jq '.results[0].players'
 
 ## Shell completion
 
-Completion scripts for zsh and bash ship in `completions/`:
+zsh and bash completion scripts ship in `completions/`, and one command installs them (no sudo):
 
 ```bash
-# zsh + oh-my-zsh (recommended)
-mkdir -p ~/.oh-my-zsh/custom/completions
-cp completions/_motd ~/.oh-my-zsh/custom/completions/
-
-# plain zsh
-mkdir -p ~/.zfunc && cp completions/_motd ~/.zfunc/
-echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
-
-# bash
-echo 'source ~/mc-motd/completions/motd.bash' >> ~/.bashrc
+bash completions/install.sh                 # auto-detect zsh / bash
+bash completions/install.sh --shell bash    # force a shell
+bash completions/install.sh --uninstall     # remove
 ```
 
-Then `motd -<Tab>` completes flags like `--bedrock` and `--lang`.
+The script picks the right place:
+
+| Setup | Installed to |
+| --- | --- |
+| oh-my-zsh | `$ZSH_CUSTOM/completions/_motd` (already on `$fpath`, no config change) |
+| plain zsh | `~/.zfunc/_motd`, plus an `fpath` line in `~/.zshrc` (inserted before `compinit`) |
+| bash with bash-completion | `~/.local/share/bash-completion/completions/motd` |
+| bash without bash-completion | a `source` line in `~/.bashrc` |
+
+After restarting the shell, `motd -<Tab>` completes flags like `--bedrock` and `--lang`. Installed globally via npm? The scripts live inside the package, so use `bash "$(npm root -g)/mc-motd/completions/install.sh"`.
 
 ## Web UI
 

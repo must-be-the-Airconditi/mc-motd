@@ -133,22 +133,24 @@ node motd.js --json play.cubecraft.net | jq '.results[0].players'
 
 ## Shell 补全
 
-仓库里带了 zsh / bash 补全脚本：
+仓库自带 zsh / bash 补全脚本，一条命令装好，不需要 sudo：
 
 ```bash
-# zsh + oh-my-zsh（推荐）
-mkdir -p ~/.oh-my-zsh/custom/completions
-cp completions/_motd ~/.oh-my-zsh/custom/completions/
-
-# 原生 zsh
-mkdir -p ~/.zfunc && cp completions/_motd ~/.zfunc/
-echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
-
-# bash
-echo 'source ~/mc-motd/completions/motd.bash' >> ~/.bashrc
+bash completions/install.sh                 # 自动识别 zsh / bash
+bash completions/install.sh --shell bash    # 指定 shell
+bash completions/install.sh --uninstall     # 卸载
 ```
 
-重开终端后 `motd -<Tab>` 就能补全 `--bedrock`、`--lang` 等参数。
+脚本会挑对应的位置安装：
+
+| 环境 | 装到哪 |
+| --- | --- |
+| oh-my-zsh | `$ZSH_CUSTOM/completions/_motd`（已在 `$fpath` 里，不用改配置） |
+| 原生 zsh | `~/.zfunc/_motd`，并把 `fpath` 写进 `~/.zshrc`（插在 `compinit` 之前） |
+| bash（有 bash-completion） | `~/.local/share/bash-completion/completions/motd` |
+| bash（没有 bash-completion） | 在 `~/.bashrc` 里 source `motd.bash` |
+
+重开终端后 `motd -<Tab>` 就能补全 `--bedrock`、`--lang` 等参数。用 npm 全局安装的话，补全文件在包里，路径换成 `bash "$(npm root -g)/mc-motd/completions/install.sh"` 即可。
 
 ## 网页版
 

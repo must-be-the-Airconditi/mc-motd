@@ -11,6 +11,7 @@
 - 基岩版（Bedrock Edition）支持：RakNet Unconnected Ping，CLI 加 `--bedrock`，网页版可选 Java / Bedrock，接口参数 `edition=bedrock`
 - 桌面 GUI 也支持基岩版：地址框右侧可切 Java / Bedrock，基岩版显示 RakNet 协议、安全聊天标为“不适用”
 - Shell 补全脚本：`completions/_motd`（zsh，oh-my-zsh 可直接用）和 `completions/motd.bash`
+- `completions/install.sh`：一条命令装好补全，自动识别 oh-my-zsh / 原生 zsh / bash，支持 `--shell` 和 `--uninstall`，npm 全局安装的用户也能用
 
 ### Changed
 
@@ -30,6 +31,7 @@
 
 - 补充 i18n 插值、语言判断和代理默认端口的用例
 - 新增基岩版解析与本地 UDP 假服务器测试（22 → 27）
+- 新增补全安装脚本的冒烟测试 `test/completion.test.sh`（23 项，CI 里跑）
 
 ## [cli-v1.2.0] - 2026-11-13
 

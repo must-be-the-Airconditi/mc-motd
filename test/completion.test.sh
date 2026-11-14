@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# Smoke tests for completions/install.sh. No network, everything inside a temp HOME.
+#
+#   bash test/completion.test.sh
+
+set -uo pipefail
+
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." || exit 1
+ROOT=$(pwd)
+INSTALL="$ROOT/completions/install.sh"
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+pass=0
+fail=0
+
+ok() { pass=$((pass + 1)); printf 'ok   %s\n' "$1"; }
+ng() { fail=$((fail + 1)); printf 'FAIL %s\n' "$1"; }
+
+check() { # check <name> <command...>
+  local name=$1
+  shift
+  if "$@" >/dev/null 2>&1; then ok "$name"; else ng "$name"; fi
+}
+
+check_file() { # check_file <name> <path>
+  if [ -f "$2" ]; then ok "$1"; else ng "$1 ($2 missing)"; fi
+}
+
+check_gone() { # check_gone <name> <path>
+  if [ ! -f "$2" ]; then ok "$1"; else ng "$1 ($2 still there)"; fi
+}
+
+check_absent() { # check_absent <name> <haystack file> <needle>
+  if grep -qF -- "$3" "$2" 2>/dev/null; then ng "$1 (found '$3')"; else ok "$1"; fi
+}
+
+check_present() { # check_present <name> <haystack file> <needle>
+  if grep -qF -- "$3" "$2" 2>/dev/null; then ok "$1"; else ng "$1 (missing '$3')"; fi
+}
+
+check_order() { # check_order <name> <file> <first> <second>
+  local a b
+  a=$(grep -n -F -m1 -- "$3" "$2" | cut -d: -f1)
+  b=$(grep -n -F -m1 -- "$4" "$2" | cut -d: -f1)
+  if [ -n "$a" ] && [ -n "$b" ] && [ "$a" -lt "$b" ]; then ok "$1"; else ng "$1 (only fixed below the other)"; fi
+}
+
+# --- static checks ---------------------------------------------------------
+for f in completions/_motd completions/motd.bash completions/install.sh; do
+  check "syntax: $f" bash -n "$f"
+done
+check "install.sh is executable" test -x "$INSTALL"
+
+# --- plain zsh -------------------------------------------------------------
+H="$TMP/zsh-plain"
+mkdir -p "$H"
+printf 'setopt hist_ignore_all_dups\nautoload -Uz compinit && compinit\n' > "$H/.zshrc"
+HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh >/dev/null 2>&1
+check_file "zsh: _motd installed to ~/.zfunc" "$H/.zfunc/_motd"
+check_present "zsh: fpath line added to ~/.zshrc" "$H/.zshrc" 'fpath=("$HOME/.zfunc" $fpath)'
+check_order "zsh: fpath inserted before compinit" "$H/.zshrc" 'fpath=("$HOME/.zfunc"' 'compinit'
+
+HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh >/dev/null 2>&1
+if [ "$(grep -c 'mc-motd completion (managed' "$H/.zshrc")" = "1" ]; then
+  ok "zsh: re-run is idempotent"
+else
+  ng "zsh: re-run duplicated the block"
+fi
+
+HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh --uninstall >/dev/null 2>&1
+check_gone "zsh: uninstall removes _motd" "$H/.zfunc/_motd"
+check_absent "zsh: uninstall removes the whole block" "$H/.zshrc" 'fpath=("$HOME/.zfunc" $fpath)'
+check_present "zsh: uninstall keeps the user's compinit line" "$H/.zshrc" 'compinit'
+
+# --- oh-my-zsh -------------------------------------------------------------
+H="$TMP/zsh-omz"
+mkdir -p "$H/.oh-my-zsh/custom"
+HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh >/dev/null 2>&1
+check_file "omz: _motd installed to custom/completions" "$H/.oh-my-zsh/custom/completions/_motd"
+check_absent "omz: ~/.zshrc left untouched" "$H/.zshrc" 'mc-motd completion'
+
+# --- bash with bash-completion --------------------------------------------
+H="$TMP/bash-full"
+mkdir -p "$H/.local/share/bash-completion"
+: > "$H/.local/share/bash-completion/bash_completion"
+HOME="$H" XDG_DATA_HOME="$H/.local/share" SHELL=/bin/bash bash "$INSTALL" --shell bash >/dev/null 2>&1
+check_file "bash: completion installed to bash-completion dir" \
+  "$H/.local/share/bash-completion/completions/motd"
+check_absent "bash: ~/.bashrc untouched with bash-completion" "$H/.bashrc" 'mc-motd completion'
+HOME="$H" XDG_DATA_HOME="$H/.local/share" SHELL=/bin/bash bash "$INSTALL" --shell bash --uninstall >/dev/null 2>&1
+check_gone "bash: uninstall removes the completion file" \
+  "$H/.local/share/bash-completion/completions/motd"
+
+# --- bash without bash-completion ----------------------------------------
+H="$TMP/bash-plain"
+mkdir -p "$H"
+printf 'alias ll="ls -l"' > "$H/.bashrc" # deliberately no trailing newline
+HOME="$H" SHELL=/bin/bash bash "$INSTALL" --shell bash >/dev/null 2>&1
+check_present "bash: source line added to ~/.bashrc" "$H/.bashrc" 'completions/motd.bash'
+check "bash: ~/.bashrc still parses" bash -n "$H/.bashrc"
+HOME="$H" SHELL=/bin/bash bash "$INSTALL" --shell bash --uninstall >/dev/null 2>&1
+check_absent "bash: uninstall removes the source line" "$H/.bashrc" 'completions/motd.bash'
+check_present "bash: uninstall keeps the user's alias" "$H/.bashrc" 'alias ll='
+
+# --- bad input ------------------------------------------------------------
+H="$TMP/bad"
+mkdir -p "$H"
+if HOME="$H" SHELL=/bin/fish bash "$INSTALL" >/dev/null 2>&1; then
+  ng "unsupported shell should fail"
+else
+  ok "unsupported shell fails"
+fi
+if HOME="$H" SHELL= bash "$INSTALL" >/dev/null 2>&1; then
+  ng "unknown shell should fail"
+else
+  ok "unknown shell fails"
+fi
+if HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --nope >/dev/null 2>&1; then
+  ng "unknown option should fail"
+else
+  ok "unknown option fails"
+fi
+
+printf '\n%d passed, %d failed\n' "$pass" "$fail"
+[ "$fail" -eq 0 ]

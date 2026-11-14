@@ -31,6 +31,8 @@ jobs:
           node --check tools/mock-server.js
       - name: 单元测试
         run: npm test
+      - name: 补全脚本测试
+        run: npm run test:completion
 
   release:
     name: release

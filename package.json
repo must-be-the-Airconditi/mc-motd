@@ -12,6 +12,7 @@
     "web": "node motd.js --web",
     "mock": "node tools/mock-server.js",
     "test": "node --test",
+    "test:completion": "bash test/completion.test.sh",
     "lint": "node --check motd.js && node --check src/slp.js && node --check src/motd.js && node --check src/web.js && node --check src/proxy.js"
   },
   "engines": {
