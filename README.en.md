@@ -132,11 +132,11 @@ node motd.js --json play.cubecraft.net | jq '.results[0].players'
 
 ## Shell completion
 
-zsh and bash completion scripts ship in `completions/`, and one command installs them (no sudo):
+zsh, bash and fish completion scripts ship in `completions/`, and one command installs them (no sudo):
 
 ```bash
-bash completions/install.sh                 # auto-detect zsh / bash
-bash completions/install.sh --shell bash    # force a shell
+bash completions/install.sh                 # auto-detect zsh / bash / fish
+bash completions/install.sh --shell fish    # force a shell
 bash completions/install.sh --uninstall     # remove
 ```
 
@@ -148,6 +148,7 @@ The script picks the right place:
 | plain zsh | `~/.zfunc/_motd`, plus an `fpath` line in `~/.zshrc` (inserted before `compinit`) |
 | bash with bash-completion | `~/.local/share/bash-completion/completions/motd` |
 | bash without bash-completion | a `source` line in `~/.bashrc` |
+| fish | `~/.config/fish/completions/motd.fish` (loaded automatically at startup) |
 
 After restarting the shell, `motd -<Tab>` completes flags like `--bedrock` and `--lang`. Installed globally via npm? The scripts live inside the package, so use `bash "$(npm root -g)/mc-motd/completions/install.sh"`.
 

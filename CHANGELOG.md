@@ -12,6 +12,7 @@
 - 桌面 GUI 也支持基岩版：地址框右侧可切 Java / Bedrock，基岩版显示 RakNet 协议、安全聊天标为“不适用”
 - Shell 补全脚本：`completions/_motd`（zsh，oh-my-zsh 可直接用）和 `completions/motd.bash`
 - `completions/install.sh`：一条命令装好补全，自动识别 oh-my-zsh / 原生 zsh / bash，支持 `--shell` 和 `--uninstall`，npm 全局安装的用户也能用
+- fish 补全：`completions/motd.fish`，安装脚本支持 `--shell fish`，装到 `~/.config/fish/completions/`（遵循 `XDG_CONFIG_HOME`）
 
 ### Changed
 

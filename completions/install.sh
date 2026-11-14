@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # mc-motd shell completion installer.
 #
-#   bash completions/install.sh              # auto-detect zsh / bash
-#   bash completions/install.sh --shell bash # force a shell
-#   bash completions/install.sh --uninstall  # remove what we installed
+#   bash completions/install.sh               # auto-detect zsh / bash / fish
+#   bash completions/install.sh --shell fish  # force a shell
+#   bash completions/install.sh --uninstall   # remove what we installed
 #
 # Works from a git checkout and from a global npm install, e.g.
 #   bash "$(npm root -g)/mc-motd/completions/install.sh"
@@ -22,7 +22,8 @@ usage() {
 Usage: install.sh [options]
 
 Options:
-  --shell zsh|bash   target shell (default: detect from $SHELL)
+  --shell zsh|bash|fish
+                     target shell (default: detect from $SHELL)
   --bashrc           bash only: always source motd.bash from ~/.bashrc
                      instead of using the bash-completion directory
   --uninstall        remove the completion files again
@@ -68,9 +69,9 @@ if [ -z "$SHELL_NAME" ]; then
 fi
 
 case "$SHELL_NAME" in
-  zsh|bash) ;;
-  "") die "cannot detect your shell (empty \$SHELL); pass --shell zsh or --shell bash" ;;
-  *) die "unsupported shell: $SHELL_NAME (only zsh and bash are supported)" ;;
+  zsh|bash|fish) ;;
+  "") die "cannot detect your shell (empty \$SHELL); pass --shell zsh|bash|fish" ;;
+  *) die "unsupported shell: $SHELL_NAME (only zsh, bash and fish are supported)" ;;
 esac
 
 BLOCK_START='# mc-motd completion (managed by completions/install.sh)'
@@ -193,6 +194,20 @@ install_bash() {
   fi
 }
 
+install_fish() {
+  local conf_dir="${XDG_CONFIG_HOME:-$HOME/.config}/fish"
+  local dest="$conf_dir/completions/motd.fish"
+  [ -f "$SRC_DIR/motd.fish" ] || die "missing $SRC_DIR/motd.fish"
+  mkdir -p "$conf_dir/completions"
+  cp "$SRC_DIR/motd.fish" "$dest"
+  chmod 644 "$dest"
+  say "installed  $dest"
+  # fish loads ~/.config/fish/completions/*.fish automatically on startup.
+  if ! command -v fish >/dev/null 2>&1; then
+    warn "fish is not on PATH yet; the file will be picked up once fish is installed"
+  fi
+}
+
 uninstall_zsh() {
   local dest_dir removed=0
   for dest_dir in "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/completions" "$HOME/.zfunc"; do
@@ -225,10 +240,22 @@ uninstall_bash() {
   [ "$removed" -eq 1 ] || say "nothing to remove"
 }
 
+uninstall_fish() {
+  local conf_dir="${XDG_CONFIG_HOME:-$HOME/.config}/fish"
+  local dest="$conf_dir/completions/motd.fish"
+  if [ -f "$dest" ]; then
+    rm -f "$dest"
+    say "removed    $dest"
+  else
+    say "nothing to remove"
+  fi
+}
+
 if [ "$MODE" = "uninstall" ]; then
   case "$SHELL_NAME" in
     zsh) uninstall_zsh ;;
     bash) uninstall_bash ;;
+    fish) uninstall_fish ;;
   esac
   say ""
   say "restart your shell to apply the change."
@@ -238,6 +265,7 @@ fi
 case "$SHELL_NAME" in
   zsh) install_zsh ;;
   bash) install_bash ;;
+  fish) install_fish ;;
 esac
 
 say ""

@@ -50,6 +50,11 @@ check_order() { # check_order <name> <file> <first> <second>
 for f in completions/_motd completions/motd.bash completions/install.sh; do
   check "syntax: $f" bash -n "$f"
 done
+if command -v fish >/dev/null 2>&1; then
+  check "syntax: completions/motd.fish" fish --no-execute completions/motd.fish
+else
+  printf 'skip syntax: completions/motd.fish (fish not installed)\n'
+fi
 check "install.sh is executable" test -x "$INSTALL"
 
 # --- plain zsh -------------------------------------------------------------
@@ -112,10 +117,40 @@ check_present "--bashrc: source line added despite bash-completion" "$H/.bashrc"
 check_gone "--bashrc: bash-completion dir untouched" \
   "$H/.local/share/bash-completion/completions/motd"
 
+# --- fish -----------------------------------------------------------------
+H="$TMP/fish"
+mkdir -p "$H"
+HOME="$H" SHELL=/usr/bin/fish bash "$INSTALL" --shell fish >/dev/null 2>&1
+check_file "fish: completion installed to ~/.config/fish/completions" \
+  "$H/.config/fish/completions/motd.fish"
+check_absent "fish: config.fish left alone" "$H/.config/fish/config.fish" 'mc-motd'
+if [ "$(stat -c %a "$H/.config/fish/completions/motd.fish" 2>/dev/null)" = "644" ]; then
+  ok "fish: completion file is world readable"
+else
+  ng "fish: completion file mode is not 644"
+fi
+HOME="$H" SHELL=/usr/bin/fish bash "$INSTALL" --shell fish --uninstall >/dev/null 2>&1
+check_gone "fish: uninstall removes the completion file" \
+  "$H/.config/fish/completions/motd.fish"
+
+# fish honours XDG_CONFIG_HOME
+H="$TMP/fish-xdg"
+mkdir -p "$H/cfg"
+HOME="$H" XDG_CONFIG_HOME="$H/cfg" SHELL=/usr/bin/fish bash "$INSTALL" --shell fish >/dev/null 2>&1
+check_file "fish: honours XDG_CONFIG_HOME" "$H/cfg/fish/completions/motd.fish"
+check_gone "fish: nothing written to ~/.config with XDG_CONFIG_HOME" \
+  "$H/.config/fish/completions/motd.fish"
+
+# fish is auto-detected from $SHELL
+H="$TMP/fish-detect"
+mkdir -p "$H"
+HOME="$H" SHELL=/usr/local/bin/fish bash "$INSTALL" >/dev/null 2>&1
+check_file "fish: auto-detected from \$SHELL" "$H/.config/fish/completions/motd.fish"
+
 # --- bad input ------------------------------------------------------------
 H="$TMP/bad"
 mkdir -p "$H"
-if HOME="$H" SHELL=/bin/fish bash "$INSTALL" >/dev/null 2>&1; then
+if HOME="$H" SHELL=/bin/tcsh bash "$INSTALL" >/dev/null 2>&1; then
   ng "unsupported shell should fail"
 else
   ok "unsupported shell fails"
