@@ -95,13 +95,13 @@ if command -v fish >/dev/null 2>&1; then
 
   out=$(fish_complete "motd ./")
   if [ -z "$out" ]; then ok "fish: file completion disabled"; else ng "fish: file completion still active"; fi
-  out=$(env LANG=zh_CN.UTF-8 fish -c 'source completions/motd.fish; complete -C "motd --b"' 2>/dev/null)
+  out=$(env -u LC_ALL -u MC_MOTD_LANG LANG=zh_CN.UTF-8 fish -c 'source completions/motd.fish; complete -C "motd --b"' 2>/dev/null)
   case "$out" in
     *查询基岩版*) ok "fish: LANG=zh_CN.UTF-8 → 中文描述" ;;
     *) ng "fish: LANG=zh_CN.UTF-8 时没有中文描述" ;;
   esac
 
-  out=$(env MC_MOTD_LANG=en LANG=zh_CN.UTF-8 fish -c 'source completions/motd.fish; complete -C "motd --b"' 2>/dev/null)
+  out=$(env -u LC_ALL MC_MOTD_LANG=en LANG=zh_CN.UTF-8 fish -c 'source completions/motd.fish; complete -C "motd --b"' 2>/dev/null)
   case "$out" in
     *"query a Bedrock"*) ok "fish: MC_MOTD_LANG=en 覆盖 LANG" ;;
     *) ng "fish: MC_MOTD_LANG 没覆盖 LANG" ;;
@@ -115,8 +115,9 @@ check "install.sh is executable" test -x "$INSTALL"
 # --- 补全描述跟随语言（和 CLI 同一套规则） -------------------------------
 if command -v zsh >/dev/null 2>&1; then
   # 把 _arguments 换成打印参数的桩，直接看它收到什么描述
+  # 清掉 runner 自带的 LC_ALL / MC_MOTD_LANG，否则会盖掉用例里的 LANG
   zsh_specs() {
-    env "$@" zsh -f -c '
+    env -u LC_ALL -u MC_MOTD_LANG "$@" zsh -f -c '
       _arguments() { print -rl -- "$@" }
       probe() { source ./completions/_motd }
       probe
@@ -139,6 +140,12 @@ if command -v zsh >/dev/null 2>&1; then
   case "$out" in
     *"show help"*) ok "zsh: MC_MOTD_LANG 覆盖 LANG" ;;
     *) ng "zsh: MC_MOTD_LANG 没覆盖 LANG" ;;
+  esac
+
+  out=$(zsh_specs LC_ALL=zh_CN.UTF-8 LANG=en_US.UTF-8)
+  case "$out" in
+    *显示帮助*) ok "zsh: LC_ALL 优先于 LANG" ;;
+    *) ng "zsh: LC_ALL 没有优先于 LANG" ;;
   esac
 
   out=$(env -u LANG -u LC_ALL -u MC_MOTD_LANG zsh -f -c '
