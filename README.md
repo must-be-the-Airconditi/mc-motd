@@ -131,6 +131,25 @@ JSON 模式方便接脚本：
 node motd.js --json play.cubecraft.net | jq '.results[0].players'
 ```
 
+## Shell 补全
+
+仓库里带了 zsh / bash 补全脚本：
+
+```bash
+# zsh + oh-my-zsh（推荐）
+mkdir -p ~/.oh-my-zsh/custom/completions
+cp completions/_motd ~/.oh-my-zsh/custom/completions/
+
+# 原生 zsh
+mkdir -p ~/.zfunc && cp completions/_motd ~/.zfunc/
+echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
+
+# bash
+echo 'source ~/mc-motd/completions/motd.bash' >> ~/.bashrc
+```
+
+重开终端后 `motd -<Tab>` 就能补全 `--bedrock`、`--lang` 等参数。
+
 ## 网页版
 
 界面支持中文 / English：右上角 `EN` / `中文` 切换，默认跟随浏览器语言，选择会记住（localStorage）。

@@ -1,0 +1,22 @@
+#compdef motd
+
+# mc-motd 的 zsh 补全
+# 安装：把本文件放到 $fpath 里的目录，例如 ~/.oh-my-zsh/custom/completions/
+# 然后重开终端或执行 compinit
+
+_arguments -s -S \
+  '(-h --help)'{-h,--help}'[show help]' \
+  '(-v --version)'{-v,--version}'[show version]' \
+  '--json[output JSON]' \
+  '--timeout[request timeout in milliseconds]:milliseconds:' \
+  '--proxy[proxy URL]:proxy:' \
+  '--lang[output language]:language:(zh en)' \
+  '--bedrock[query a Bedrock Edition server (UDP 19132)]' \
+  '--no-srv[skip SRV lookup]' \
+  '--no-legacy[do not fall back to the legacy ping]' \
+  '--no-color[disable colors]' \
+  '--color[force colors]' \
+  '--web[start the local web UI]' \
+  '--port[web UI port]:port:' \
+  '--host[bind address]:address:' \
+  '*:server address:'

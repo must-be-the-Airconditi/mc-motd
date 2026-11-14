@@ -130,6 +130,25 @@ JSON mode plays nicely with scripts:
 node motd.js --json play.cubecraft.net | jq '.results[0].players'
 ```
 
+## Shell completion
+
+Completion scripts for zsh and bash ship in `completions/`:
+
+```bash
+# zsh + oh-my-zsh (recommended)
+mkdir -p ~/.oh-my-zsh/custom/completions
+cp completions/_motd ~/.oh-my-zsh/custom/completions/
+
+# plain zsh
+mkdir -p ~/.zfunc && cp completions/_motd ~/.zfunc/
+echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
+
+# bash
+echo 'source ~/mc-motd/completions/motd.bash' >> ~/.bashrc
+```
+
+Then `motd -<Tab>` completes flags like `--bedrock` and `--lang`.
+
 ## Web UI
 
 The UI is available in Chinese and English: use the `EN` / `中文` button in the top-right corner, it defaults to your browser language and remembers your choice (localStorage).

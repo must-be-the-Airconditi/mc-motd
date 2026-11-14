@@ -10,6 +10,7 @@
 
 - 基岩版（Bedrock Edition）支持：RakNet Unconnected Ping，CLI 加 `--bedrock`，网页版可选 Java / Bedrock，接口参数 `edition=bedrock`
 - 桌面 GUI 也支持基岩版：地址框右侧可切 Java / Bedrock，基岩版显示 RakNet 协议、安全聊天标为“不适用”
+- Shell 补全脚本：`completions/_motd`（zsh，oh-my-zsh 可直接用）和 `completions/motd.bash`
 
 ### Changed
 

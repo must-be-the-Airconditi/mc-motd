@@ -37,6 +37,7 @@
     "src/",
     "public/",
     "tools/",
-    "test/"
+    "test/",
+    "completions/"
   ]
 }
