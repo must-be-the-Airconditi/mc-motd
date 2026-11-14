@@ -11,7 +11,7 @@
 | 线路 | tag | 触发的工作流 | 产物 |
 |---|---|---|---|
 | CLI / 网页版（Node） | `cli-vX.Y.Z` | `.github/workflows/cli.yml` | `mc-motd-X.Y.Z.tgz` |
-| 桌面 GUI（Java） | `gui-vX.Y.Z` | `.github/workflows/gui.yml` | Windows zip、Linux tar.gz、portable zip、通用 jar、SHA256SUMS |
+| 桌面 GUI（Java） | `gui-vX.Y.Z` | `.github/workflows/gui.yml` | Windows zip、Linux tar.gz、macOS dmg + app zip、portable zip、通用 jar、SHA256SUMS |
 
 两条线各发各的，互不牵连。
 

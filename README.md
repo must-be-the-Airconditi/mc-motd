@@ -180,9 +180,15 @@ Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux
 |---|---|
 | Windows x64 | `mc-motd-*-windows-x64.zip`（解压运行 `mc-motd.exe`） |
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
-| macOS / BSD / 其他 | `mc-motd-*-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
+| macOS（Apple Silicon） | `mc-motd-*-macos-arm64.zip` 或 `mc-motd-<版本>.dmg`（内置运行时） |
+| macOS（Intel）/ BSD / 其他 | `mc-motd-*-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
-安装包没有签名：macOS 首次打开要右键 → 打开，Windows SmartScreen 选“仍要运行”。
+安装包没有签名，首次打开会被系统拦一下：
+
+- **macOS**：右键 → 打开；或者 `xattr -dr com.apple.quarantine /Applications/mc-motd.app`
+- **Windows**：SmartScreen 里选“仍要运行”
+
+macOS 的 `.dmg` / `.app` 只有 Apple Silicon（arm64），Intel Mac 用通用 jar。
 
 功能：服务器卡片（favicon / 两行 MOTD / 人数 / 延迟信号条）、详情、玩家列表、原始 JSON、查询历史、代理输入框、Java / 基岩版切换。
 
@@ -253,7 +259,7 @@ RELEASING.md          发版流程
 两条线独立发布，tag 前缀不同：
 
 - **CLI / 网页版（Node）**：打 `cli-vX.Y.Z`，触发 `cli` 工作流，测试通过后自动发布 npm tarball
-- **桌面 GUI（Java）**：打 `gui-vX.Y.Z`，触发 `gui` 工作流，自动打 Windows / Linux 安装包 + 通用 jar + portable 包
+- **桌面 GUI（Java）**：打 `gui-vX.Y.Z`，触发 `gui` 工作流，自动打 Windows / Linux / macOS 安装包 + 通用 jar + portable 包
 
 拆分前的旧 tag `v1.0.0`（CLI / 网页）和 `v1.1.0`（GUI）仍有效，作为历史版本保留。
 

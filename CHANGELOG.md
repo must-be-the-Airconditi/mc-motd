@@ -6,18 +6,19 @@
 
 ## [Unreleased]
 
+## [cli-v1.3.0] - 2026-11-14
+
 ### Added
 
 - 基岩版（Bedrock Edition）支持：RakNet Unconnected Ping，CLI 加 `--bedrock`，网页版可选 Java / Bedrock，接口参数 `edition=bedrock`
-- 桌面 GUI 也支持基岩版：地址框右侧可切 Java / Bedrock，基岩版显示 RakNet 协议、安全聊天标为“不适用”
-- Shell 补全脚本：`completions/_motd`（zsh，oh-my-zsh 可直接用）和 `completions/motd.bash`
-- `completions/install.sh`：一条命令装好补全，自动识别 oh-my-zsh / 原生 zsh / bash，支持 `--shell` 和 `--uninstall`，npm 全局安装的用户也能用
-- fish 补全：`completions/motd.fish`，安装脚本支持 `--shell fish`，装到 `~/.config/fish/completions/`（遵循 `XDG_CONFIG_HOME`）
+- Shell 补全：`completions/_motd`（zsh，oh-my-zsh 可直接用）、`completions/motd.bash`、`completions/motd.fish`
+- `completions/install.sh`：一条命令装好补全，自动识别 oh-my-zsh / 原生 zsh / bash / fish，支持 `--shell`、`--bashrc` 和 `--uninstall`，npm 全局安装的用户也能用
 
 ### Changed
 
-- 网页版、CLI、GUI 和文档里的 “Java Edition” 文案统一改为 “Java / Bedrock”
+- 网页版、CLI 和文档里的 “Java Edition” 文案统一改为 “Java / Bedrock”
 - release notes 改为从 `CHANGELOG.md` 的对应版本小节自动生成，更新内容为主，下载/安装说明放尾部
+- CI 测试矩阵加上 macOS；补全测试在 CI 里真的装 fish 跑，不再只是语法检查
 
 ### Fixed
 
@@ -32,7 +33,19 @@
 
 - 补充 i18n 插值、语言判断和代理默认端口的用例
 - 新增基岩版解析与本地 UDP 假服务器测试（22 → 27）
-- 新增补全安装脚本的冒烟测试 `test/completion.test.sh`（37 项，含 zsh / bash / fish 实际补全验证，CI 里跑）
+- 新增补全冒烟测试 `test/completion.test.sh`（40 项，含 zsh / bash / fish 实际补全验证和配置块安全用例）
+
+## [gui-v1.3.0] - 2026-11-14
+
+### Added
+
+- 桌面 GUI 支持基岩版：地址框右侧可切 Java / Bedrock，基岩版显示 RakNet 协议、安全聊天标为“不适用”
+- macOS 安装包：Apple Silicon 的 `.dmg` 和 `.app.zip`（内置运行时，无需装 Java），CI 增加 macOS 打包矩阵
+- `gui` 工作流支持 `dry_run` 手动试打包，不发布也能验证三平台产物
+
+### Changed
+
+- 桌面 GUI 文案统一为 “Java / Bedrock”
 
 ## [cli-v1.2.0] - 2026-11-13
 

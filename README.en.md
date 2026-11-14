@@ -179,9 +179,15 @@ A native Java Swing window (not a web page); one codebase runs on macOS / Window
 |---|---|
 | Windows x64 | `mc-motd-*-windows-x64.zip` (unzip and run `mc-motd.exe`) |
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
-| macOS / BSD / others | `mc-motd-*-portable.zip` or `mc-motd-gui.jar` (Java 11+) |
+| macOS (Apple Silicon) | `mc-motd-*-macos-arm64.zip` or `mc-motd-<version>.dmg` (bundled runtime) |
+| macOS (Intel) / BSD / others | `mc-motd-*-portable.zip` or `mc-motd-gui.jar` (Java 11+) |
 
-The builds are unsigned: on macOS, right-click → Open the first time; on Windows, pick "More info → Run anyway" in SmartScreen.
+The builds are unsigned, so the first launch is gated:
+
+- **macOS**: right-click → Open, or `xattr -dr com.apple.quarantine /Applications/mc-motd.app`
+- **Windows**: "More info → Run anyway" in SmartScreen
+
+The macOS `.dmg` / `.app` is Apple Silicon (arm64) only; Intel Macs should use the universal jar.
 
 Features: server card (favicon / two-line MOTD / player count / latency bars), details, player list, raw JSON, query history, a proxy field and Java / Bedrock switching.
 
@@ -252,7 +258,7 @@ RELEASING.md          release process
 Two lines ship independently, with different tag prefixes:
 
 - **CLI / web UI (Node)**: tag `cli-vX.Y.Z`, triggers the `cli` workflow, publishes an npm tarball once tests pass
-- **Desktop GUI (Java)**: tag `gui-vX.Y.Z`, triggers the `gui` workflow, builds Windows / Linux packages + a universal jar + a portable zip
+- **Desktop GUI (Java)**: tag `gui-vX.Y.Z`, triggers the `gui` workflow, builds Windows / Linux / macOS packages + a universal jar + a portable zip
 
 The pre-split tags `v1.0.0` (CLI / web) and `v1.1.0` (GUI) remain valid as historical releases.
 

@@ -49,7 +49,8 @@ macOS 的 `.icns` 由 CI 里的 `sips` + `iconutil` 生成。
 |---|---|
 | Linux | `mc-motd-<版本>-linux-x64.tar.gz` |
 | Windows | `mc-motd-<版本>-windows-x64.zip`（含 `mc-motd.exe`） |
-| macOS / BSD | `mc-motd-<版本>-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
+| macOS（Apple Silicon） | `mc-motd-<版本>-macos-arm64.zip` 或 `mc-motd-<版本>.dmg` |
+| macOS（Intel）/ BSD | `mc-motd-<版本>-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
 
 在 `bash gui/build.sh` 之后本地也可以手动打包：
 

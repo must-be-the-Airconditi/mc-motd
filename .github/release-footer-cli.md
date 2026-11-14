@@ -8,3 +8,9 @@ motd --web
 ```
 
 支持 Java / 基岩版，中英文输出（`--lang en` 或 `MC_MOTD_LANG=en`）。
+
+Shell 补全（zsh / bash / fish）一条命令装好：
+
+```bash
+bash completions/install.sh
+```
