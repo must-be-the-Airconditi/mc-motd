@@ -125,6 +125,15 @@ check_gone "zsh: uninstall removes _motd" "$H/.zfunc/_motd"
 check_absent "zsh: uninstall removes the whole block" "$H/.zshrc" 'fpath=("$HOME/.zfunc" $fpath)'
 check_present "zsh: uninstall keeps the user's compinit line" "$H/.zshrc" 'compinit'
 
+# --- half-written block must not eat the rest of the file -----------------
+H="$TMP/half"
+mkdir -p "$H"
+printf '# mc-motd completion (managed by completions/install.sh)\nsetopt keepme\nautoload -Uz compinit && compinit\n' > "$H/.zshrc"
+HOME="$H" SHELL=/bin/zsh bash "$INSTALL" --shell zsh --uninstall >/dev/null 2>&1
+check_absent "half block: stray marker removed" "$H/.zshrc" 'mc-motd completion (managed'
+check_present "half block: config below survived" "$H/.zshrc" 'setopt keepme'
+check_present "half block: compinit survived" "$H/.zshrc" 'compinit'
+
 # --- oh-my-zsh -------------------------------------------------------------
 H="$TMP/zsh-omz"
 mkdir -p "$H/.oh-my-zsh/custom"

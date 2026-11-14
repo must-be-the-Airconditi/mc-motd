@@ -107,24 +107,40 @@ append_block() {
 }
 
 # Insert the managed block before the first `compinit` line so fpath is set in time.
+# Uses head/tail rather than awk: BSD awk rejects multi-line -v values.
 insert_block_before_compinit() {
   local file=$1 body=$2
   if has_block "$file"; then
+    return 1 # already installed
+  fi
+  touch "$file" || return 1
+  ensure_trailing_newline "$file"
+  local block line tmp
+  block=$(mktemp) || return 1
+  if ! printf '%s\n' "$(block_text "$body")" > "$block"; then
+    rm -f "$block"
     return 1
   fi
-  touch "$file"
-  local block line tmp
-  block=$(block_text "$body")
   line=$(grep -n -m1 -E '(^|[^[:alnum:]_])compinit([^[:alnum:]_]|$)' "$file" | cut -d: -f1 || true)
-  if [ -n "$line" ]; then
-    tmp=$(mktemp)
-    awk -v n="$line" -v block="$block" 'NR == n { print block } { print }' "$file" > "$tmp"
-    mv "$tmp" "$file"
-  else
-    ensure_trailing_newline "$file"
-    printf '%s\n' "$block" >> "$file"
+  if [ -z "$line" ]; then
+    if cat "$block" >> "$file"; then
+      rm -f "$block"
+      return 0
+    fi
+    rm -f "$block"
+    return 1
   fi
-  return 0
+  tmp=$(mktemp) || { rm -f "$block"; return 1; }
+  if head -n $((line - 1)) "$file" > "$tmp" &&
+    cat "$block" >> "$tmp" &&
+    tail -n +"$line" "$file" >> "$tmp"; then
+    if mv "$tmp" "$file"; then
+      rm -f "$block"
+      return 0
+    fi
+  fi
+  rm -f "$tmp" "$block"
+  return 1
 }
 
 # Delete the managed block, from its start marker through its end marker.
@@ -168,13 +184,11 @@ install_zsh() {
   say "installed  $dest_dir/_motd"
   if [ "$need_fpath" -eq 1 ]; then
     if insert_block_before_compinit "$HOME/.zshrc" 'fpath=("$HOME/.zfunc" $fpath)'; then
-      if grep -qF -- 'fpath=("$HOME/.zfunc"' "$HOME/.zshrc"; then
-        say "updated    ~/.zshrc (added \$HOME/.zfunc to fpath)"
-      else
-        warn "could not write the fpath line to ~/.zshrc; add it manually before compinit: fpath=(\"\$HOME/.zfunc\" \$fpath)"
-      fi
-    else
+      say "updated    ~/.zshrc (added \$HOME/.zfunc to fpath)"
+    elif has_block "$HOME/.zshrc"; then
       say "kept       ~/.zshrc (fpath entry already present)"
+    else
+      warn "could not write the fpath line to ~/.zshrc; add it manually before compinit: fpath=(\"\$HOME/.zfunc\" \$fpath)"
     fi
     if ! grep -qE 'autoload -Uz compinit' "$HOME/.zshrc" 2>/dev/null; then
       warn "your ~/.zshrc has no 'compinit' call; add 'autoload -Uz compinit && compinit' for zsh completion to work"
