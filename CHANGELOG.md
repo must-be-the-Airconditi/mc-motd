@@ -32,7 +32,7 @@
 
 - 补充 i18n 插值、语言判断和代理默认端口的用例
 - 新增基岩版解析与本地 UDP 假服务器测试（22 → 27）
-- 新增补全安装脚本的冒烟测试 `test/completion.test.sh`（23 项，CI 里跑）
+- 新增补全安装脚本的冒烟测试 `test/completion.test.sh`（37 项，含 zsh / bash / fish 实际补全验证，CI 里跑）
 
 ## [cli-v1.2.0] - 2026-11-13
 

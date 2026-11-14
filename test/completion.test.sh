@@ -63,8 +63,36 @@ for f in completions/_motd completions/motd.bash completions/install.sh; do
 done
 if command -v fish >/dev/null 2>&1; then
   check "syntax: completions/motd.fish" fish --no-execute completions/motd.fish
+
+  fish_complete() { # fish_complete <line> -> candidates, one per line
+    fish -c "source completions/motd.fish; complete -C '$1'" 2>/dev/null
+  }
+
+  out=$(fish_complete "motd --b")
+  case "$out" in
+    *--bedrock*) ok "fish: '--b' completes to --bedrock" ;;
+    *) ng "fish: '--b' did not complete to --bedrock" ;;
+  esac
+
+  out=$(fish_complete "motd --lang ")
+  if printf '%s' "$out" | grep -q 'zh' && printf '%s' "$out" | grep -q 'en'; then
+    ok "fish: --lang completes zh / en"
+  else
+    ng "fish: --lang does not complete zh / en"
+  fi
+
+  out=$(fish_complete "motd --")
+  missing=""
+  for opt in --json --timeout --proxy --lang --bedrock --no-srv --no-legacy \
+    --no-color --color --web --port --host --help --version; do
+    printf '%s' "$out" | grep -q -- "$opt" || missing="$missing $opt"
+  done
+  if [ -z "$missing" ]; then ok "fish: every --option is offered"; else ng "fish: options missing:$missing"; fi
+
+  out=$(fish_complete "motd ./")
+  if [ -z "$out" ]; then ok "fish: file completion disabled"; else ng "fish: file completion still active"; fi
 else
-  printf 'skip syntax: completions/motd.fish (fish not installed)\n'
+  printf 'skip fish checks (fish not installed)\n'
 fi
 check "install.sh is executable" test -x "$INSTALL"
 
