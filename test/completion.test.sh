@@ -158,12 +158,18 @@ if command -v zsh >/dev/null 2>&1; then
     *) ng "zsh: 默认语言不是中文" ;;
   esac
 
-  # 14 条带 [描述] 的 spec（2 组短长选项 + 12 个长选项），另有 1 条地址参数
+  # 16 条带 [描述] 的 spec（-h/--help 和 -v/--version 各展开成两条 + 12 个长选项）
   specs=$(printf '%s\n' "$out" | grep -c '\[')
-  if [ "$specs" -eq 14 ]; then
-    ok "zsh: 14 条选项 spec 都在"
+  if [ "$specs" -eq 16 ]; then
+    ok "zsh: 16 条选项 spec 都在"
   else
-    ng "zsh: 选项 spec 数量不对（$specs，应为 14）"
+    ng "zsh: 选项 spec 数量不对（$specs，应为 16）"
+  fi
+  # 花括号必须被 shell 展开，剩下未展开的 {} 会被 _arguments 判为 invalid argument
+  if printf '%s\n' "$out" | grep -q '{'; then
+    ng "zsh: spec 里还有未展开的 {…}（_arguments 会报 invalid argument）"
+  else
+    ok "zsh: 短长选项对已正确展开"
   fi
   case "$out" in
     *服务器地址*) ok "zsh: 地址参数描述也本地化了" ;;
@@ -171,6 +177,35 @@ if command -v zsh >/dev/null 2>&1; then
   esac
 else
   printf 'skip zsh language checks (zsh not installed)\n'
+fi
+
+# --- zsh 真实补全（zpty 开交互 shell 按 Tab，_arguments 的 spec 错误只有真跑才暴露） ---
+if command -v zsh >/dev/null 2>&1 && zsh -fc 'zmodload zsh/zpty' >/dev/null 2>&1; then
+  TO=""
+  if command -v timeout >/dev/null 2>&1; then
+    TO="timeout 25"
+  elif command -v gtimeout >/dev/null 2>&1; then
+    TO="gtimeout 25"
+  fi
+
+  out=$(env -u LC_ALL -u MC_MOTD_LANG LANG=zh_CN.UTF-8 $TO zsh -f test/zsh-completion-probe.zsh "$ROOT" 2>/dev/null)
+  case "$out" in
+    *"invalid argument"*) ng "zsh 真实补全: _arguments 报 invalid argument" ;;
+    *--bedrock*) ok "zsh 真实补全: 能补出 --bedrock" ;;
+    *) ng "zsh 真实补全: 没看到 --bedrock 候选" ;;
+  esac
+  case "$out" in
+    *查询基岩版*) ok "zsh 真实补全: 描述是中文" ;;
+    *) ng "zsh 真实补全: 描述不是中文" ;;
+  esac
+
+  out=$(env -u LC_ALL -u MC_MOTD_LANG LANG=en_US.UTF-8 $TO zsh -f test/zsh-completion-probe.zsh "$ROOT" 2>/dev/null)
+  case "$out" in
+    *"query a Bedrock"*) ok "zsh 真实补全: LANG=en 时描述是英文" ;;
+    *) ng "zsh 真实补全: 英文描述缺失" ;;
+  esac
+else
+  printf 'skip zsh real completion (zsh/zpty unavailable)\n'
 fi
 
 # --- plain zsh -------------------------------------------------------------

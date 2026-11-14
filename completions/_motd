@@ -48,8 +48,8 @@ else
 fi
 
 _arguments -s -S \
-  "(-h --help){-h,--help}[${d[1]}]" \
-  "(-v --version){-v,--version}[${d[2]}]" \
+  "(-h --help)"{-h,--help}"[${d[1]}]" \
+  "(-v --version)"{-v,--version}"[${d[2]}]" \
   "--json[${d[3]}]" \
   "--timeout[${d[4]}]:milliseconds:" \
   "--proxy[${d[5]}]:proxy:" \
