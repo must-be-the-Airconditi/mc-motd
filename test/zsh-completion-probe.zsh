@@ -4,33 +4,25 @@
 #
 #   zsh -f test/zsh-completion-probe.zsh <仓库根目录> [要补全的命令行片段]
 #
-# 读输出用 zpty -r -m -t 非阻塞轮询，最多等 10 秒，避免补全进入菜单时卡死 CI。
+# 不赌固定 sleep：等内部 shell 打出 SETUP_DONE 再按 Tab（标记用 SE''TUP_DONE 拼接，
+# 免得命令自身的回显就匹配上）。输出靠非阻塞轮询读到安静为止，补全进菜单也不会挂。
 
 root=${1:-$PWD}
 line=${2:-'motd --b'}
 
 zmodload zsh/zpty 2>/dev/null || { print -u2 'zpty unavailable'; exit 3 }
 
-zpty z 'zsh -f -i' || exit 3
+zpty z 'env TERM=xterm-256color zsh -f -i' || exit 3
 
 zpty -w z "fpath=($root/completions \$fpath)"
-zpty -w z "autoload -Uz compinit && compinit -u -d ${TMPDIR:-/tmp}/zcd-probe-$$"
-zpty -w z "zstyle ':completion:*' menu no; setopt no_menu_complete 2>/dev/null"
-sleep 1
+zpty -w z "zstyle ':completion:*' menu no"
+zpty -w z "autoload -Uz compinit && compinit -u -d \${TMPDIR:-/tmp}/zcd-probe-\$\$ && echo SE''TUP_DONE"
 
-zpty -w -n z "$line"$'\t'
-sleep 1
-
-# 万一补全进了菜单选择或列表提示，发 Ctrl-C 让它回到命令行，否则后面的 echo 不会执行
-zpty -w -n z $'\x03'
-sleep 0.3
-zpty -w z 'echo READY_MARK'
-
-out=''
+out='' chunk=''
 integer i=0
-while (( i < 200 )); do
+while (( i < 300 )); do
   chunk=''
-  if zpty -rmt z chunk '*READY_MARK*' 2>/dev/null; then
+  if zpty -rmt z chunk '*SETUP_DONE*' 2>/dev/null; then
     out+=$chunk
     break
   fi
@@ -39,6 +31,25 @@ while (( i < 200 )); do
   (( i++ )) || true
 done
 
+zpty -w -n z "$line"$'\t'
+
+# 读补全输出：有数据就继续读，连续 20 次（约 1 秒）没新输出就当渲染完了
+integer quiet=0 k=0
+while (( k < 120 )); do
+  chunk=''
+  if zpty -rt z chunk 2>/dev/null; then
+    out+=$chunk
+    quiet=0
+  else
+    (( quiet++ )) || true
+    (( quiet >= 20 )) && break
+  fi
+  sleep 0.05
+  (( k++ )) || true
+done
+
+# 补全可能停在菜单选择里，发个 Ctrl-C 让子 shell 退出
+zpty -w -n z $'\x03' 2>/dev/null
 zpty -d z 2>/dev/null
 
 print -r -- "$out"
