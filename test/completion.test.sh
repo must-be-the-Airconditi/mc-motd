@@ -15,7 +15,14 @@ pass=0
 fail=0
 
 ok() { pass=$((pass + 1)); printf 'ok   %s\n' "$1"; }
-ng() { fail=$((fail + 1)); printf 'FAIL %s\n' "$1"; }
+ng() {
+  fail=$((fail + 1))
+  printf 'FAIL %s\n' "$1"
+  # Surface the exact assertion in the GitHub Actions summary.
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    printf '::error title=completion test::%s\n' "$1"
+  fi
+}
 
 check() { # check <name> <command...>
   local name=$1
