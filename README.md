@@ -153,6 +153,8 @@ bash completions/install.sh --uninstall     # 卸载
 
 重开终端后 `motd -<Tab>` 就能补全 `--bedrock`、`--lang` 等参数。用 npm 全局安装的话，补全文件在包里，路径换成 `bash "$(npm root -g)/mc-motd/completions/install.sh"` 即可。
 
+补全里显示的说明文字也跟随语言，规则和 CLI 一致：`MC_MOTD_LANG` > `LC_ALL` > `LANG`，`en*` 用英文，其余（含 `zh_CN`）用中文。bash 的补全本身不显示说明文字，所以只有候选、没有语言问题。
+
 ## 网页版
 
 界面支持中文 / English：右上角 `EN` / `中文` 切换，默认跟随浏览器语言，选择会记住（localStorage）。

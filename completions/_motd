@@ -1,22 +1,65 @@
 #compdef motd
 
 # mc-motd 的 zsh 补全
-# 安装：把本文件放到 $fpath 里的目录，例如 ~/.oh-my-zsh/custom/completions/
-# 然后重开终端或执行 compinit
+# 安装：bash completions/install.sh --shell zsh
+# 描述语言跟随 MC_MOTD_LANG / LC_ALL / LANG，规则和 CLI 一致：en* 用英文，其余用中文
+
+local locale=${MC_MOTD_LANG:-}
+[[ -n $locale ]] || locale=${LC_ALL:-${LANG:-}}
+locale=${locale:l}
+
+local -a d
+if [[ $locale == en* ]]; then
+  d=(
+    'show help'
+    'show version'
+    'output JSON'
+    'request timeout in milliseconds'
+    'proxy URL'
+    'output language'
+    'query a Bedrock Edition server (UDP 19132)'
+    'skip SRV lookup'
+    'do not fall back to the legacy ping'
+    'disable colors'
+    'force colors'
+    'start the local web UI'
+    'web UI port'
+    'bind address'
+    'server address'
+  )
+else
+  d=(
+    '显示帮助'
+    '显示版本'
+    '输出 JSON'
+    '请求超时（毫秒）'
+    '代理地址'
+    '输出语言'
+    '查询基岩版服务器（UDP 19132）'
+    '跳过 SRV 查询'
+    '不回退到旧版 Ping'
+    '禁用颜色'
+    '强制启用颜色'
+    '启动本地网页版'
+    '网页版端口'
+    '监听地址'
+    '服务器地址'
+  )
+fi
 
 _arguments -s -S \
-  '(-h --help)'{-h,--help}'[show help]' \
-  '(-v --version)'{-v,--version}'[show version]' \
-  '--json[output JSON]' \
-  '--timeout[request timeout in milliseconds]:milliseconds:' \
-  '--proxy[proxy URL]:proxy:' \
-  '--lang[output language]:language:(zh en)' \
-  '--bedrock[query a Bedrock Edition server (UDP 19132)]' \
-  '--no-srv[skip SRV lookup]' \
-  '--no-legacy[do not fall back to the legacy ping]' \
-  '--no-color[disable colors]' \
-  '--color[force colors]' \
-  '--web[start the local web UI]' \
-  '--port[web UI port]:port:' \
-  '--host[bind address]:address:' \
-  '*:server address:'
+  "(-h --help){-h,--help}[${d[1]}]" \
+  "(-v --version){-v,--version}[${d[2]}]" \
+  "--json[${d[3]}]" \
+  "--timeout[${d[4]}]:milliseconds:" \
+  "--proxy[${d[5]}]:proxy:" \
+  "--lang[${d[6]}]:language:(zh en)" \
+  "--bedrock[${d[7]}]" \
+  "--no-srv[${d[8]}]" \
+  "--no-legacy[${d[9]}]" \
+  "--no-color[${d[10]}]" \
+  "--color[${d[11]}]" \
+  "--web[${d[12]}]" \
+  "--port[${d[13]}]:port:" \
+  "--host[${d[14]}]:address:" \
+  "*:${d[15]}:"

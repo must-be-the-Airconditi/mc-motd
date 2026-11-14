@@ -95,10 +95,76 @@ if command -v fish >/dev/null 2>&1; then
 
   out=$(fish_complete "motd ./")
   if [ -z "$out" ]; then ok "fish: file completion disabled"; else ng "fish: file completion still active"; fi
+  out=$(env LANG=zh_CN.UTF-8 fish -c 'source completions/motd.fish; complete -C "motd --b"' 2>/dev/null)
+  case "$out" in
+    *查询基岩版*) ok "fish: LANG=zh_CN.UTF-8 → 中文描述" ;;
+    *) ng "fish: LANG=zh_CN.UTF-8 时没有中文描述" ;;
+  esac
+
+  out=$(env MC_MOTD_LANG=en LANG=zh_CN.UTF-8 fish -c 'source completions/motd.fish; complete -C "motd --b"' 2>/dev/null)
+  case "$out" in
+    *"query a Bedrock"*) ok "fish: MC_MOTD_LANG=en 覆盖 LANG" ;;
+    *) ng "fish: MC_MOTD_LANG 没覆盖 LANG" ;;
+  esac
+
 else
   printf 'skip fish checks (fish not installed)\n'
 fi
 check "install.sh is executable" test -x "$INSTALL"
+
+# --- 补全描述跟随语言（和 CLI 同一套规则） -------------------------------
+if command -v zsh >/dev/null 2>&1; then
+  # 把 _arguments 换成打印参数的桩，直接看它收到什么描述
+  zsh_specs() {
+    env "$@" zsh -f -c '
+      _arguments() { print -rl -- "$@" }
+      probe() { source ./completions/_motd }
+      probe
+    '
+  }
+
+  out=$(zsh_specs LANG=zh_CN.UTF-8)
+  case "$out" in
+    *显示帮助*) ok "zsh: LANG=zh_CN.UTF-8 → 中文描述" ;;
+    *) ng "zsh: LANG=zh_CN.UTF-8 时没有中文描述" ;;
+  esac
+
+  out=$(zsh_specs LANG=en_US.UTF-8)
+  case "$out" in
+    *"show help"*) ok "zsh: LANG=en_US.UTF-8 → 英文描述" ;;
+    *) ng "zsh: LANG=en_US.UTF-8 时没有英文描述" ;;
+  esac
+
+  out=$(zsh_specs MC_MOTD_LANG=en LANG=zh_CN.UTF-8)
+  case "$out" in
+    *"show help"*) ok "zsh: MC_MOTD_LANG 覆盖 LANG" ;;
+    *) ng "zsh: MC_MOTD_LANG 没覆盖 LANG" ;;
+  esac
+
+  out=$(env -u LANG -u LC_ALL -u MC_MOTD_LANG zsh -f -c '
+    _arguments() { print -rl -- "$@" }
+    probe() { source ./completions/_motd }
+    probe
+  ')
+  case "$out" in
+    *显示帮助*) ok "zsh: 没有 locale 变量时默认中文" ;;
+    *) ng "zsh: 默认语言不是中文" ;;
+  esac
+
+  # 14 条带 [描述] 的 spec（2 组短长选项 + 12 个长选项），另有 1 条地址参数
+  specs=$(printf '%s\n' "$out" | grep -c '\[')
+  if [ "$specs" -eq 14 ]; then
+    ok "zsh: 14 条选项 spec 都在"
+  else
+    ng "zsh: 选项 spec 数量不对（$specs，应为 14）"
+  fi
+  case "$out" in
+    *服务器地址*) ok "zsh: 地址参数描述也本地化了" ;;
+    *) ng "zsh: 地址参数描述没本地化" ;;
+  esac
+else
+  printf 'skip zsh language checks (zsh not installed)\n'
+fi
 
 # --- plain zsh -------------------------------------------------------------
 H="$TMP/zsh-plain"

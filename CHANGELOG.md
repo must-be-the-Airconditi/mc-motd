@@ -6,6 +6,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- zsh / fish 补全的说明文字跟随语言（`MC_MOTD_LANG` > `LC_ALL` > `LANG`，`en*` 英文，其余中文），和 CLI 使用同一套规则
+
 ## [cli-v1.3.0] - 2026-11-14
 
 ### Added

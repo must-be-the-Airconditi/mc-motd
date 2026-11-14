@@ -152,6 +152,8 @@ The script picks the right place:
 
 After restarting the shell, `motd -<Tab>` completes flags like `--bedrock` and `--lang`. Installed globally via npm? The scripts live inside the package, so use `bash "$(npm root -g)/mc-motd/completions/install.sh"`.
 
+The descriptions shown by the completion follow your language, using the same rule as the CLI: `MC_MOTD_LANG` > `LC_ALL` > `LANG`, with `en*` meaning English and everything else Chinese. bash completion shows candidates only, so it has no descriptions to translate.
+
 ## Web UI
 
 The UI is available in Chinese and English: use the `EN` / `中文` button in the top-right corner, it defaults to your browser language and remembers your choice (localStorage).
