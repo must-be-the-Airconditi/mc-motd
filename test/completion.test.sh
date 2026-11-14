@@ -5,6 +5,10 @@
 
 set -uo pipefail
 
+# Ambient XDG_*/ZSH_* variables would move the install targets (GitHub runners
+# set XDG_CONFIG_HOME, for example). Tests that care set them explicitly.
+unset XDG_CONFIG_HOME XDG_DATA_HOME ZSH ZSH_CUSTOM ZDOTDIR
+
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." || exit 1
 ROOT=$(pwd)
 INSTALL="$ROOT/completions/install.sh"
