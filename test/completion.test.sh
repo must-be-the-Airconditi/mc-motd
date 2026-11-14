@@ -96,12 +96,21 @@ check_gone "bash: uninstall removes the completion file" \
 H="$TMP/bash-plain"
 mkdir -p "$H"
 printf 'alias ll="ls -l"' > "$H/.bashrc" # deliberately no trailing newline
-HOME="$H" SHELL=/bin/bash bash "$INSTALL" --shell bash >/dev/null 2>&1
+HOME="$H" SHELL=/bin/bash bash "$INSTALL" --shell bash --bashrc >/dev/null 2>&1
 check_present "bash: source line added to ~/.bashrc" "$H/.bashrc" 'completions/motd.bash'
 check "bash: ~/.bashrc still parses" bash -n "$H/.bashrc"
 HOME="$H" SHELL=/bin/bash bash "$INSTALL" --shell bash --uninstall >/dev/null 2>&1
 check_absent "bash: uninstall removes the source line" "$H/.bashrc" 'completions/motd.bash'
 check_present "bash: uninstall keeps the user's alias" "$H/.bashrc" 'alias ll='
+
+# --- --bashrc wins even when bash-completion is installed (CI has it) ----
+H="$TMP/bash-forced"
+mkdir -p "$H/.local/share/bash-completion"
+: > "$H/.local/share/bash-completion/bash_completion"
+HOME="$H" XDG_DATA_HOME="$H/.local/share" SHELL=/bin/bash bash "$INSTALL" --shell bash --bashrc >/dev/null 2>&1
+check_present "--bashrc: source line added despite bash-completion" "$H/.bashrc" 'completions/motd.bash'
+check_gone "--bashrc: bash-completion dir untouched" \
+  "$H/.local/share/bash-completion/completions/motd"
 
 # --- bad input ------------------------------------------------------------
 H="$TMP/bad"

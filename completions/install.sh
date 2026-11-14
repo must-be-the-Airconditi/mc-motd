@@ -15,6 +15,7 @@ set -euo pipefail
 SRC_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 SHELL_NAME=""
 MODE="install"
+FORCE_BASHRC=0
 
 usage() {
   cat <<'EOF'
@@ -22,6 +23,8 @@ Usage: install.sh [options]
 
 Options:
   --shell zsh|bash   target shell (default: detect from $SHELL)
+  --bashrc           bash only: always source motd.bash from ~/.bashrc
+                     instead of using the bash-completion directory
   --uninstall        remove the completion files again
   -h, --help         show this help
 EOF
@@ -44,6 +47,10 @@ while [ $# -gt 0 ]; do
       ;;
     --uninstall)
       MODE="uninstall"
+      shift
+      ;;
+    --bashrc)
+      FORCE_BASHRC=1
       shift
       ;;
     -h|--help)
@@ -167,7 +174,8 @@ install_bash() {
   dest_dir="$data_dir/bash-completion/completions"
   [ -f "$SRC_DIR/motd.bash" ] || die "missing $SRC_DIR/motd.bash"
 
-  if [ -f /usr/share/bash-completion/bash_completion ] || [ -f "$data_dir/bash-completion/bash_completion" ]; then
+  if [ "$FORCE_BASHRC" -eq 0 ] &&
+    { [ -f /usr/share/bash-completion/bash_completion ] || [ -f "$data_dir/bash-completion/bash_completion" ]; }; then
     # bash-completion 2.x loads ~/.local/share/bash-completion/completions/* on demand.
     mkdir -p "$dest_dir"
     cp "$SRC_DIR/motd.bash" "$dest_dir/motd"
