@@ -74,11 +74,11 @@ node motd.js --bedrock play.cubecraft.net               # 基岩版
 node motd.js --web                                      # 网页版 → http://127.0.0.1:8720
 ```
 
-桌面版需要 Java 11+，从 [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) 下载对应安装包，
-或者直接：
+桌面版从 [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) 下载对应安装包（自带运行时），
+或者用 `portable.zip` / 通用 jar（需要 Java 17+ 与 JavaFX 21）：
 
 ```bash
-java -jar mc-motd-gui.jar
+java --module-path javafx --add-modules javafx.controls -jar mc-motd-gui.jar
 ```
 
 想装成全局命令：

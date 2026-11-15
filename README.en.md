@@ -74,10 +74,10 @@ node motd.js --bedrock play.cubecraft.net               # Bedrock Edition
 node motd.js --web                                      # web UI → http://127.0.0.1:8720
 ```
 
-The desktop app needs Java 11+; grab the installer for your platform from [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases), or just run:
+Grab the installer for your platform from [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) (a runtime is bundled), or use the `portable.zip` / universal jar (needs Java 17+ and JavaFX 21):
 
 ```bash
-java -jar mc-motd-gui.jar
+java --module-path javafx --add-modules javafx.controls -jar mc-motd-gui.jar
 ```
 
 Install it as a global command:
@@ -182,7 +182,7 @@ A native JavaFX window in Material 3 style (follows the system light/dark settin
 | Windows x64 | `mc-motd-*-windows-x64.zip` (unzip and run `mc-motd.exe`) |
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
 | macOS (Apple Silicon) | `mc-motd-*-macos-arm64.zip` or `mc-motd-<version>.dmg` (bundled runtime) |
-| macOS (Intel) / BSD / others | `mc-motd-*-portable.zip` or `mc-motd-gui.jar` (Java 11+) |
+| macOS (Intel) / BSD / others | `mc-motd-*-portable.zip` (bundled JavaFX, Java 17+) or `mc-motd-gui.jar` |
 
 The builds are unsigned, so the first launch is gated:
 

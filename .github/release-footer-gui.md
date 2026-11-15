@@ -5,7 +5,7 @@
 | Windows x64 | `mc-motd-*-windows-x64.zip`（解压运行 `mc-motd.exe`） |
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
 | macOS（Apple Silicon） | `mc-motd-*.dmg` 或 `mc-motd-*-macos-arm64.zip` |
-| macOS（Intel）/ BSD / 其他 | `mc-motd-*-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
+| macOS（Intel）/ BSD / 其他 | `mc-motd-*-portable.zip`（自带 JavaFX，需 Java 17+）或 `mc-motd-gui.jar` |
 
 安装包未签名：
 

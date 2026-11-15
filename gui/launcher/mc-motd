@@ -2,7 +2,14 @@
 # mc-motd GUI 启动脚本（macOS / Linux / BSD）
 # 需要 PATH 里有 Java 17+；JavaFX 库放在同目录的 javafx/ 下（portable 包自带）
 DIR="$(cd "$(dirname "$0")" && pwd)"
-set -- "$@"  # 占位，保持参数原样
+
+major=$(java -version 2>&1 | sed -n -e 's/.*version "\([0-9][0-9]*\).*/\1/p' -e 's/.*version "1\.\([0-9][0-9]*\).*/\1/p' | head -1)
+if [ -n "$major" ] && [ "$major" -lt 17 ]; then
+    echo "mc-motd 需要 Java 17 或更高版本（当前 Java ${major}）。" >&2
+    echo "请安装 JDK 21 后重试，例如：https://adoptium.net/" >&2
+    exit 1
+fi
+
 if [ -d "$DIR/javafx" ]; then
     exec java --module-path "$DIR/javafx" --add-modules javafx.controls -jar "$DIR/mc-motd-gui.jar" "$@"
 fi
