@@ -19,6 +19,10 @@
   直接实现服务器列表 Ping（Server List Ping）协议，零运行时依赖。
 </p>
 
+> [!NOTE]
+> 这个项目是 **vibe-coding** 出来的：代码和文档大部分由 AI 生成，作者负责提需求、review 和发布。
+> 功能能跑、有测试、CI 全绿，但不保证实现精致；遇到奇怪的写法欢迎开 issue 吐槽。
+
 ---
 
 <details>
