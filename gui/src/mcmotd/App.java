@@ -328,6 +328,8 @@ public final class App extends Application {
                     busy = false;
                     setFormDisabled(false);
                     lastInfo = info;
+                    previewErrorTitle = null;
+                    previewErrorDetail = null;
                     showResult(info);
                 });
             } catch (Exception error) {
@@ -335,7 +337,11 @@ public final class App extends Application {
                 Platform.runLater(() -> {
                     busy = false;
                     setFormDisabled(false);
-                    showError(Strings.f("error.title", address), detail);
+                    // 记下错误态，切主题/语言重画时不能把上一次的旧结果又画出来
+                    lastInfo = null;
+                    previewErrorTitle = Strings.f("error.title", address);
+                    previewErrorDetail = detail;
+                    showError(previewErrorTitle, previewErrorDetail);
                 });
             }
         }, "mc-motd-ping").start();
@@ -526,9 +532,18 @@ public final class App extends Application {
         return Color.hsb(color.getHue(), color.getSaturation(), Math.min(color.getBrightness(), 0.55));
     }
 
+    /** 版本名缺失时按当前语言回落到「未知版本 / Unknown version」 */
+    private static String versionText(Info info) {
+        String name = info.versionName == null ? "" : info.versionName.trim();
+        if (name.isEmpty()) {
+            name = Strings.t("version.unknown");
+        }
+        return info.protocol != null ? name + " (" + info.protocol + ")" : name;
+    }
+
     private String subLine(Info info) {
         StringBuilder builder = new StringBuilder();
-        builder.append(info.online).append('/').append(info.max).append(" · ").append(info.versionLine());
+        builder.append(info.online).append('/').append(info.max).append(" · ").append(versionText(info));
         if (info.srv != null) {
             builder.append(" · SRV");
         }
@@ -566,7 +581,7 @@ public final class App extends Application {
         grid.setVgap(8);
         int row = 0;
         row = addFact(grid, row, Strings.t("fact.target"), info.target());
-        row = addFact(grid, row, Strings.t("fact.version"), info.versionLine());
+        row = addFact(grid, row, Strings.t("fact.version"), versionText(info));
         row = addFact(grid, row, Strings.t("fact.players"), info.online + " / " + info.max);
         row = addFact(grid, row, Strings.t("fact.latency"), Math.round(info.latencyMs) + " ms");
         row = addFact(grid, row, Strings.t("fact.protocol"),
@@ -711,6 +726,9 @@ public final class App extends Application {
                 String output = run("reg", "query",
                         "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
                         "/v", "AppsUseLightTheme");
+                if (output.isBlank()) {
+                    return false; // 查询失败时按浅色处理，别误判成深色
+                }
                 return !output.contains("0x1");
             }
             if (os.contains("mac")) {
@@ -735,7 +753,10 @@ public final class App extends Application {
     private static String run(String... command) {
         try {
             Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-            process.waitFor(1200, TimeUnit.MILLISECONDS);
+            if (!process.waitFor(1200, TimeUnit.MILLISECONDS)) {
+                process.destroyForcibly();
+                return "";
+            }
             StringBuilder output = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {

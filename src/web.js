@@ -11,7 +11,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { ping } = require('./slp');
+const { ping, parseAddress } = require('./slp');
 const { pingBedrock } = require('./bedrock');
 const { t, normalizeLang } = require('./i18n');
 const { buildResult } = require('./motd');
@@ -98,6 +98,13 @@ function createWebServer(options = {}) {
       sendJson(res, 400, { ok: false, error: t(lang, 'web.noAddress') });
       return;
     }
+    // 地址校验放在并发计数之前：非法地址是 400，不该算一次查询
+    try {
+      parseAddress(address, lang);
+    } catch (err) {
+      sendJson(res, 400, { ok: false, error: err.message });
+      return;
+    }
 
     const timeoutParam = Number(url.searchParams.get('timeout'));
     const timeout = clamp(Number.isFinite(timeoutParam) ? timeoutParam : defaultTimeout, 1000, 20000);
@@ -129,14 +136,19 @@ function createWebServer(options = {}) {
     }
 
     concurrent += 1;
-    const task = (edition === 'bedrock'
-      ? pingBedrock(address, { timeout, lang })
-      : ping(address, { timeout, proxy, legacy: allowLegacy, lang }))
-      .then((raw) => buildResult(raw))
-      .finally(() => {
-        concurrent -= 1;
-        inflight.delete(key);
-      });
+    // pingBedrock 是同步函数：非法地址会同步 throw，必须包进 async 里，
+    // 否则 concurrent 永远减不回去（连续几次之后整站 429）。
+    const release = () => {
+      concurrent -= 1;
+      inflight.delete(key);
+    };
+    const task = (async () => {
+      const raw = edition === 'bedrock'
+        ? pingBedrock(address, { timeout, lang })
+        : await ping(address, { timeout, proxy, legacy: allowLegacy, lang });
+      return buildResult(raw, lang);
+    })();
+    task.then(release, release);
 
     inflight.set(key, task);
 

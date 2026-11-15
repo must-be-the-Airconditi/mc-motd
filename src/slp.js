@@ -306,9 +306,13 @@ function lookupSrv(host, timeoutMs = 2000) {
       settled = true;
       clearTimeout(timer);
       if (err || !records || !records.length) return resolve(null);
-      const sorted = [...records].sort((a, b) => a.priority - b.priority);
-      const target = sorted[0].name.replace(/\.$/, '');
-      resolve({ host: target, port: sorted[0].port });
+      // RFC 2782：先按 priority，再按 weight（weight 大的优先）；"." 表示该服务不可用
+      const usable = [...records]
+        .filter((record) => record && record.name && record.name !== '.' && record.port > 0)
+        .sort((a, b) => a.priority - b.priority || b.weight - a.weight);
+      if (!usable.length) return resolve(null);
+      const target = usable[0].name.replace(/\.$/, '');
+      resolve({ host: target, port: usable[0].port });
     });
   });
 }

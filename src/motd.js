@@ -278,7 +278,7 @@ function normalizeFavicon(favicon) {
 /**
  * 把 ping 结果整理成前端/CLI 通用的结构。
  */
-function buildResult(pingResult) {
+function buildResult(pingResult, lang = 'zh') {
   const { status = {} } = pingResult;
   const motd = parseMOTD(status.description ?? status.text ?? '');
   const sample = Array.isArray(status.players && status.players.sample)
@@ -303,7 +303,7 @@ function buildResult(pingResult) {
     protocolUsed: pingResult.protocolUsed,
     latencyMs: Math.round(pingResult.latencyMs * 10) / 10,
     version: {
-      name: (status.version && status.version.name) || '未知',
+      name: (status.version && status.version.name) || (lang === 'en' ? 'unknown' : '未知'),
       protocol: status.version && Number.isFinite(status.version.protocol)
         ? status.version.protocol
         : null,

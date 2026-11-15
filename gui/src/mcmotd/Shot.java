@@ -18,14 +18,19 @@ final class Shot {
     }
 
     static void run(String out, String address, int width, int height, boolean bedrock) throws Exception {
+        // 查询发生在 buildUi 之前，语言要先按 -Dmcmotd.lang/MC_MOTD_LANG/prefs 定下来，
+        // 否则英文界面里报错详情还是中文
+        Strings.init(java.util.prefs.Preferences.userNodeForPackage(App.class));
         Info result = null;
         String failure = null;
         try {
-            Slp.Ping ping = bedrock ? Bedrock.ping(address, 8000, "zh") : Slp.ping(address, 8000, null);
+            Slp.Ping ping = bedrock
+                    ? Bedrock.ping(address, 8000, Strings.isEnglish() ? "en" : "zh")
+                    : Slp.ping(address, 8000, null);
             result = Info.of(ping);
         } catch (Exception e) {
             failure = e.getMessage() == null ? e.toString() : e.getMessage();
-            System.err.println("查询失败，改为渲染错误态：" + failure);
+            System.err.println(Strings.t("shot.failed") + failure);
         }
         final Info info = result;
         final String error = failure;

@@ -53,6 +53,8 @@ public final class Strings {
         add("theme.dark", "主题：深色（点击切换）", "Theme: dark (click to switch)");
 
         add("motd.empty", "（服务器没有设置 MOTD）", "(no MOTD set)");
+        add("version.unknown", "未知版本", "Unknown version");
+        add("shot.failed", "查询失败，改为渲染错误态：", "Query failed, rendering error state: ");
 
         add("facts.title", "服务器信息", "Server info");
         add("facts.srv", "SRV 解析", "SRV lookup");

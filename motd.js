@@ -376,7 +376,7 @@ async function pingOne(address, options) {
         proxy: options.proxy,
         lang,
       });
-  const result = buildResult(raw);
+  const result = buildResult(raw, lang);
   result.elapsedMs = Date.now() - started;
   return result;
 }

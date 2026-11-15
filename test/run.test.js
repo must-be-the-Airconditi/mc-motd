@@ -147,6 +147,11 @@ test('buildResult 规范化字段', () => {
   assert.equal(result.motd.plain, '你好');
   assert.equal(result.checks.secureChat, true);
   assert.equal(JSON.parse(result.raw).version.name, '1.21.4');
+
+  // 版本名缺失时跟随语言，不能恒为中文
+  const blank = { status: { version: {}, players: {} } };
+  assert.equal(buildResult(blank, 'en').version.name, 'unknown');
+  assert.equal(buildResult(blank, 'zh').version.name, '未知');
 });
 
 /* ------------------------------------------------------------ 协议层 */
@@ -202,6 +207,8 @@ test('normalizeProxy 解析各种代理地址', () => {
     type: 'socks5', host: '127.0.0.1', port: 7890, username: 'u', password: 'p',
   });
   assert.equal(normalizeProxy('127.0.0.1:1080').type, 'socks5');
+  // IPv6 代理：URL 会给出带方括号的 hostname，net.connect 不认
+  assert.equal(normalizeProxy('socks5://[::1]:1080').host, '::1');
   assert.throws(() => normalizeProxy('ftp://127.0.0.1:21'), /不支持/);
 });
 
@@ -239,5 +246,53 @@ test('网页 API 能查询并返回结构化结果', async () => {
   } finally {
     await close(web);
     await close(mock);
+  }
+});
+
+test('非法基岩地址不会泄漏并发计数', async () => {
+  const web = createWebServer({ timeout: 800 });
+  const webPort = await listen(web);
+  try {
+    // pingBedrock 是同步 throw；修好之前 8 次之后整站会一直 429
+    for (let i = 0; i < 10; i += 1) {
+      const response = await fetch(
+        `http://127.0.0.1:${webPort}/api/ping?edition=bedrock&address=%21%21%21`,
+      );
+      assert.notEqual(response.status, 429, `第 ${i + 1} 次请求被误判为并发超限`);
+      assert.equal(response.status, 400, '非法地址应返回 400');
+      await response.arrayBuffer();
+    }
+
+    const mock = createMockServer({ mode: 'modern' });
+    const mockPort = await listen(mock);
+    try {
+      const ok = await fetch(
+        `http://127.0.0.1:${webPort}/api/ping?address=${encodeURIComponent(`127.0.0.1:${mockPort}`)}`,
+      );
+      assert.equal(ok.status, 200);
+    } finally {
+      await close(mock);
+    }
+  } finally {
+    await close(web);
+  }
+});
+
+test('SRV 记录里的 "." 表示服务不可用，不能拿来连接', async () => {
+  const dns = require('dns');
+  const { lookupSrv } = require('../src/slp');
+  const original = dns.resolveSrv;
+  try {
+    dns.resolveSrv = (name, cb) => cb(null, [{ name: '.', port: 0, priority: 0, weight: 0 }]);
+    assert.equal(await lookupSrv('example.com', 200), null);
+
+    dns.resolveSrv = (name, cb) => cb(null, [
+      { name: 'low.example.com.', port: 25565, priority: 10, weight: 0 },
+      { name: 'high.example.com.', port: 25566, priority: 0, weight: 5 },
+    ]);
+    const srv = await lookupSrv('example.com', 200);
+    assert.deepEqual(srv, { host: 'high.example.com', port: 25566 });
+  } finally {
+    dns.resolveSrv = original;
   }
 });

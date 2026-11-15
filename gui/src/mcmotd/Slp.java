@@ -112,11 +112,11 @@ public final class Slp {
 
     public static Address parseAddress(String input) {
         if (input == null) {
-            throw new IllegalArgumentException("地址不能为空");
+            throw new IllegalArgumentException(msg("地址不能为空", "Address must not be empty"));
         }
         String raw = input.trim();
         if (raw.isEmpty()) {
-            throw new IllegalArgumentException("地址不能为空");
+            throw new IllegalArgumentException(msg("地址不能为空", "Address must not be empty"));
         }
         raw = raw.replaceFirst("(?i)^minecraft://", "");
         while (raw.endsWith("/")) {
@@ -129,14 +129,14 @@ public final class Slp {
         if (raw.startsWith("[")) {
             int end = raw.indexOf(']');
             if (end < 0) {
-                throw new IllegalArgumentException("IPv6 地址缺少 ]");
+                throw new IllegalArgumentException(msg("IPv6 地址缺少 ]", "IPv6 address is missing ]"));
             }
             host = raw.substring(1, end);
             String rest = raw.substring(end + 1);
             if (rest.startsWith(":")) {
                 port = parsePort(rest.substring(1));
             } else if (!rest.isEmpty()) {
-                throw new IllegalArgumentException("地址格式不正确");
+                throw new IllegalArgumentException(msg("地址格式不正确", "Invalid address format"));
             }
         } else {
             int colons = 0;
@@ -155,13 +155,13 @@ public final class Slp {
         }
 
         if (host.isEmpty()) {
-            throw new IllegalArgumentException("缺少主机名");
+            throw new IllegalArgumentException(msg("缺少主机名", "Missing host name"));
         }
         if (host.length() > 253) {
-            throw new IllegalArgumentException("主机名过长");
+            throw new IllegalArgumentException(msg("主机名过长", "Host name is too long"));
         }
         if (!isIp(host) && !host.matches("[a-zA-Z0-9._-]+")) {
-            throw new IllegalArgumentException("主机名包含非法字符");
+            throw new IllegalArgumentException(msg("主机名包含非法字符", "Host name contains invalid characters"));
         }
         return new Address(host.toLowerCase(), port);
     }
@@ -170,11 +170,11 @@ public final class Slp {
         try {
             int port = Integer.parseInt(text.trim());
             if (port < 1 || port > 65535) {
-                throw new IllegalArgumentException("端口超出范围 (1-65535)");
+                throw new IllegalArgumentException(msg("端口超出范围 (1-65535)", "Port out of range (1-65535)"));
             }
             return port;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("端口必须是数字");
+            throw new IllegalArgumentException(msg("端口必须是数字", "Port must be a number"));
         }
     }
 
@@ -211,17 +211,20 @@ public final class Slp {
         }
         int colon = rest.lastIndexOf(':');
         if (colon < 0) {
-            throw new IllegalArgumentException("代理地址缺少端口");
+            throw new IllegalArgumentException(msg("代理地址缺少端口", "Proxy address is missing a port"));
         }
         String host = rest.substring(0, colon);
+        if (host.startsWith("[") && host.endsWith("]")) {
+            host = host.substring(1, host.length() - 1); // IPv6 字面量去掉方括号
+        }
         int port;
         try {
             port = Integer.parseInt(rest.substring(colon + 1));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("代理端口不正确");
+            throw new IllegalArgumentException(msg("代理端口不正确", "Invalid proxy port"));
         }
         if (!scheme.equals("socks5") && !scheme.equals("socks5h") && !scheme.equals("http")) {
-            throw new IllegalArgumentException("不支持的代理类型：" + scheme);
+            throw new IllegalArgumentException(msg("不支持的代理类型：" + scheme, "Unsupported proxy type: " + scheme));
         }
         return new ProxyConfig(scheme, host, port);
     }
@@ -253,6 +256,9 @@ public final class Slp {
                 String target = parts[3];
                 if (target.endsWith(".")) {
                     target = target.substring(0, target.length() - 1);
+                }
+                if (target.isEmpty()) {
+                    continue; // "." 表示该服务在此处不可用
                 }
                 if (priority < bestPriority) {
                     bestPriority = priority;
@@ -288,15 +294,17 @@ public final class Slp {
                 tunnel.connect(new InetSocketAddress(proxy.host, proxy.port), timeoutMs);
                 tunnel.setSoTimeout(timeoutMs);
                 OutputStream out = tunnel.getOutputStream();
-                String request = "CONNECT " + host + ":" + port + " HTTP/1.1\r\n"
-                        + "Host: " + host + ":" + port + "\r\n"
+                // IPv6 目标在 CONNECT 请求行里必须带方括号
+                String authority = (host.indexOf(':') >= 0 ? "[" + host + "]" : host) + ":" + port;
+                String request = "CONNECT " + authority + " HTTP/1.1\r\n"
+                        + "Host: " + authority + "\r\n"
                         + "Proxy-Connection: Keep-Alive\r\n\r\n";
                 out.write(request.getBytes(StandardCharsets.ISO_8859_1));
                 out.flush();
                 String status = readHttpHeader(tunnel.getInputStream());
-                if (!status.contains(" 200 ")) {
+                if (!status.matches("(?i)^HTTP/\\d\\.\\d\\s+200\\b.*")) {
                     tunnel.close();
-                    throw new IOException("HTTP 代理拒绝 CONNECT：" + status);
+                    throw new IOException(msg("HTTP 代理拒绝 CONNECT：" + status, "HTTP proxy rejected CONNECT: " + status));
                 }
                 socket = tunnel;
             } else {
@@ -341,15 +349,22 @@ public final class Slp {
         return lineEnd > 0 ? header.substring(0, lineEnd) : header;
     }
 
+    /** 面向用户的错误文案跟随界面语言 */
+    private static String msg(String zh, String en) {
+        return Strings.isEnglish() ? en : zh;
+    }
+
     private static String friendly(IOException e, String host, int port) {
         if (e instanceof ConnectException) {
-            return "连接被拒绝：" + host + ":" + port + " 上没有服务在监听，或端口写错了";
+            return msg("连接被拒绝：" + host + ":" + port + " 上没有服务在监听，或端口写错了",
+                    "Connection refused: nothing is listening on " + host + ":" + port + " (wrong port?)");
         }
         if (e instanceof SocketTimeoutException) {
-            return "连接超时：" + host + ":" + port;
+            return msg("连接超时：" + host + ":" + port, "Connection timed out: " + host + ":" + port);
         }
         if (e instanceof UnknownHostException) {
-            return "找不到主机：" + host + "（DNS 解析失败）";
+            return msg("找不到主机：" + host + "（DNS 解析失败）",
+                    "Unknown host: " + host + " (DNS lookup failed)");
         }
         return e.getMessage() == null ? e.toString() : e.getMessage();
     }
@@ -377,14 +392,14 @@ public final class Slp {
 
             int length = readVarInt(in);
             if (length <= 0 || length > MAX_PACKET) {
-                throw new IOException("服务器返回的数据长度异常");
+                throw new IOException(msg("服务器返回的数据长度异常", "Server returned a malformed length"));
             }
             byte[] packet = readFully(in, length);
 
             ByteArrayReader reader = new ByteArrayReader(packet);
             int packetId = reader.readVarInt();
             if (packetId != 0x00) {
-                throw new IOException("状态响应格式不正确");
+                throw new IOException(msg("状态响应格式不正确", "Malformed status response"));
             }
             String json = reader.readString();
             double latencyMs = (System.nanoTime() - started) / 1e6;
@@ -407,10 +422,10 @@ public final class Slp {
         try {
             parsed = Json.parse(json);
         } catch (RuntimeException e) {
-            throw new IOException("服务器返回的 JSON 无法解析");
+            throw new IOException(msg("服务器返回的 JSON 无法解析", "Server returned unparsable JSON"));
         }
         if (!(parsed instanceof Map)) {
-            throw new IOException("状态数据不是 JSON 对象");
+            throw new IOException(msg("状态数据不是 JSON 对象", "Status payload is not a JSON object"));
         }
         return (Map<String, Object>) parsed;
     }
@@ -430,16 +445,16 @@ public final class Slp {
 
             int first = in.read();
             if (first != 0xFF) {
-                throw new IOException("旧版 Ping 响应格式不正确");
+                throw new IOException(msg("旧版 Ping 响应格式不正确", "Malformed legacy ping response"));
             }
             int high = in.read();
             int low = in.read();
             if (high < 0 || low < 0) {
-                throw new IOException("旧版 Ping 响应不完整");
+                throw new IOException(msg("旧版 Ping 响应不完整", "Incomplete legacy ping response"));
             }
             int chars = (high << 8) | low;
             if (chars <= 0 || chars > 32767) {
-                throw new IOException("旧版 Ping 响应长度异常");
+                throw new IOException(msg("旧版 Ping 响应长度异常", "Unexpected legacy ping response length"));
             }
             byte[] data = readFully(in, chars * 2);
             String text = new String(data, StandardCharsets.UTF_16BE);
@@ -531,12 +546,12 @@ public final class Slp {
         do {
             b = in.read();
             if (b < 0) {
-                throw new EOFException("服务器关闭了连接");
+                throw new EOFException(msg("服务器关闭了连接", "Server closed the connection"));
             }
             value |= (b & 0x7F) << (7 * size);
             size++;
             if (size > 5) {
-                throw new IOException("VarInt 过长（数据损坏）");
+                throw new IOException(msg("VarInt 过长（数据损坏）", "VarInt too long (corrupted data)"));
             }
         } while ((b & 0x80) != 0);
         return value;
@@ -548,7 +563,7 @@ public final class Slp {
         while (offset < length) {
             int read = in.read(buffer, offset, length - offset);
             if (read < 0) {
-                throw new EOFException("服务器关闭了连接");
+                throw new EOFException(msg("服务器关闭了连接", "Server closed the connection"));
             }
             offset += read;
         }

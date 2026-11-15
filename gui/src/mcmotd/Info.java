@@ -16,7 +16,7 @@ public final class Info {
     public boolean legacy;
     public String edition = "java";
 
-    public String versionName = "未知";
+    public String versionName = "";
     public Integer protocol;
     public int online;
     public int max;
@@ -43,7 +43,7 @@ public final class Info {
         Map<String, Object> status = ping.status;
         Map<String, Object> version = Json.obj(status, "version");
         if (version != null) {
-            info.versionName = Motd.stripFormatting(Json.str(version, "name", "未知"));
+            info.versionName = Motd.stripFormatting(Json.str(version, "name", ""));
             Object protocol = version.get("protocol");
             if (protocol instanceof Number) {
                 info.protocol = ((Number) protocol).intValue();

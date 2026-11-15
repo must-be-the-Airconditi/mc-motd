@@ -31,7 +31,8 @@ function normalizeProxy(input, lang = 'zh') {
 
   return {
     type,
-    host: url.hostname,
+    // URL 对 IPv6 会返回带方括号的 "[::1]"，net.connect 不认识这种写法
+    host: url.hostname.replace(/^\[(.*)\]$/, '$1'),
     port,
     username: url.username ? decodeURIComponent(url.username) : null,
     password: url.password ? decodeURIComponent(url.password) : null,
@@ -193,7 +194,9 @@ async function handshakeSocks4(socket, proxy, host, port, timeoutMs, lang = 'zh'
 
 async function handshakeHttp(socket, proxy, host, port, timeoutMs, lang = 'zh') {
   const reader = new ByteReader(socket, lang);
-  const lines = [`CONNECT ${host}:${port} HTTP/1.1`, `Host: ${host}:${port}`, 'Proxy-Connection: Keep-Alive'];
+  // IPv6 目标在 CONNECT 请求行里必须带方括号
+  const authority = `${net.isIPv6(host) ? `[${host}]` : host}:${port}`;
+  const lines = [`CONNECT ${authority} HTTP/1.1`, `Host: ${authority}`, 'Proxy-Connection: Keep-Alive'];
   if (proxy.username) {
     const token = Buffer.from(`${proxy.username}:${proxy.password || ''}`).toString('base64');
     lines.push(`Proxy-Authorization: Basic ${token}`);
