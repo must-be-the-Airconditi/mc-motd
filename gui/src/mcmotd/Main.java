@@ -88,6 +88,17 @@ public final class Main {
                     width > 0 ? width : 1040, height > 0 ? height : 940, bedrock);
             return;
         }
+        // JavaFX 从 JDK 11 起不再随 JDK 分发：双击 jar（= java -jar）没带 --module-path，
+        // 只会抛 NoClassDefFoundError 然后什么都不显示，这里给个能看懂的说法。
+        try {
+            Class.forName("javafx.application.Application", false, Main.class.getClassLoader());
+        } catch (ClassNotFoundException missing) {
+            System.err.println("找不到 JavaFX：这个 jar 只包含界面代码，需要单独的 JavaFX 运行时。");
+            System.err.println("JavaFX is not on the module path; this jar needs the JavaFX runtime.");
+            System.err.println("运行方式：java --module-path <javafx目录> --add-modules javafx.controls -cp mc-motd-gui.jar mcmotd.Main");
+            System.err.println("或者下载自带 JavaFX 的 portable.zip / 安装包（见 Releases）。");
+            System.exit(3);
+        }
         App.launchApp(address, bedrock);
     }
 
