@@ -232,12 +232,30 @@ function formatNumber(value) {
 
 /* ------------------------------------------------------------- 渲染片段 */
 
+const lightScheme = window.matchMedia('(prefers-color-scheme: light)');
+
+/** 浅色背景下把 Minecraft 的高亮色（白/亮绿/亮黄……）压暗，否则几乎看不见 */
+function readableColor(color) {
+  if (!lightScheme.matches || !color) return color;
+  const match = /^#([0-9a-f]{6})$/i.exec(color);
+  if (!match) return color;
+  const n = parseInt(match[1], 16);
+  const r = (n >> 16) & 0xff;
+  const g = (n >> 8) & 0xff;
+  const b = n & 0xff;
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  if (luminance <= 0.62) return color;
+  const scale = 0.55 / luminance;
+  const dim = (value) => Math.max(0, Math.min(255, Math.round(value * scale)));
+  return `rgb(${dim(r)}, ${dim(g)}, ${dim(b)})`;
+}
+
 function renderSegments(segments) {
   const frag = document.createDocumentFragment();
   for (const seg of segments) {
     const span = document.createElement('span');
     span.textContent = seg.text;
-    if (seg.color) span.style.color = seg.color;
+    if (seg.color) span.style.color = readableColor(seg.color);
     if (seg.bold) span.style.fontWeight = '700';
     if (seg.italic) span.style.fontStyle = 'italic';
     const deco = [];
@@ -658,6 +676,16 @@ if (preloaded && preloaded.result) {
     saveHistory(lastAddress);
   }
 }
+
+lightScheme.addEventListener('change', () => {
+  if (lastResult) {
+    renderResult(lastResult, lastMeta || { elapsedMs: 0, cached: false });
+  } else if (lastError) {
+    renderError(lastAddress, lastError);
+  } else if (!busy) {
+    renderEmpty();
+  }
+});
 
 applyLanguage();
 
