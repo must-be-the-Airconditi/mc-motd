@@ -28,6 +28,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: 下载 JavaFX
+        shell: bash
+        env:
+          JAVAFX_MIRROR: https://repo1.maven.org/maven2/org/openjfx
+        run: bash gui/fetch-javafx.sh
       - name: 编译 + 打 jar
         shell: bash
         run: bash gui/build.sh
@@ -37,6 +42,8 @@ jobs:
     needs: compile
     if: startsWith(github.ref, 'refs/tags/gui-v') || inputs.dry_run
     runs-on: ${{ matrix.os }}
+    env:
+      JAVAFX_MIRROR: https://repo1.maven.org/maven2/org/openjfx
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +60,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: 下载 JavaFX
+        shell: bash
+        run: bash gui/fetch-javafx.sh
 
       - name: 计算版本
         shell: bash
@@ -78,11 +89,15 @@ jobs:
           jpackage --type app-image --name mc-motd \
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
             --app-version "$APP_VERSION" --icon gui/icon.png --dest release \
-            --java-options "-Dfile.encoding=UTF-8"
+            --java-options "-Dfile.encoding=UTF-8" \
+            --java-options '--module-path $APPDIR/javafx --add-modules javafx.controls'
+          mkdir -p release/mc-motd/lib/app/javafx
+          cp gui/.javafx/lib/*.jar release/mc-motd/lib/app/javafx/
           tar -czf "release/mc-motd-${APP_VERSION}-linux-x64.tar.gz" -C release mc-motd
 
-          mkdir -p portable/mc-motd
+          mkdir -p portable/mc-motd/javafx
           cp gui/dist/mc-motd-gui.jar portable/mc-motd/
+          cp gui/.javafx/lib/*.jar portable/mc-motd/javafx/
           cp gui/launcher/mc-motd portable/mc-motd/
           cp gui/launcher/mc-motd.bat portable/mc-motd/
           cp gui/icon.png portable/mc-motd/
@@ -102,7 +117,10 @@ jobs:
           jpackage --type app-image --name mc-motd \
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
             --app-version "$APP_VERSION" --icon icon.ico --dest release \
-            --java-options "-Dfile.encoding=UTF-8"
+            --java-options "-Dfile.encoding=UTF-8" \
+            --java-options '--module-path $APPDIR/javafx --add-modules javafx.controls'
+          mkdir -p release/mc-motd/app/javafx
+          cp gui/.javafx/lib/*.jar release/mc-motd/app/javafx/
           powershell -NoProfile -Command "Compress-Archive -Path release/mc-motd -DestinationPath release/mc-motd-${APP_VERSION}-windows-x64.zip"
 
       - name: 生成 macOS 图标
@@ -127,14 +145,14 @@ jobs:
             --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
             --app-version "$APP_VERSION" --icon icon.icns --dest release \
             --mac-package-identifier dev.mcmotd.gui \
-            --java-options "-Dfile.encoding=UTF-8"
+            --java-options "-Dfile.encoding=UTF-8" \
+            --java-options '--module-path $APPDIR/javafx --add-modules javafx.controls'
+          mkdir -p release/mc-motd.app/Contents/app/javafx
+          cp gui/.javafx/lib/*.jar release/mc-motd.app/Contents/app/javafx/
           ditto -c -k --sequesterRsrc --keepParent "release/mc-motd.app" \
             "release/mc-motd-${APP_VERSION}-macos-arm64.zip"
-          jpackage --type dmg --name mc-motd \
-            --input gui/dist --main-jar mc-motd-gui.jar --main-class mcmotd.Main \
-            --app-version "$APP_VERSION" --icon icon.icns --dest release \
-            --mac-package-identifier dev.mcmotd.gui \
-            --java-options "-Dfile.encoding=UTF-8"
+          jpackage --type dmg --name mc-motd --app-image "release/mc-motd.app" \
+            --app-version "$APP_VERSION" --icon icon.icns --dest release
           ls -lh release
 
       - name: 上传产物

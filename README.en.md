@@ -175,7 +175,7 @@ The server only listens on `127.0.0.1`, rate-limits to 40 requests per minute an
 
 ## Desktop GUI
 
-A native Java Swing window (not a web page); one codebase runs on macOS / Windows / Linux / BSD. The UI ships in **Chinese and English** (auto-detected from the system language, switchable in the top-right corner) and has a **Java / Bedrock** selector next to the address box.
+A native JavaFX window in Material 3 style (follows the system light/dark setting, grass-green accent), not a web page; one codebase runs on macOS / Windows / Linux / BSD. The UI ships in **Chinese and English** (auto-detected from the system language, switchable in the top-right corner) and has a **Java / Bedrock** selector next to the address box.
 
 | Platform | Download |
 |---|---|
@@ -193,12 +193,15 @@ The macOS `.dmg` / `.app` is Apple Silicon (arm64) only; Intel Macs should use t
 
 Features: server card (favicon / two-line MOTD / player count / latency bars), details, player list, raw JSON, query history, a proxy field and Java / Bedrock switching.
 
-Building from source only needs a JDK:
+Building from source needs JDK 17+. Fetch JavaFX first (Aliyun mirror by default; override with `JAVAFX_MIRROR`):
 
 ```bash
+bash gui/fetch-javafx.sh
 bash gui/build.sh
-java -jar gui/dist/mc-motd-gui.jar
+java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/mc-motd-gui.jar
 ```
+
+Or use `gui/launcher/mc-motd` (`mc-motd.bat` on Windows), which picks up a `javafx/` folder next to it.
 
 See [gui/README.md](gui/README.md) for more.
 
@@ -237,7 +240,7 @@ src/i18n.js           server-side messages (Chinese / English)
 src/bedrock.js        Bedrock Edition RakNet query (UDP)
 src/web.js            HTTP server + /api/ping
 public/               web UI front end (no build step)
-gui/                  desktop app (Java Swing, see gui/README.md)
+gui/                  desktop app (JavaFX, see gui/README.md)
 tools/mock-server.js  fake server (generates its favicon in code)
 test/run.test.js      node:test cases
 test/bedrock.test.js  Bedrock parsing and local UDP mock tests
@@ -268,7 +271,7 @@ See [RELEASING.md](RELEASING.md) for the steps and [CHANGELOG.md](CHANGELOG.md) 
 
 ## License
 
-MIT. The pixel font [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) used by the web UI is licensed under the SIL Open Font License 1.1.
+MIT.
 
 ---
 

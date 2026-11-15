@@ -1,5 +1,9 @@
 #!/bin/sh
-# mc-motd GUI 启动脚本（macOS / Linux / BSD 通用）
-# 需要 PATH 里有 java（Java 11+）
+# mc-motd GUI 启动脚本（macOS / Linux / BSD）
+# 需要 PATH 里有 Java 17+；JavaFX 库放在同目录的 javafx/ 下（portable 包自带）
 DIR="$(cd "$(dirname "$0")" && pwd)"
+set -- "$@"  # 占位，保持参数原样
+if [ -d "$DIR/javafx" ]; then
+    exec java --module-path "$DIR/javafx" --add-modules javafx.controls -jar "$DIR/mc-motd-gui.jar" "$@"
+fi
 exec java -jar "$DIR/mc-motd-gui.jar" "$@"

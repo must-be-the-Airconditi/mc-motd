@@ -176,14 +176,14 @@ GET /api/ping?address=play.cubecraft.net&timeout=5000&proxy=http://127.0.0.1:311
 
 ## 桌面版 GUI
 
-Java Swing 原生窗口，不是网页；一套源码跑 macOS / Windows / Linux / BSD，界面支持中文 / English（跟随系统语言，右上角可切换），地址框右侧可选 **Java / 基岩版**。
+JavaFX 原生窗口（Material 3 风格：跟随系统明暗，草绿主色），不是网页；一套源码跑 macOS / Windows / Linux / BSD，界面支持中文 / English（跟随系统语言，右上角可切换），地址框右侧可选 **Java / 基岩版**。
 
 | 平台 | 下载 |
 |---|---|
 | Windows x64 | `mc-motd-*-windows-x64.zip`（解压运行 `mc-motd.exe`） |
 | Linux x64 | `mc-motd-*-linux-x64.tar.gz` |
 | macOS（Apple Silicon） | `mc-motd-*-macos-arm64.zip` 或 `mc-motd-<版本>.dmg`（内置运行时） |
-| macOS（Intel）/ BSD / 其他 | `mc-motd-*-portable.zip` 或 `mc-motd-gui.jar`（需 Java 11+） |
+| macOS（Intel）/ BSD / 其他 | `mc-motd-*-portable.zip`（自带 JavaFX 库，需 Java 17+）或 `mc-motd-gui.jar`（需 Java 17+ 与 JavaFX 21） |
 
 安装包没有签名，首次打开会被系统拦一下：
 
@@ -194,12 +194,15 @@ macOS 的 `.dmg` / `.app` 只有 Apple Silicon（arm64），Intel Mac 用通用 
 
 功能：服务器卡片（favicon / 两行 MOTD / 人数 / 延迟信号条）、详情、玩家列表、原始 JSON、查询历史、代理输入框、Java / 基岩版切换。
 
-从源码构建只要 JDK：
+从源码构建需要 JDK 17+。首次构建先下载 JavaFX（默认阿里云镜像，可用 `JAVAFX_MIRROR` 换源）：
 
 ```bash
+bash gui/fetch-javafx.sh
 bash gui/build.sh
-java -jar gui/dist/mc-motd-gui.jar
+java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/mc-motd-gui.jar
 ```
+
+也可以直接用 `gui/launcher/mc-motd`（Windows 为 `mc-motd.bat`），它会在同目录找 `javafx/` 库。
 
 更多见 [gui/README.md](gui/README.md)。
 
@@ -238,7 +241,7 @@ src/i18n.js           服务端中英文案
 src/bedrock.js        基岩版 RakNet 查询（UDP）
 src/web.js            HTTP 服务 + /api/ping
 public/               网页版前端（无构建步骤）
-gui/                  桌面版（Java Swing，见 gui/README.md）
+gui/                  桌面版（JavaFX，见 gui/README.md）
 tools/mock-server.js  假服务器（含代码生成 favicon）
 test/run.test.js      node:test 用例
 test/bedrock.test.js  基岩版解析与本地 UDP 假服务器测试
@@ -269,7 +272,7 @@ RELEASING.md          发版流程
 
 ## 许可
 
-MIT。网页里的像素字体 [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) 为 SIL Open Font License 1.1。
+MIT。
 
 ---
 

@@ -6,9 +6,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- 桌面版改用 JavaFX + Material 3 重做：跟随系统明暗、草绿主色、主题按钮（跟随系统 / 浅色 / 深色），窗口、搜索栏、卡片、玩家列表和原始 JSON 全部重写
+- `gui/fetch-javafx.sh`：按平台自动下载 JavaFX 21.0.7（默认阿里云镜像，`JAVAFX_MIRROR` 可换源）
+- 桌面版 `--shot` 离屏截图：JavaFX 直接渲染 PNG，不用开窗口
+
 ### Changed
 
+- 网页版重做 Material 3：明暗双套颜色、M3 字阶、搜索栏 / 填充按钮 / assist chip / outlined 卡片，去掉像素字体和装饰
+- 桌面版需要 Java 17+ 与 JavaFX 21；`portable.zip` 改为自带 `javafx/` 目录和启动脚本，安装包体积相应增大
+- 浅色主题下把 Minecraft 的高亮色（白、亮绿、亮黄）压暗，桌面版和网页版都在切换明暗时重渲染
 - zsh / fish 补全的说明文字跟随语言（`MC_MOTD_LANG` > `LC_ALL` > `LANG`，`en*` 英文，其余中文），和 CLI 使用同一套规则
+
+### Removed
+
+- 桌面版 Swing 界面（`Ui.java` / `Theme.java`，git 历史保留）
+- 网页版像素字体 Press Start 2P（`public/fonts/`）
 
 ## [cli-v1.3.0] - 2026-11-14
 

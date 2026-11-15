@@ -1,0 +1,380 @@
+/* Material Design 3 tokens — 跟随系统明暗，草绿主色 */
+
+.app {
+    -md-surface: #fbfdf6;
+    -md-surface-container-lowest: #ffffff;
+    -md-surface-container-low: #f4f7ec;
+    -md-surface-container: #eef1e4;
+    -md-surface-container-high: #e7eadb;
+    -md-on-surface: #1a1c18;
+    -md-on-surface-variant: #44483d;
+    -md-outline: #75796c;
+    -md-outline-variant: #c5c8bb;
+    -md-primary: #386a20;
+    -md-on-primary: #ffffff;
+    -md-primary-container: #b9f397;
+    -md-on-primary-container: #042100;
+    -md-secondary-container: #d9e7cb;
+    -md-on-secondary-container: #131f0d;
+    -md-error: #ba1a1a;
+    -md-inverse-surface: #2f312c;
+    -md-inverse-on-surface: #f1f2e8;
+    -fx-background-color: -md-surface;
+}
+
+.app.dark {
+    -md-surface: #11140e;
+    -md-surface-container-lowest: #0c0f0a;
+    -md-surface-container-low: #191c17;
+    -md-surface-container: #1d201b;
+    -md-surface-container-high: #282b25;
+    -md-on-surface: #e2e3d8;
+    -md-on-surface-variant: #c4c8ba;
+    -md-outline: #8e9284;
+    -md-outline-variant: #44483d;
+    -md-primary: #9cd67d;
+    -md-on-primary: #0a3900;
+    -md-primary-container: #205107;
+    -md-on-primary-container: #b9f397;
+    -md-secondary-container: #3a4a31;
+    -md-on-secondary-container: #d9e7cb;
+    -md-error: #ffb4ab;
+    -md-inverse-surface: #e2e3d8;
+    -md-inverse-on-surface: #2f312c;
+}
+
+/* ---------------------------------------------------------------- 顶栏 */
+
+.appbar {
+    -fx-padding: 14 20 10 20;
+    -fx-background-color: transparent;
+}
+
+.brand-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -md-on-surface;
+}
+
+.brand-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.text-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -md-on-surface-variant;
+    -fx-background-radius: 20;
+    -fx-padding: 6 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.text-button:hover {
+    -fx-background-color: -md-surface-container-high;
+}
+
+/* ---------------------------------------------------------------- 搜索区 */
+
+.form-card {
+    -fx-background-color: -md-surface-container-low;
+    -fx-background-radius: 20;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 18;
+}
+
+.search-field {
+    -fx-background-color: -md-surface-container-lowest;
+    -fx-background-radius: 28;
+    -fx-border-radius: 28;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-width: 1;
+    -fx-padding: 10 18;
+    -fx-font-size: 14px;
+    -fx-text-fill: -md-on-surface;
+    -fx-prompt-text-fill: -md-outline;
+}
+
+.search-field:focused {
+    -fx-border-color: -md-primary;
+    -fx-border-width: 2;
+    -fx-padding: 9 17;
+}
+
+.proxy-field {
+    -fx-background-color: -md-surface-container-lowest;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-width: 1;
+    -fx-padding: 6 12;
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface;
+    -fx-prompt-text-fill: -md-outline;
+}
+
+.proxy-field:focused {
+    -fx-border-color: -md-primary;
+}
+
+.field-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.edition-combo {
+    -fx-background-color: -md-surface-container-lowest;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-width: 1;
+    -fx-padding: 2 6;
+    -fx-font-size: 12px;
+}
+
+.edition-combo .list-cell {
+    -fx-text-fill: -md-on-surface;
+    -fx-background-color: transparent;
+    -fx-padding: 4 6;
+}
+
+.edition-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.edition-combo .arrow-button .arrow {
+    -fx-background-color: -md-on-surface-variant;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: -md-surface-container;
+    -fx-background-radius: 10;
+    -fx-padding: 4;
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: -md-on-surface;
+    -fx-background-color: transparent;
+    -fx-padding: 6 10;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -md-primary-container;
+    -fx-text-fill: -md-on-primary-container;
+}
+
+.filled-button {
+    -fx-background-color: -md-primary;
+    -fx-text-fill: -md-on-primary;
+    -fx-background-radius: 100;
+    -fx-padding: 10 22;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.filled-button:hover {
+    -fx-opacity: 0.9;
+}
+
+.filled-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------- 历史 */
+
+.history-row {
+    -fx-padding: 0 4;
+}
+
+.history-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface-variant;
+    -fx-padding: 0 4 0 0;
+}
+
+.chip {
+    -fx-background-color: -md-surface-container-high;
+    -fx-text-fill: -md-on-surface;
+    -fx-background-radius: 999;
+    -fx-padding: 5 14;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.chip:hover {
+    -fx-background-color: -md-secondary-container;
+    -fx-text-fill: -md-on-secondary-container;
+}
+
+/* ---------------------------------------------------------------- 卡片 */
+
+.empty-card,
+.error-card,
+.state-card {
+    -fx-background-color: -md-surface-container-low;
+    -fx-background-radius: 20;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 28 24;
+}
+
+.empty-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -md-on-surface;
+}
+
+.empty-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.state-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.error-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -md-error;
+}
+
+.error-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.result {
+    -fx-spacing: 14;
+}
+
+.server-card {
+    -fx-background-color: -md-surface-container-low;
+    -fx-background-radius: 20;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 16 18;
+}
+
+.server-icon {
+    -fx-background-color: -md-surface-container-high;
+    -fx-background-radius: 14;
+}
+
+.server-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.motd-flow {
+    -fx-line-spacing: 2;
+}
+
+.latency-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -md-on-surface;
+}
+
+.facts-card,
+.players-card,
+.raw-card {
+    -fx-background-color: -md-surface-container-low;
+    -fx-background-radius: 20;
+    -fx-border-color: -md-outline-variant;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 18;
+}
+
+.section-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -md-on-surface;
+}
+
+.fact-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -md-on-surface-variant;
+}
+
+.fact-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: -md-on-surface;
+}
+
+.player-chip {
+    -fx-background-color: -md-surface-container-high;
+    -fx-text-fill: -md-on-surface-variant;
+    -fx-background-radius: 999;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+}
+
+.raw-area {
+    -fx-control-inner-background: -md-surface-container;
+    -fx-background-color: -md-surface-container;
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+    -fx-padding: 2;
+    -fx-font-size: 11px;
+    -fx-text-fill: -md-on-surface-variant;
+    -fx-font-family: "JetBrains Mono", "DejaVu Sans Mono", "monospace";
+}
+
+.raw-area .content {
+    -fx-background-color: -md-surface-container;
+    -fx-background-radius: 10;
+}
+
+/* ---------------------------------------------------------------- 滚动与页脚 */
+
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.content-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -md-outline-variant;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-padding: 0;
+}
+
+.footer {
+    -fx-font-size: 11px;
+    -fx-text-fill: -md-on-surface-variant;
+    -fx-padding: 10 20 14 20;
+}
+
+.tooltip {
+    -fx-background-color: -md-inverse-surface;
+    -fx-text-fill: -md-inverse-on-surface;
+    -fx-font-size: 11px;
+    -fx-padding: 6 10;
+    -fx-background-radius: 6;
+}

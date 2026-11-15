@@ -29,8 +29,8 @@ public final class Strings {
 
         add("proxy.label", "代理", "Proxy");
         add("proxy.hint", "socks5:// 或 http://", "socks5:// or http://");
-        add("footer", "纯 Java，零依赖  ·  CLI 同源：motd <地址>",
-                "Pure Java, zero dependencies  ·  CLI: motd <address>");
+        add("footer", "Java + JavaFX  ·  与 CLI 同源：motd <地址>",
+                "Java + JavaFX  ·  CLI: motd <address>");
 
         add("empty.title", "输入服务器地址，直接读取它的 MOTD",
                 "Enter a server address to read its MOTD");
@@ -47,6 +47,10 @@ public final class Strings {
         add("error.hint3", "只支持 Java 版，基岩版是 UDP 19132",
                 "Java Edition only; Bedrock uses UDP 19132");
         add("input.empty", "请输入服务器地址", "Please enter a server address");
+        add("ping.button", "查询", "Ping");
+        add("theme.system", "主题：跟随系统（点击切换）", "Theme: follow system (click to switch)");
+        add("theme.light", "主题：浅色（点击切换）", "Theme: light (click to switch)");
+        add("theme.dark", "主题：深色（点击切换）", "Theme: dark (click to switch)");
 
         add("motd.empty", "（服务器没有设置 MOTD）", "(no MOTD set)");
 
