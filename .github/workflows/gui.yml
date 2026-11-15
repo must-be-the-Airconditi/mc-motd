@@ -31,7 +31,7 @@ jobs:
       - name: 下载 JavaFX
         shell: bash
         env:
-          JAVAFX_MIRROR: https://repo1.maven.org/maven2/org/openjfx
+          JAVAFX_MIRROR: https://repo.maven.apache.org/maven2/org/openjfx
         run: bash gui/fetch-javafx.sh
       - name: 编译 + 打 jar
         shell: bash
@@ -43,7 +43,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/gui-v') || inputs.dry_run
     runs-on: ${{ matrix.os }}
     env:
-      JAVAFX_MIRROR: https://repo1.maven.org/maven2/org/openjfx
+      JAVAFX_MIRROR: https://repo.maven.apache.org/maven2/org/openjfx
     strategy:
       fail-fast: false
       matrix:

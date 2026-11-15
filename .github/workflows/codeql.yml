@@ -27,6 +27,20 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
+      - name: 设置 JDK
+        if: matrix.language == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: 准备 JavaFX
+        if: matrix.language == 'java'
+        env:
+          JAVAFX_MIRROR: https://repo.maven.apache.org/maven2/org/openjfx
+        shell: bash
+        run: bash gui/fetch-javafx.sh
+
       - name: 构建 Java（GUI）
         if: matrix.language == 'java'
         shell: bash
