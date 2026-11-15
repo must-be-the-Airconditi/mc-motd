@@ -16,7 +16,7 @@
 
 <p align="center">
   A tiny tool for reading Minecraft <b>Java and Bedrock</b> server MOTDs — CLI, local web UI and desktop GUI,<br />
-  built directly on the Server List Ping protocol — zero Node dependencies for the CLI and web UI, with JavaFX bundled in the desktop app.
+  built directly on the Server List Ping protocol — zero Node dependencies for the CLI and web UI.
 </p>
 
 ---
