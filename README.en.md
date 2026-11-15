@@ -7,7 +7,7 @@
   <a href="https://github.com/must-be-the-Airconditi/mc-motd/releases"><img src="https://img.shields.io/github/v/release/must-be-the-Airconditi/mc-motd?include_prereleases&label=release&style=flat-square" alt="release" /></a>
   <img src="https://img.shields.io/badge/license-MIT-4a9e5c?style=flat-square" alt="license" />
   <img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="node" />
-  <img src="https://img.shields.io/badge/Java-11%2B-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="java" />
+  <img src="https://img.shields.io/badge/Java-17%2B-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="java" />
 </p>
 
 <p align="center">
