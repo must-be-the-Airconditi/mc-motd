@@ -40,3 +40,31 @@ cp src/mcmotd/app.css out/app.css
 "$JP" --create --file dist/mc-motd-gui.jar --main-class mcmotd.Main -C out .
 
 echo "已生成 gui/dist/mc-motd-gui.jar"
+
+# --fat：把 JavaFX 的类和原生库一起打进来，双击 jar 就能开（不用 --module-path）。
+# 只对本机平台有效，所以不作为发布资产。
+if [ "${1:-}" = "--fat" ]; then
+    fat_dir=$(mktemp -d)
+    trap 'rm -rf "$fat_dir"' EXIT
+
+    for lib in "$JAVAFX_LIB"/javafx-*.jar; do
+        case "$lib" in
+            *-linux.jar|*-mac.jar|*-win.jar|*-linux-aarch64.jar|*-mac-aarch64.jar|*-win-x86.jar) ;;
+            *) continue ;;
+        esac
+        unzip -qo "$lib" -d "$fat_dir"
+    done
+    unzip -qo dist/mc-motd-gui.jar -d "$fat_dir"
+
+    # 合并后的 jar 不能带 module-info，否则 jar 工具会当成模块描述符解析
+    find "$fat_dir" -name module-info.class -delete
+    rm -f "$fat_dir/META-INF/MANIFEST.MF"
+
+    cat > "$fat_dir/manifest.txt" <<'MANIFEST'
+Main-Class: mcmotd.Main
+Enable-Native-Access: ALL-UNNAMED
+MANIFEST
+
+    "$JP" --create --file dist/mc-motd-gui-fat.jar --manifest "$fat_dir/manifest.txt" -C "$fat_dir" .
+    echo "已生成 gui/dist/mc-motd-gui-fat.jar（自带 JavaFX，可双击运行）"
+fi

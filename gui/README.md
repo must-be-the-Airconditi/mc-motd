@@ -34,6 +34,14 @@ java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/m
 
 `fetch-javafx.sh` 会按系统选 Maven 分类器（linux / linux-aarch64 / mac / mac-aarch64 / win），把 `base`、`graphics`、`controls` 三个 jar（含原生库）放进 `gui/.javafx/lib`。构建脚本用 `javac --release 17` 编译、`jar` 打包成可执行 jar。
 
+想双击就能开（不用手写 `--module-path`）：
+
+```bash
+bash gui/build.sh --fat
+```
+
+会额外生成 `gui/dist/mc-motd-gui-fat.jar`，把 JavaFX 的类和原生库一起打进去，双击即可运行（仍需系统里有 Java 17+）。`--fat` 只含本机平台的原生库，跨平台发行还是用安装包或 `portable.zip`。
+
 ## 生成图标
 
 ```bash

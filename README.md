@@ -208,6 +208,8 @@ java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/m
 
 也可以直接用 `gui/launcher/mc-motd`（Windows 为 `mc-motd.bat`），它会在同目录找 `javafx/` 库。
 
+想双击 jar 就开（类似 HMCL）：`bash gui/build.sh --fat` 会生成自带 JavaFX 的 `gui/dist/mc-motd-gui-fat.jar`，双击即可（需要 Java 17+）。
+
 更多见 [gui/README.md](gui/README.md)。
 
 ## 连不上怎么办

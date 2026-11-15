@@ -208,6 +208,8 @@ java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/m
 
 Or use `gui/launcher/mc-motd` (`mc-motd.bat` on Windows), which picks up a `javafx/` folder next to it.
 
+For a double-clickable jar (like HMCL), `bash gui/build.sh --fat` writes `gui/dist/mc-motd-gui-fat.jar` with JavaFX and its native libraries bundled — double-click to run (Java 17+ required).
+
 See [gui/README.md](gui/README.md) for more.
 
 ## Can't connect?
