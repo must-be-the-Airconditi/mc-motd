@@ -51,7 +51,7 @@
 | 💬 | **Bilingual** | CLI and web UI in Chinese and English |
 | 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app |
 | 🎮 | **Both editions** | Java (TCP 25565) and Bedrock (UDP 19132, RakNet) |
-| 📦 | **Zero dependencies** | Node built-ins only; Java stdlib only |
+| 📦 | **Zero dependencies** | CLI / web: Node built-ins only; desktop: JavaFX only (bundled) |
 
 ## Screenshots
 
