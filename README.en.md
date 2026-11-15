@@ -60,7 +60,7 @@
 
 ## Screenshots
 
-![Web UI demo](assets/demo.gif)
+![Web UI demo](assets/demo-en.gif)
 
 | Web UI | Desktop |
 | :---: | :---: |
