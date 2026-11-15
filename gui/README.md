@@ -42,6 +42,15 @@ bash gui/build.sh --fat
 
 会额外生成 `gui/dist/mc-motd-gui-fat.jar`，把 JavaFX 的类和原生库一起打进去，双击即可运行（仍需系统里有 Java 17+）。`--fat` 只含本机平台的原生库，跨平台发行还是用安装包或 `portable.zip`。
 
+## 装进应用菜单（fuzzel / rofi）
+
+```bash
+bash gui/tools/install-desktop.sh             # 安装
+bash gui/tools/install-desktop.sh --uninstall # 卸载
+```
+
+脚本会自动找 Java 17+、确保 `gui/dist/mc-motd-gui-fat.jar` 存在（没有就先构建）、把图标装到 `~/.local/share/icons/hicolor/256x256/apps/mc-motd.png`，再写 `~/.local/share/applications/mc-motd.desktop`。装好后在 fuzzel / rofi / 应用菜单里搜 `mc-motd` 或 `MOTD` 即可启动。
+
 ## 生成图标
 
 ```bash
