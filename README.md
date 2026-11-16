@@ -112,7 +112,7 @@ npm link          # 之后直接用 motd <地址>
 ## 命令行
 
 ```
-mc-motd 1.4.1 — 看 Minecraft Java / 基岩版服务器的 MOTD
+mc-motd 1.5.0 — 看 Minecraft Java / 基岩版服务器的 MOTD
 
 用法:
   motd <地址...> [选项]        查询服务器（可一次查多个）

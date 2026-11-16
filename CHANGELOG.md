@@ -6,11 +6,20 @@
 
 ## [Unreleased]
 
+## [cli-v1.5.0] - 2026-11-16
+
 ### Added
 
 - 发布到 npm：`npx mc-motd <地址>` 或 `npm i -g mc-motd`
-- SRV 查询在系统 DNS 拿不到时用 DoH 兜底（Cloudflare / AliDNS / Google），CLI、网页版和桌面版一致
-- 网页版与桌面版新增 Catppuccin 配色：主题切换增加 Mocha / Latte 两档，跟随系统时仍按系统明暗自动切换
+- 网页版新增 Catppuccin 配色：主题切换增加 Mocha / Latte 两档，跟随系统时仍按系统明暗自动切换
+- SRV 查询在系统 DNS 拿不到时用 DoH 兜底（Cloudflare / AliDNS / Google）
+
+## [gui-v1.5.0] - 2026-11-16
+
+### Added
+
+- 桌面版新增 Catppuccin 配色：主题按钮循环切换 Mocha / Latte，`-Dmcmotd.theme=` 可强制指定
+- 桌面版 SRV 查询同样加 DoH 兜底，与 CLI / 网页版一致
 
 ## [cli-v1.4.1] - 2026-11-16
 
