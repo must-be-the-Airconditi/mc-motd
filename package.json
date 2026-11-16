@@ -1,8 +1,8 @@
 {
   "name": "mc-motd",
   "version": "1.4.1",
-  "private": true,
-  "description": "查看 Minecraft Java 版服务器 MOTD 的命令行 + 网页工具，零运行时依赖",
+  "private": false,
+  "description": "Minecraft Java & Bedrock server MOTD viewer: zero-dependency CLI + local web UI, plus a JavaFX desktop app",
   "bin": {
     "motd": "motd.js"
   },
@@ -21,8 +21,11 @@
   "keywords": [
     "minecraft",
     "motd",
+    "minecraft-server",
     "server-list-ping",
-    "slp"
+    "bedrock",
+    "cli",
+    "javafx"
   ],
   "license": "MIT",
   "repository": {
@@ -37,8 +40,6 @@
     "motd.js",
     "src/",
     "public/",
-    "tools/",
-    "test/",
     "completions/"
   ]
 }
