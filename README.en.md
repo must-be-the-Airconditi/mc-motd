@@ -90,6 +90,13 @@ node motd.js --bedrock play.cubecraft.net               # Bedrock Edition
 node motd.js --web                                      # web UI → http://127.0.0.1:8720
 ```
 
+It is also on npm, no clone needed:
+
+```bash
+npx mc-motd play.cubecraft.net          # run once
+npm i -g mc-motd && motd play.cubecraft.net   # install globally
+```
+
 Grab the installer for your platform from [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) (a runtime is bundled), or use the `portable.zip` / universal jar (needs Java 17+ and JavaFX 21):
 
 ```bash

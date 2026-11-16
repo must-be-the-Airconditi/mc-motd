@@ -8,6 +8,7 @@
 
 ### Added
 
+- 发布到 npm：`npx mc-motd <地址>` 或 `npm i -g mc-motd`
 - 网页版与桌面版新增 Catppuccin 配色：主题切换增加 Mocha / Latte 两档，跟随系统时仍按系统明暗自动切换
 
 ## [cli-v1.4.1] - 2026-11-16

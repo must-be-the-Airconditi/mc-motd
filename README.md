@@ -89,6 +89,13 @@ node motd.js --bedrock play.cubecraft.net               # 基岩版
 node motd.js --web                                      # 网页版 → http://127.0.0.1:8720
 ```
 
+也可以在 npm 上装（不用克隆仓库）：
+
+```bash
+npx mc-motd play.cubecraft.net          # 临时跑一次
+npm i -g mc-motd && motd play.cubecraft.net   # 全局安装，直接 motd
+```
+
 桌面版从 [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) 下载对应安装包（自带运行时），
 或者用 `portable.zip` / 通用 jar（需要 Java 17+ 与 JavaFX 21）：
 
