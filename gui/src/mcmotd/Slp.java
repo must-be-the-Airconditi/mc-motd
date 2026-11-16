@@ -15,9 +15,17 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -231,7 +239,31 @@ public final class Slp {
 
     /* --------------------------------------------------------------- SRV */
 
+    /** 一条 SRV 记录；target 为 "." 时表示服务不可用 */
+    static final class SrvRecord {
+        final int priority;
+        final int weight;
+        final int port;
+        final String target;
+
+        SrvRecord(int priority, int weight, int port, String target) {
+            this.priority = priority;
+            this.weight = weight;
+            this.port = port;
+            this.target = target;
+        }
+    }
+
+    /** 先走系统 DNS，拿不到再用 DoH（Cloudflare / AliDNS / Google）兜底 */
     static Srv lookupSrv(String host) {
+        Srv system = lookupSrvSystem(host);
+        if (system != null) {
+            return system;
+        }
+        return lookupSrvDoh(host);
+    }
+
+    private static Srv lookupSrvSystem(String host) {
         DirContext ctx = null;
         try {
             Hashtable<String, String> env = new Hashtable<>();
@@ -244,28 +276,23 @@ public final class Slp {
             if (srv == null || srv.size() == 0) {
                 return null;
             }
-            int bestPriority = Integer.MAX_VALUE;
-            Srv best = null;
+            List<SrvRecord> records = new ArrayList<>();
             for (int i = 0; i < srv.size(); i++) {
                 String[] parts = String.valueOf(srv.get(i)).trim().split("\\s+");
                 if (parts.length < 4) {
                     continue;
                 }
-                int priority = Integer.parseInt(parts[0]);
-                int port = Integer.parseInt(parts[2]);
-                String target = parts[3];
-                if (target.endsWith(".")) {
-                    target = target.substring(0, target.length() - 1);
-                }
-                if (target.isEmpty()) {
-                    continue; // "." 表示该服务在此处不可用
-                }
-                if (priority < bestPriority) {
-                    bestPriority = priority;
-                    best = new Srv(target, port);
+                try {
+                    records.add(new SrvRecord(
+                            Integer.parseInt(parts[0]),
+                            Integer.parseInt(parts[1]),
+                            Integer.parseInt(parts[2]),
+                            parts[3]));
+                } catch (NumberFormatException ignored) {
+                    // 坏记录跳过
                 }
             }
-            return best;
+            return pickSrv(records);
         } catch (Exception e) {
             return null;
         } finally {
@@ -277,6 +304,106 @@ public final class Slp {
                 }
             }
         }
+    }
+
+    /** SRV 记录按 RFC 2782 排序：先 priority，再 weight；"." / 空 target / port<=0 视为不可用 */
+    static Srv pickSrv(List<SrvRecord> records) {
+        SrvRecord best = null;
+        for (SrvRecord record : records) {
+            if (record == null || record.target == null || record.port <= 0) {
+                continue;
+            }
+            String target = record.target.trim();
+            if (target.isEmpty() || target.equals(".")) {
+                continue;
+            }
+            if (best == null
+                    || record.priority < best.priority
+                    || (record.priority == best.priority && record.weight > best.weight)) {
+                best = record;
+            }
+        }
+        if (best == null) {
+            return null;
+        }
+        String target = best.target.trim();
+        if (target.endsWith(".")) {
+            target = target.substring(0, target.length() - 1);
+        }
+        if (target.isEmpty()) {
+            return null;
+        }
+        return new Srv(target, best.port);
+    }
+
+    static Srv lookupSrvDoh(String host) {
+        if (Boolean.getBoolean("mcmotd.noDoh")) {
+            return null;
+        }
+        String name = "_minecraft._tcp." + host;
+        String[] endpoints = {
+                "https://cloudflare-dns.com/dns-query?name=" + encodeQuery(name) + "&type=SRV",
+                "https://dns.alidns.com/resolve?name=" + encodeQuery(name) + "&type=SRV",
+                "https://dns.google/resolve?name=" + encodeQuery(name) + "&type=SRV",
+        };
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(2))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+        for (String endpoint : endpoints) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint))
+                        .timeout(Duration.ofMillis(2500))
+                        .header("accept", "application/dns-json")
+                        .header("user-agent", "mc-motd")
+                        .GET()
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() / 100 != 2) {
+                    continue;
+                }
+                Srv picked = parseDohAnswer(response.body());
+                if (picked != null) {
+                    return picked;
+                }
+            } catch (Exception ignored) {
+                // 换下一个 DoH
+            }
+        }
+        return null;
+    }
+
+    private static Srv parseDohAnswer(String body) {
+        Object root = Json.parse(body);
+        List<Object> answers = Json.list(root, "Answer");
+        if (answers == null) {
+            return null;
+        }
+        List<SrvRecord> records = new ArrayList<>();
+        for (Object answer : answers) {
+            if (Json.num(answer, "type", -1) != 33) {
+                continue;
+            }
+            String data = Json.str(answer, "data", "");
+            String[] parts = data.trim().split("\\s+");
+            if (parts.length < 4) {
+                continue;
+            }
+            try {
+                records.add(new SrvRecord(
+                        Integer.parseInt(parts[0]),
+                        Integer.parseInt(parts[1]),
+                        Integer.parseInt(parts[2]),
+                        parts[3]));
+            } catch (NumberFormatException ignored) {
+                // 坏记录跳过
+            }
+        }
+        return pickSrv(records);
+    }
+
+    private static String encodeQuery(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     /* ------------------------------------------------------------ 连接 */
