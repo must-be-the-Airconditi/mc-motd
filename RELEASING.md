@@ -24,6 +24,8 @@
 3. 改版本号：
    - CLI / 网页版：`package.json` 的 `version`
    - 桌面 GUI：`gui/src/mcmotd/Main.java` 的 `VERSION`
+   README 里的 CLI 帮助片段（`## 命令行` / `## CLI` 下的代码块）由 `test/readme.test.js`
+   自动比对 `motd --help` 首行；改完版本号跑 `npm test` 就能知道要不要同步 README。
 4. 本地验证：
 
    ```bash
