@@ -282,6 +282,8 @@ test('SRV 记录里的 "." 表示服务不可用，不能拿来连接', async ()
   const dns = require('dns');
   const { lookupSrv } = require('../src/slp');
   const original = dns.resolveSrv;
+  const originalNoDoh = process.env.MC_MOTD_NO_DOH;
+  process.env.MC_MOTD_NO_DOH = '1';
   try {
     dns.resolveSrv = (name, cb) => cb(null, [{ name: '.', port: 0, priority: 0, weight: 0 }]);
     assert.equal(await lookupSrv('example.com', 200), null);
@@ -294,5 +296,28 @@ test('SRV 记录里的 "." 表示服务不可用，不能拿来连接', async ()
     assert.deepEqual(srv, { host: 'high.example.com', port: 25566 });
   } finally {
     dns.resolveSrv = original;
+    if (originalNoDoh === undefined) delete process.env.MC_MOTD_NO_DOH;
+    else process.env.MC_MOTD_NO_DOH = originalNoDoh;
   }
+});
+
+test('pickSrv 过滤不可用记录，按 priority 再按 weight 排序', () => {
+  const { pickSrv } = require('../src/slp');
+
+  assert.equal(pickSrv([]), null);
+  assert.equal(pickSrv([{ name: '.', port: 0, priority: 0, weight: 0 }]), null);
+  assert.equal(pickSrv([{ name: '', port: 25565, priority: 0, weight: 0 }]), null);
+  assert.equal(pickSrv([{ name: 'a.example.com', port: 0, priority: 0, weight: 0 }]), null);
+
+  const srv = pickSrv([
+    { name: 'later.example.com.', port: 25570, priority: 20, weight: 100 },
+    { name: 'low-weight.example.com.', port: 25568, priority: 5, weight: 1 },
+    { name: 'high-weight.example.com.', port: 25569, priority: 5, weight: 50 },
+    { name: '.', port: 0, priority: 0, weight: 0 },
+  ]);
+  assert.deepEqual(srv, { host: 'high-weight.example.com', port: 25569 });
+
+  // 尾点被去掉，且 . 记录不会顶掉真正的记录
+  const single = pickSrv([{ name: 'mc.example.com.', port: 25565, priority: 0, weight: 0 }]);
+  assert.deepEqual(single, { host: 'mc.example.com', port: 25565 });
 });

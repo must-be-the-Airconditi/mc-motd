@@ -11,6 +11,7 @@
 
 const net = require('net');
 const dns = require('dns');
+const https = require('https');
 const { connectTunnel, normalizeProxy } = require('./proxy');
 const { t } = require('./i18n');
 
@@ -295,7 +296,8 @@ function parseAddress(input, lang = 'zh') {
 }
 
 /** SRV 查询：_minecraft._tcp.<host> */
-function lookupSrv(host, timeoutMs = 2000) {
+/** 用系统 DNS 查 SRV（无结果/失败都返回 null） */
+function resolveSrvSystem(host, timeoutMs) {
   return new Promise((resolve) => {
     let settled = false;
     const timer = setTimeout(() => {
@@ -305,16 +307,83 @@ function lookupSrv(host, timeoutMs = 2000) {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (err || !records || !records.length) return resolve(null);
-      // RFC 2782：先按 priority，再按 weight（weight 大的优先）；"." 表示该服务不可用
-      const usable = [...records]
-        .filter((record) => record && record.name && record.name !== '.' && record.port > 0)
-        .sort((a, b) => a.priority - b.priority || b.weight - a.weight);
-      if (!usable.length) return resolve(null);
-      const target = usable[0].name.replace(/\.$/, '');
-      resolve({ host: target, port: usable[0].port });
+      resolve(err || !records || !records.length ? null : records);
     });
   });
+}
+
+/** GET 一个 DoH JSON 端点，返回解析后的对象 */
+function fetchDohJson(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, {
+      headers: { accept: 'application/dns-json', 'user-agent': 'mc-motd' },
+      timeout: timeoutMs,
+    }, (res) => {
+      if (res.statusCode !== 200) {
+        res.resume();
+        reject(new Error(`DoH HTTP ${res.statusCode}`));
+        return;
+      }
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => {
+        body += chunk;
+        if (body.length > 512 * 1024) req.destroy(new Error('DoH response too large'));
+      });
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(body));
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+    req.setTimeout(timeoutMs, () => req.destroy(new Error('DoH timeout')));
+    req.on('error', reject);
+  });
+}
+
+/** SRV 记录按 RFC 2782 排序：先 priority，再 weight；"." 表示服务不可用 */
+function pickSrv(records) {
+  const usable = records
+    .filter((record) => record && record.name && record.name !== '.' && record.name !== '' && record.port > 0)
+    .sort((a, b) => a.priority - b.priority || b.weight - a.weight);
+  if (!usable.length) return null;
+  return { host: usable[0].name.replace(/\.$/, ''), port: usable[0].port };
+}
+
+/** 系统 DNS 拿不到时，用 DoH（Cloudflare / AliDNS / Google）兜底；MC_MOTD_NO_DOH=1 可整体关闭 */
+async function lookupSrvDoh(host, timeoutMs) {
+  if (process.env.MC_MOTD_NO_DOH) return null;
+  const name = `_minecraft._tcp.${host}`;
+  const endpoints = [
+    `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=SRV`,
+    `https://dns.alidns.com/resolve?name=${encodeURIComponent(name)}&type=SRV`,
+    `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=SRV`,
+  ];
+  for (const url of endpoints) {
+    try {
+      const data = await fetchDohJson(url, timeoutMs);
+      const records = (data && data.Answer ? data.Answer : [])
+        .filter((answer) => answer.type === 33 && typeof answer.data === 'string')
+        .map((answer) => {
+          const [priority, weight, port, target] = answer.data.trim().split(/\s+/);
+          return { priority: Number(priority), weight: Number(weight), port: Number(port), name: String(target || '').replace(/\.$/, '') };
+        });
+      const picked = pickSrv(records);
+      if (picked) return picked;
+    } catch {
+      // 换下一个 DoH
+    }
+  }
+  return null;
+}
+
+async function lookupSrv(host, timeoutMs = 2000) {
+  const records = await resolveSrvSystem(host, timeoutMs);
+  const picked = records ? pickSrv(records) : null;
+  if (picked) return picked;
+  return lookupSrvDoh(host, timeoutMs);
 }
 
 /* -------------------------------------------------------------- 默认连接 */
@@ -443,6 +512,8 @@ module.exports = {
   ping,
   parseAddress,
   lookupSrv,
+  lookupSrvDoh,
+  pickSrv,
   readVarInt,
   writeVarInt,
   writeString,
