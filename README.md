@@ -66,6 +66,16 @@
 | :---: | :---: |
 | <img src="screenshot.png" width="520" alt="web ui" /> | <img src="gui/screenshot.png" width="420" alt="desktop gui" /> |
 
+### Catppuccin 主题
+
+| 网页版 · Mocha | 网页版 · Latte |
+| :---: | :---: |
+| <img src="screenshot-mocha.png" width="420" alt="web ui mocha" /> | <img src="screenshot-latte.png" width="420" alt="web ui latte" /> |
+
+| 桌面版 · Mocha | 桌面版 · Latte |
+| :---: | :---: |
+| <img src="gui/screenshot-mocha.png" width="400" alt="desktop gui mocha" /> | <img src="gui/screenshot-latte.png" width="400" alt="desktop gui latte" /> |
+
 ## 快速开始
 
 命令行 / 网页版需要 Node.js ≥ 18（无需 `npm install`）：

@@ -67,6 +67,16 @@
 | :---: | :---: |
 | <img src="screenshot-en.png" width="520" alt="web ui" /> | <img src="gui/screenshot-en.png" width="420" alt="desktop gui" /> |
 
+### Catppuccin themes
+
+| Web UI · Mocha | Web UI · Latte |
+| :---: | :---: |
+| <img src="screenshot-mocha-en.png" width="420" alt="web ui mocha" /> | <img src="screenshot-latte-en.png" width="420" alt="web ui latte" /> |
+
+| Desktop · Mocha | Desktop · Latte |
+| :---: | :---: |
+| <img src="gui/screenshot-mocha-en.png" width="400" alt="desktop gui mocha" /> | <img src="gui/screenshot-latte-en.png" width="400" alt="desktop gui latte" /> |
+
 ## Quick start
 
 The CLI and web UI need Node.js ≥ 18 (no `npm install` required):

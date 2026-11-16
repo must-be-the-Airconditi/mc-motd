@@ -14,6 +14,14 @@ java --module-path javafx --add-modules javafx.controls -jar mc-motd-gui.jar
 java --module-path javafx --add-modules javafx.controls -jar mc-motd-gui.jar play.cubecraft.net
 ```
 
+## 主题
+
+右上角主题按钮循环切换五档：**跟随系统 → 浅色 → 深色 → Catppuccin Mocha → Catppuccin Latte**，选择会记住。也可以强制指定：
+
+```bash
+java -Dmcmotd.theme=mocha --module-path javafx --add-modules javafx.controls -jar mc-motd-gui.jar   # 或 latte / light / dark
+```
+
 ## 语言
 
 界面支持中文 / English：
