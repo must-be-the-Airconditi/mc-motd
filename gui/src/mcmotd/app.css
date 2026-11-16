@@ -43,6 +43,51 @@
     -md-inverse-on-surface: #2f312c;
 }
 
+
+/* Catppuccin Mocha */
+.app.theme-mocha {
+    -md-surface: #1e1e2e;
+    -md-surface-container-lowest: #11111b;
+    -md-surface-container-low: #181825;
+    -md-surface-container: #1e1e2e;
+    -md-surface-container-high: #313244;
+    -md-on-surface: #cdd6f4;
+    -md-on-surface-variant: #a6adc8;
+    -md-outline: #6c7086;
+    -md-outline-variant: #45475a;
+    -md-primary: #a6e3a1;
+    -md-on-primary: #1e1e2e;
+    -md-primary-container: #2f4433;
+    -md-on-primary-container: #b9f0b0;
+    -md-secondary-container: #2b3f3d;
+    -md-on-secondary-container: #b5f0e6;
+    -md-error: #f38ba8;
+    -md-inverse-surface: #cdd6f4;
+    -md-inverse-on-surface: #1e1e2e;
+}
+
+/* Catppuccin Latte */
+.app.theme-latte {
+    -md-surface: #eff1f5;
+    -md-surface-container-lowest: #ffffff;
+    -md-surface-container-low: #e6e9ef;
+    -md-surface-container: #e6e9ef;
+    -md-surface-container-high: #dce0e8;
+    -md-on-surface: #4c4f69;
+    -md-on-surface-variant: #5c5f77;
+    -md-outline: #9ca0b0;
+    -md-outline-variant: #bcc0cc;
+    -md-primary: #40a02b;
+    -md-on-primary: #eff1f5;
+    -md-primary-container: #bfe9b8;
+    -md-on-primary-container: #0d3a06;
+    -md-secondary-container: #b8e6e9;
+    -md-on-secondary-container: #053f42;
+    -md-error: #d20f39;
+    -md-inverse-surface: #4c4f69;
+    -md-inverse-on-surface: #eff1f5;
+}
+
 /* ---------------------------------------------------------------- 顶栏 */
 
 .appbar {

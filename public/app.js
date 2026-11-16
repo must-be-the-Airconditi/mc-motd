@@ -11,6 +11,7 @@ const chipsEl = document.getElementById('chips');
 const field = document.getElementById('field');
 const editionEl = document.getElementById('edition');
 const langBtn = document.getElementById('lang');
+const themeBtn = document.getElementById('theme');
 const addrLabel = document.getElementById('addr-label');
 const historyLabel = document.getElementById('history-label');
 const foot1 = document.getElementById('foot-1');
@@ -20,6 +21,7 @@ const brandTitle = document.querySelector('.brand-text h1');
 
 const HISTORY_KEY = 'mc-motd:history';
 const EDITION_KEY = 'mc-motd:edition';
+const THEME_KEY = 'mc-motd:theme';
 const OBF_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#$%&*+-=/\\|<>';
 const GRASS_SVG = `
 <svg viewBox="0 0 32 32" width="100%" height="100%" role="img" aria-label="服务器图标">
@@ -44,6 +46,11 @@ const I18N = {
     'placeholder': 'play.example.com  或  host:25565',
     'form.label': '服务器地址',
     'history.label': '最近',
+    'theme.auto': '跟随系统',
+    'theme.light': '浅色',
+    'theme.dark': '深色',
+    'theme.mocha': 'Mocha',
+    'theme.latte': 'Latte',
     'empty.title': '输入服务器地址，直接读取它的 MOTD',
     'empty.sub': 'Java 走 TCP 25565，基岩走 UDP 19132 · 不经过第三方 API',
     'loading': '正在连接 {0} …',
@@ -92,6 +99,11 @@ const I18N = {
     'placeholder': 'play.example.com  or  host:25565',
     'form.label': 'Server address',
     'history.label': 'Recent',
+    'theme.auto': 'Auto',
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
+    'theme.mocha': 'Mocha',
+    'theme.latte': 'Latte',
     'empty.title': 'Enter a server address to read its MOTD',
     'empty.sub': 'Java over TCP 25565, Bedrock over UDP 19132 · no third-party API',
     'loading': 'Connecting to {0} …',
@@ -148,6 +160,43 @@ function detectLang() {
 }
 
 let lang = detectLang();
+
+const THEMES = ['auto', 'light', 'dark', 'mocha', 'latte'];
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const themeFromUrl = new URLSearchParams(location.search).get('theme');
+let theme = THEMES.includes(themeFromUrl) ? themeFromUrl : 'auto';
+if (theme === 'auto') {
+  try {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (THEMES.includes(savedTheme)) theme = savedTheme;
+  } catch {
+    /* 忽略 */
+  }
+}
+
+function resolvedTheme() {
+  return theme === 'auto' ? (darkQuery.matches ? 'dark' : 'light') : theme;
+}
+
+function isLightTheme() {
+  const resolved = resolvedTheme();
+  return resolved === 'light' || resolved === 'latte';
+}
+
+/** 应用主题：Catppuccin 用独立 class，其余只切换明暗色板 */
+function applyTheme() {
+  const root = document.documentElement;
+  const resolved = resolvedTheme();
+  root.classList.toggle('dark-palette', resolved === 'dark');
+  root.classList.toggle('theme-mocha', resolved === 'mocha');
+  root.classList.toggle('theme-latte', resolved === 'latte');
+  if (themeBtn) {
+    const label = t('theme.' + theme);
+    themeBtn.textContent = label;
+    themeBtn.title = label;
+    themeBtn.setAttribute('aria-label', label);
+  }
+}
 
 function t(key, ...args) {
   const dict = I18N[lang] || I18N.zh;
@@ -232,11 +281,9 @@ function formatNumber(value) {
 
 /* ------------------------------------------------------------- 渲染片段 */
 
-const lightScheme = window.matchMedia('(prefers-color-scheme: light)');
-
 /** 浅色背景下把 Minecraft 的高亮色（白/亮绿/亮黄……）压暗，否则几乎看不见 */
 function readableColor(color) {
-  if (!lightScheme.matches || !color) return color;
+  if (!isLightTheme() || !color) return color;
   const match = /^#([0-9a-f]{6})$/i.exec(color);
   if (!match) return color;
   const n = parseInt(match[1], 16);
@@ -558,6 +605,7 @@ function applyLanguage() {
     /* 忽略 */
   }
   if (langBtn) langBtn.textContent = lang === 'zh' ? 'EN' : '中文';
+  applyTheme();
   if (metaDesc) metaDesc.content = t('page.desc');
   if (brandTitle) brandTitle.innerHTML = '<span class="pixel">MOTD</span> ' + escapeHtml(t('brand.suffix'));
   if (input) input.placeholder = t('placeholder');
@@ -677,7 +725,7 @@ if (preloaded && preloaded.result) {
   }
 }
 
-lightScheme.addEventListener('change', () => {
+function rerender() {
   if (lastResult) {
     renderResult(lastResult, lastMeta || { elapsedMs: 0, cached: false });
   } else if (lastError) {
@@ -685,7 +733,26 @@ lightScheme.addEventListener('change', () => {
   } else if (!busy) {
     renderEmpty();
   }
+}
+
+darkQuery.addEventListener('change', () => {
+  if (theme !== 'auto') return;
+  applyTheme();
+  rerender();
 });
+
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      /* 忽略 */
+    }
+    applyTheme();
+    rerender();
+  });
+}
 
 applyLanguage();
 

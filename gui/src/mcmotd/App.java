@@ -123,7 +123,11 @@ public final class App extends Application {
     void prepare(String address, boolean bedrock) {
         prefs = Preferences.userNodeForPackage(App.class);
         Strings.init(prefs);
-        themeMode = prefs.get("theme", "system");
+        String forcedTheme = System.getProperty("mcmotd.theme");
+        themeMode = forcedTheme != null && !forcedTheme.isBlank() ? forcedTheme.trim() : prefs.get("theme", "system");
+        if (!java.util.List.of("system", "light", "dark", "mocha", "latte").contains(themeMode)) {
+            themeMode = "system";
+        }
         dark = resolveDark();
         initialAddress = address;
         initialBedrock = bedrock;
@@ -152,6 +156,11 @@ public final class App extends Application {
         root.getStyleClass().add("app");
         if (dark) {
             root.getStyleClass().add("dark");
+        }
+        if ("mocha".equals(themeMode)) {
+            root.getStyleClass().add("theme-mocha");
+        } else if ("latte".equals(themeMode)) {
+            root.getStyleClass().add("theme-latte");
         }
         root.setStyle("-fx-font-family: \"" + fontFamily() + "\";");
         root.getChildren().addAll(appBar(), scrollArea(), footer());
@@ -193,6 +202,8 @@ public final class App extends Application {
             themeMode = switch (themeMode) {
                 case "system" -> "light";
                 case "light" -> "dark";
+                case "dark" -> "mocha";
+                case "mocha" -> "latte";
                 default -> "system";
             };
             prefs.put("theme", themeMode);
@@ -713,8 +724,8 @@ public final class App extends Application {
             return !"false".equalsIgnoreCase(forced.trim());
         }
         return switch (themeMode) {
-            case "light" -> false;
-            case "dark" -> true;
+            case "light", "latte" -> false;
+            case "dark", "mocha" -> true;
             default -> systemDark();
         };
     }
@@ -775,6 +786,8 @@ public final class App extends Application {
         return switch (themeMode) {
             case "light" -> "☀";
             case "dark" -> "☾";
+            case "mocha" -> "◒";
+            case "latte" -> "◓";
             default -> "◐";
         };
     }
@@ -783,6 +796,8 @@ public final class App extends Application {
         return switch (themeMode) {
             case "light" -> Strings.t("theme.light");
             case "dark" -> Strings.t("theme.dark");
+            case "mocha" -> Strings.t("theme.mocha");
+            case "latte" -> Strings.t("theme.latte");
             default -> Strings.t("theme.system");
         };
     }

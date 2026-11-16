@@ -51,6 +51,8 @@ public final class Strings {
         add("theme.system", "主题：跟随系统（点击切换）", "Theme: follow system (click to switch)");
         add("theme.light", "主题：浅色（点击切换）", "Theme: light (click to switch)");
         add("theme.dark", "主题：深色（点击切换）", "Theme: dark (click to switch)");
+        add("theme.mocha", "主题：Catppuccin Mocha（点击切换）", "Theme: Catppuccin Mocha (click to switch)");
+        add("theme.latte", "主题：Catppuccin Latte（点击切换）", "Theme: Catppuccin Latte (click to switch)");
 
         add("motd.empty", "（服务器没有设置 MOTD）", "(no MOTD set)");
         add("version.unknown", "未知版本", "Unknown version");

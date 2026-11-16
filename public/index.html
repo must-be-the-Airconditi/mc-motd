@@ -7,6 +7,23 @@
   <meta name="description" content="在线查看 Minecraft Java 版服务器的 MOTD、版本、在线人数和延迟。直连服务器列表 Ping 协议。">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23386a20'/%3E%3Cpath d='M6 11h20v4H6z' fill='%23b7f397'/%3E%3Cpath d='M6 15h20v11H6z' fill='%237c5a3c'/%3E%3Cpath d='M11 19v3M17 20v3M23 19v3' stroke='%235a3f28' stroke-width='1.4'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/style.css">
+  <script>
+    // 首屏前先上主题 class，避免深色/彩色主题闪一下浅色
+    (function () {
+      try {
+        var themes = ['auto', 'light', 'dark', 'mocha', 'latte'];
+        var fromUrl = new URLSearchParams(location.search).get('theme');
+        var saved = localStorage.getItem('mc-motd:theme');
+        var theme = themes.indexOf(fromUrl) >= 0 ? fromUrl : (themes.indexOf(saved) >= 0 ? saved : 'auto');
+        var cls = document.documentElement.classList;
+        var dark = theme === 'dark' || theme === 'mocha'
+          || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) cls.add('dark-palette');
+        if (theme === 'mocha') cls.add('theme-mocha');
+        if (theme === 'latte') cls.add('theme-latte');
+      } catch (e) { /* 忽略 */ }
+    })();
+  </script>
 </head>
 <body>
   <header class="top-bar">
@@ -26,7 +43,10 @@
           <p>Minecraft: Java / Bedrock · Server List Ping</p>
         </div>
       </div>
-      <button type="button" class="lang-btn" id="lang" aria-label="Switch language">EN</button>
+      <div class="top-actions">
+        <button type="button" class="lang-btn theme-btn" id="theme" aria-label="Switch theme">跟随系统</button>
+        <button type="button" class="lang-btn" id="lang" aria-label="Switch language">EN</button>
+      </div>
     </div>
   </header>
 

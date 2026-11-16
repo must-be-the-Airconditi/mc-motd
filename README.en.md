@@ -53,6 +53,7 @@
 | 🌐 | **Automatic SRV** | Looks up `_minecraft._tcp` when no port is given, like the game client |
 | 🖼 | **Server icon** | Favicon in the web UI, icon in the desktop app |
 | 🔀 | **Proxies** | `socks5://`, `socks4://`, `http(s)://` |
+| 🎨 | **Themes** | Follow the system, plus Catppuccin Mocha and Latte palettes |
 | 💬 | **Bilingual** | CLI and web UI in Chinese and English |
 | 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app |
 | 🎮 | **Both editions** | Java (TCP 25565) and Bedrock (UDP 19132, RakNet) |

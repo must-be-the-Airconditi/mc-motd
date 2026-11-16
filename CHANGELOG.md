@@ -6,6 +6,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- 网页版与桌面版新增 Catppuccin 配色：主题切换增加 Mocha / Latte 两档，跟随系统时仍按系统明暗自动切换
+
 ## [cli-v1.4.1] - 2026-11-16
 
 ### Fixed
