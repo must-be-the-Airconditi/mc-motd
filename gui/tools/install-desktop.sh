@@ -18,9 +18,11 @@ ICON_SRC="$GUI_DIR/icon.png"
 DESKTOP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 ICON_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/256x256/apps"
 DESKTOP_FILE="$DESKTOP_DIR/$APP_ID.desktop"
+LAUNCH_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/mc-motd"
+LAUNCHER="$LAUNCH_DIR/launch.sh"
 
 uninstall() {
-    rm -f "$DESKTOP_FILE" "$ICON_DIR/$APP_ID.png"
+    rm -f "$DESKTOP_FILE" "$ICON_DIR/$APP_ID.png" "$LAUNCHER"
     command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DESKTOP_DIR" || true
     echo "已卸载：$DESKTOP_FILE"
 }
@@ -56,8 +58,28 @@ if [ ! -f "$FAT_JAR" ]; then
     bash "$GUI_DIR/build.sh" --fat
 fi
 
-mkdir -p "$DESKTOP_DIR" "$ICON_DIR"
+mkdir -p "$DESKTOP_DIR" "$ICON_DIR" "$LAUNCH_DIR"
 cp "$ICON_SRC" "$ICON_DIR/$APP_ID.png"
+
+# 启动器：fat jar 被普通 build.sh 删掉时自动重建，而不是点了没反应
+cat > "$LAUNCHER" <<LAUNCH
+#!/usr/bin/env bash
+# 由 gui/tools/install-desktop.sh 生成
+set -euo pipefail
+JAVA="$JAVA"
+JAR="$FAT_JAR"
+REPO="$REPO_DIR"
+if [ ! -f "\$JAR" ] && [ -x "\$REPO/gui/build.sh" ]; then
+    (cd "\$REPO" && bash gui/build.sh --fat) || true
+fi
+if [ ! -f "\$JAR" ]; then
+    command -v notify-send >/dev/null 2>&1 && notify-send "mc-motd" "找不到 \$JAR，先跑 bash gui/build.sh --fat"
+    echo "mc-motd: missing \$JAR" >&2
+    exit 1
+fi
+exec "\$JAVA" -jar "\$JAR" "\$@"
+LAUNCH
+chmod +x "$LAUNCHER"
 
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
@@ -68,7 +90,7 @@ GenericName=Minecraft Server MOTD Viewer
 GenericName[zh_CN]=Minecraft 服务器 MOTD 查看器
 Comment=Read Java and Bedrock server MOTDs
 Comment[zh_CN]=查看 Minecraft Java / 基岩版服务器 MOTD
-Exec="$JAVA" -jar "$FAT_JAR" %U
+Exec="$LAUNCHER" %U
 Icon=$APP_ID
 Terminal=false
 Categories=Utility;
@@ -83,4 +105,5 @@ command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$
 echo "已安装：$DESKTOP_FILE"
 echo "  Java：$JAVA"
 echo "  Jar ：$FAT_JAR"
+echo "  启动器：$LAUNCHER"
 echo "在 fuzzel / rofi 里搜 “$APP_ID” 或 “MOTD” 即可启动。"
