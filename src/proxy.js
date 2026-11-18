@@ -16,6 +16,15 @@ const { t } = require('./i18n');
 
 const PROXY_TYPES = new Set(['socks5', 'socks5h', 'socks4', 'socks4a', 'http', 'https']);
 
+function safeDecode(value, lang = 'zh') {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    throw new Error(lang === 'en' ? 'invalid percent-encoding in proxy auth' : '代理认证信息含非法百分号编码');
+  }
+}
+
 function normalizeProxy(input, lang = 'zh') {
   if (!input) return null;
   let raw = String(input).trim();
@@ -34,8 +43,8 @@ function normalizeProxy(input, lang = 'zh') {
     // URL 对 IPv6 会返回带方括号的 "[::1]"，net.connect 不认识这种写法
     host: url.hostname.replace(/^\[(.*)\]$/, '$1'),
     port,
-    username: url.username ? decodeURIComponent(url.username) : null,
-    password: url.password ? decodeURIComponent(url.password) : null,
+    username: safeDecode(url.username, lang),
+    password: safeDecode(url.password, lang),
   };
 }
 
@@ -47,12 +56,29 @@ class ByteReader {
     this.buf = Buffer.alloc(0);
     this.error = null;
     this.ended = false;
-    socket.on('data', (chunk) => {
+    this._detached = false;
+    this._onData = (chunk) => {
       this.buf = this.buf.length ? Buffer.concat([this.buf, chunk]) : chunk;
-    });
-    socket.on('error', (err) => { this.error = err; });
-    socket.on('end', () => { this.ended = true; });
-    socket.on('close', () => { this.ended = true; });
+    };
+    this._onError = (err) => { this.error = err; };
+    this._onEnd = () => { this.ended = true; };
+    this._onClose = () => { this.ended = true; };
+    socket.on('data', this._onData);
+    socket.on('error', this._onError);
+    socket.on('end', this._onEnd);
+    socket.on('close', this._onClose);
+  }
+
+  detach() {
+    if (this._detached) return this.buf;
+    this._detached = true;
+    this.socket.removeListener('data', this._onData);
+    this.socket.removeListener('error', this._onError);
+    this.socket.removeListener('end', this._onEnd);
+    this.socket.removeListener('close', this._onClose);
+    const leftover = this.buf;
+    this.buf = Buffer.alloc(0);
+    return leftover;
   }
 
   async read(size, timeoutMs) {
@@ -90,6 +116,7 @@ function openSocket({ host, port, tls: useTls }, timeoutMs, lang = 'zh') {
     };
     const onError = (err) => {
       clearTimeout(timer);
+      socket.destroy();
       reject(new Error(t(lang, 'proxy.connectFail', host, port, err.code || err.message)));
     };
     socket.once(useTls ? 'secureConnect' : 'connect', onReady);
@@ -112,6 +139,11 @@ async function handshakeSocks5(socket, proxy, host, port, timeoutMs, lang = 'zh'
     if (!proxy.username) throw new Error(t(lang, 'proxy.needAuth'));
     const user = Buffer.from(proxy.username, 'utf8');
     const pass = Buffer.from(proxy.password || '', 'utf8');
+    if (user.length > 255 || pass.length > 255) {
+      throw new Error(lang === 'en'
+        ? 'SOCKS5 credentials too long (max 255 bytes each)'
+        : 'SOCKS5 认证信息过长（各最多 255 字节）');
+    }
     socket.write(Buffer.concat([Buffer.from([0x01, user.length]), user, Buffer.from([pass.length]), pass]));
     resp = await reader.read(2, timeoutMs);
     if (resp[1] !== 0x00) throw new Error(t(lang, 'proxy.authFailed'));
@@ -136,6 +168,7 @@ async function handshakeSocks5(socket, proxy, host, port, timeoutMs, lang = 'zh'
 
   socket.write(Buffer.concat([Buffer.from([0x05, 0x01, 0x00]), addrPart, portBuf]));
   resp = await reader.read(4, timeoutMs);
+  if (resp[0] !== 0x05) throw new Error(t(lang, 'proxy.badSocks5'));
   if (resp[1] !== 0x00) {
     const reasons = lang === 'en'
       ? {
@@ -154,7 +187,7 @@ async function handshakeSocks5(socket, proxy, host, port, timeoutMs, lang = 'zh'
   const atyp = resp[3];
   const addrLen = atyp === 0x01 ? 4 : atyp === 0x04 ? 16 : (await reader.read(1, timeoutMs))[0];
   await reader.read(addrLen + 2, timeoutMs);
-  return reader.buf;
+  return reader.detach();
 }
 
 function ipv6ToBuffer(ip) {
@@ -189,7 +222,7 @@ async function handshakeSocks4(socket, proxy, host, port, timeoutMs, lang = 'zh'
   socket.write(packet);
   const resp = await reader.read(8, timeoutMs);
   if (resp[1] !== 0x5a) throw new Error(t(lang, 'proxy.socks4Failed', resp[1]));
-  return reader.buf;
+  return reader.detach();
 }
 
 async function handshakeHttp(socket, proxy, host, port, timeoutMs, lang = 'zh') {
@@ -217,7 +250,7 @@ async function handshakeHttp(socket, proxy, host, port, timeoutMs, lang = 'zh') 
   if (!match || Number(match[1]) !== 200) {
     throw new Error(t(lang, 'proxy.httpRefused', statusLine || (lang === 'en' ? 'no response' : '无响应')));
   }
-  return reader.buf;
+  return reader.detach();
 }
 
 /**
@@ -249,8 +282,6 @@ async function connectTunnel(proxy, host, port, timeoutMs = 8000, lang = 'zh') {
     throw err;
   }
 
-  // 交给调用方前，清掉我们加的监听，避免重复处理
-  socket.removeAllListeners('data');
   if (leftover && leftover.length) socket.unshift(leftover);
   return socket;
 }
