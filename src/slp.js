@@ -95,11 +95,11 @@ class FrameReader {
         this.error = err;
         break;
       }
-      if (!head || head.size + head.value > this.buf.length) break;
-      if (head.value > MAX_PACKET) {
+      if (head && head.value > MAX_PACKET) {
         this.error = new Error(t(this.lang, 'err.packetTooLarge'));
         break;
       }
+      if (!head || head.size + head.value > this.buf.length) break;
       const payload = this.buf.subarray(head.size, head.size + head.value);
       this.buf = this.buf.subarray(head.size + head.value);
       const waiter = this.waiters.shift();
@@ -179,6 +179,7 @@ async function pingModern({ host, port, protocol = HANDSHAKE_PROTOCOL, timeout =
     const len = readVarInt(packet, packetId.size);
     if (!len) throw new Error(t(lang, 'err.statusIncomplete'));
     const jsonStart = packetId.size + len.size;
+    if (jsonStart + len.value > packet.length) throw new Error(t(lang, 'err.statusIncomplete'));
     const text = packet.subarray(jsonStart, jsonStart + len.value).toString('utf8');
 
     let status;
@@ -326,6 +327,7 @@ function fetchDohJson(url, timeoutMs) {
       }
       let body = '';
       res.setEncoding('utf8');
+      res.on('error', reject);
       res.on('data', (chunk) => {
         body += chunk;
         if (body.length > 512 * 1024) req.destroy(new Error('DoH response too large'));
@@ -361,22 +363,23 @@ async function lookupSrvDoh(host, timeoutMs) {
     `https://dns.alidns.com/resolve?name=${encodeURIComponent(name)}&type=SRV`,
     `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=SRV`,
   ];
-  for (const url of endpoints) {
-    try {
-      const data = await fetchDohJson(url, timeoutMs);
-      const records = (data && data.Answer ? data.Answer : [])
-        .filter((answer) => answer.type === 33 && typeof answer.data === 'string')
-        .map((answer) => {
-          const [priority, weight, port, target] = answer.data.trim().split(/\s+/);
-          return { priority: Number(priority), weight: Number(weight), port: Number(port), name: String(target || '').replace(/\.$/, '') };
-        });
-      const picked = pickSrv(records);
-      if (picked) return picked;
-    } catch {
-      // 换下一个 DoH
-    }
+  const attempts = endpoints.map(async (url) => {
+    const data = await fetchDohJson(url, timeoutMs);
+    const records = (data && data.Answer ? data.Answer : [])
+      .filter((answer) => answer.type === 33 && typeof answer.data === 'string')
+      .map((answer) => {
+        const [priority, weight, port, target] = answer.data.trim().split(/\s+/);
+        return { priority: Number(priority), weight: Number(weight), port: Number(port), name: String(target || '').replace(/\.$/, '') };
+      });
+    const picked = pickSrv(records);
+    if (!picked) throw new Error('no srv');
+    return picked;
+  });
+  try {
+    return await Promise.any(attempts);
+  } catch {
+    return null;
   }
-  return null;
 }
 
 async function lookupSrv(host, timeoutMs = 2000) {
@@ -456,7 +459,8 @@ async function ping(address, options = {}) {
   } = options;
 
   const parsed = parseAddress(address, lang);
-  const connect = makeConnector(proxy || process.env.MC_MOTD_PROXY || null, lang);
+  const effectiveProxy = proxy || process.env.MC_MOTD_PROXY || null;
+  const connect = makeConnector(effectiveProxy, lang);
 
   let host = parsed.host;
   let port = parsed.port;
@@ -478,7 +482,7 @@ async function ping(address, options = {}) {
     host,
     port,
     srv: srvInfo,
-    proxy: proxy ? 'configured' : null,
+    proxy: effectiveProxy ? 'configured' : null,
   };
 
   try {

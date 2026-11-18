@@ -321,3 +321,36 @@ test('pickSrv 过滤不可用记录，按 priority 再按 weight 排序', () => 
   const single = pickSrv([{ name: 'mc.example.com.', port: 25565, priority: 0, weight: 0 }]);
   assert.deepEqual(single, { host: 'mc.example.com', port: 25565 });
 });
+
+/* ------------------------------------------------------------ 回归测试 */
+
+test('FrameReader 拒绝超长长度前缀，不无限攒缓冲（Bug 1 回归）', async () => {
+  const net = require('node:net');
+  const { FrameReader } = require('../src/slp');
+
+  const server = net.createServer((socket) => {
+    // 0xFFFFFFFF 的 VarInt 编码：FF FF FF FF 0F
+    socket.write(Buffer.from([0xFF, 0xFF, 0xFF, 0xFF, 0x0F]));
+  });
+
+  const port = await listen(server);
+  try {
+    const socket = await new Promise((resolve, reject) => {
+      const s = net.createConnection({ host: '127.0.0.1', port });
+      s.once('connect', () => resolve(s));
+      s.once('error', reject);
+    });
+
+    const reader = new FrameReader(socket, 'zh');
+    await assert.rejects(
+      () => reader.read(1000),
+      (err) => {
+        assert.match(err.message, /包|packet|large|过大|上限/i);
+        return true;
+      },
+    );
+    socket.destroy();
+  } finally {
+    await close(server);
+  }
+});
