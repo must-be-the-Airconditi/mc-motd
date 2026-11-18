@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javafx.animation.PauseTransition;
@@ -167,6 +168,16 @@ public final class App extends Application {
         return root;
     }
 
+    /** 改设置后立刻落盘：Preferences 默认要等后台定时器或 JVM 正常退出才写，闪退/秒关会丢 */
+    private void savePref(String key, String value) {
+        prefs.put(key, value);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException ignored) {
+            // 写不进去也不该影响界面
+        }
+    }
+
     private void rebuild() {
         String typedAddress = addressField == null ? null : addressField.getText();
         String typedProxy = proxyField == null ? null : proxyField.getText();
@@ -206,7 +217,7 @@ public final class App extends Application {
                 case "mocha" -> "latte";
                 default -> "system";
             };
-            prefs.put("theme", themeMode);
+            savePref("theme", themeMode);
             dark = resolveDark();
             rebuild();
         });
@@ -214,7 +225,7 @@ public final class App extends Application {
         Button lang = textButton(Strings.isEnglish() ? "中文" : "EN");
         lang.setOnAction(event -> {
             Strings.toggle();
-            prefs.put("lang", Strings.isEnglish() ? "en" : "zh");
+            savePref("lang", Strings.isEnglish() ? "en" : "zh");
             rebuild();
         });
 
@@ -270,7 +281,7 @@ public final class App extends Application {
         editionBox.getStyleClass().add("edition-combo");
         editionBox.setPrefWidth(120);
         editionBox.getSelectionModel().selectedIndexProperty().addListener(
-                (obs, old, now) -> prefs.put("edition", now.intValue() == 1 ? "bedrock" : "java"));
+                (obs, old, now) -> savePref("edition", now.intValue() == 1 ? "bedrock" : "java"));
 
         pingButton = new Button(Strings.t("ping.button"));
         pingButton.getStyleClass().add("filled-button");
@@ -316,10 +327,10 @@ public final class App extends Application {
         busy = true;
         setFormDisabled(true);
         showLoading(address);
-        prefs.put("address", address);
+        savePref("address", address);
 
         String proxy = proxyField.getText() == null ? "" : proxyField.getText().trim();
-        prefs.put("proxy", proxy);
+        savePref("proxy", proxy);
         if (proxy.isEmpty()) {
             String env = System.getenv("MC_MOTD_PROXY");
             proxy = env == null ? "" : env.trim();
@@ -687,7 +698,7 @@ public final class App extends Application {
         if (items.size() > HISTORY_MAX) {
             items = items.subList(0, HISTORY_MAX);
         }
-        prefs.put("history", String.join("\n", items));
+        savePref("history", String.join("\n", items));
         Platform.runLater(this::updateHistoryRow);
     }
 
