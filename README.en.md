@@ -233,8 +233,7 @@ See [gui/README.md](gui/README.md) for more.
 ## Can't connect?
 
 - Server offline / wrong port: double-check the address and port; the default is 25565
-- Some overseas servers (e.g. Hypixel) time out from certain networks: use a proxy via `--proxy`, or pass `proxy` to the web API
-- Java Edition only; Bedrock uses UDP 19132 and a different protocol
+- Some overseas servers time out from certain networks: use a proxy via `--proxy`, or pass `proxy` to the web API
 
 ## Offline testing
 
