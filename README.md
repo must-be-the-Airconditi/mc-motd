@@ -234,7 +234,6 @@ java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/m
 
 - 服务器没开 / 端口错：确认地址和端口，默认 25565
 - 国内网络到某些海外服（如 Hypixel）会直接超时：用代理，`--proxy` 或在网页请求里带 `proxy` 参数
-- 只支持 Java 版；基岩版是 UDP 19132，协议不一样
 
 ## 离线自测
 
