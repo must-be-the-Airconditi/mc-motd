@@ -112,7 +112,7 @@ npm link          # then simply: motd <address>
 ## CLI
 
 ```
-mc-motd 1.5.0 — view Minecraft Java and Bedrock server MOTDs
+mc-motd 1.5.1 — view Minecraft Java and Bedrock server MOTDs
 
 Usage:
   motd <address...> [options]   query one or more servers
