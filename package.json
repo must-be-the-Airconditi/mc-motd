@@ -39,6 +39,7 @@
   },
   "files": [
     "motd.js",
+    "bin/",
     "src/",
     "public/",
     "completions/"

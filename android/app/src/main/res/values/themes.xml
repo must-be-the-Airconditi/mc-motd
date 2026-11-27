@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Material 3 默认（草绿），日/夜由 values-night 覆盖 -->
+    <style name="Theme.McMotd" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/md_primary</item>
+        <item name="colorOnPrimary">@color/md_on_primary</item>
+        <item name="colorPrimaryContainer">@color/md_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/md_on_primary_container</item>
+        <item name="colorSurface">@color/md_surface</item>
+        <item name="colorOnSurface">@color/md_on_surface</item>
+        <item name="colorSurfaceVariant">@color/md_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/md_on_surface_variant</item>
+        <item name="colorOutlineVariant">@color/md_outline_variant</item>
+        <item name="android:statusBarColor">@color/md_surface</item>
+        <item name="android:navigationBarColor">@color/md_surface</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+    <!-- Catppuccin Mocha（固定深色） -->
+    <style name="Theme.McMotd.Mocha" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#a6e3a1</item>
+        <item name="colorOnPrimary">#1e1e2e</item>
+        <item name="colorPrimaryContainer">#2a3a2a</item>
+        <item name="colorOnPrimaryContainer">#cdd6f4</item>
+        <item name="colorSurface">#1e1e2e</item>
+        <item name="colorOnSurface">#cdd6f4</item>
+        <item name="colorSurfaceVariant">#313244</item>
+        <item name="colorOnSurfaceVariant">#a6adc8</item>
+        <item name="colorOutlineVariant">#45475a</item>
+        <item name="android:statusBarColor">#181825</item>
+        <item name="android:navigationBarColor">#181825</item>
+    </style>
+
+    <!-- Catppuccin Latte（固定浅色） -->
+    <style name="Theme.McMotd.Latte" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#40a02b</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="colorPrimaryContainer">#d7f0cf</item>
+        <item name="colorOnPrimaryContainer">#13320c</item>
+        <item name="colorSurface">#eff1f5</item>
+        <item name="colorOnSurface">#4c4f69</item>
+        <item name="colorSurfaceVariant">#e6e9ef</item>
+        <item name="colorOnSurfaceVariant">#6c6f85</item>
+        <item name="colorOutlineVariant">#ccd0da</item>
+        <item name="android:statusBarColor">#eff1f5</item>
+        <item name="android:navigationBarColor">#eff1f5</item>
+    </style>
+</resources>

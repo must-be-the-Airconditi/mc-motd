@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MOTD 查看器</string>
+    <string name="address_hint">play.example.com 或 host:25565</string>
+    <string name="ping">查询</string>
+    <string name="edition_java">Java</string>
+    <string name="edition_bedrock">基岩版</string>
+    <string name="empty_title">输入服务器地址，直接读取它的 MOTD</string>
+    <string name="empty_sub">Java 走 TCP 25565，基岩走 UDP 19132</string>
+    <string name="pinging">正在连接…</string>
+    <string name="players">玩家</string>
+    <string name="version">版本</string>
+    <string name="latency">延迟</string>
+    <string name="protocol">协议</string>
+    <string name="theme">主题</string>
+    <string name="language">语言</string>
+    <string name="error_address">请输入服务器地址</string>
+    <string name="exception_hint">检查地址与端口；连不上外服时可在下方填代理</string>
+</resources>

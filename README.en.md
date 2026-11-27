@@ -55,9 +55,13 @@
 | 🔀 | **Proxies** | `socks5://`, `socks4://`, `http(s)://` |
 | 🎨 | **Themes** | Follow the system, plus Catppuccin Mocha and Latte palettes |
 | 💬 | **Bilingual** | CLI and web UI in Chinese and English |
-| 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app |
+| 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app, plus an Android client |
 | 🎮 | **Both editions** | Java (TCP 25565) and Bedrock (UDP 19132, RakNet) |
 | 📦 | **Zero dependencies** | CLI / web: Node built-ins only; desktop: JavaFX only (bundled) |
+
+## Android
+
+`android/` is a native Kotlin client (Material 3, follows the system light/dark scheme, plus Catppuccin Mocha / Latte, bilingual, both Java and Bedrock servers). See [android/README.md](android/README.md) to build; the signed APK ships with the release as `mc-motd-android.apk`.
 
 ## Screenshots
 

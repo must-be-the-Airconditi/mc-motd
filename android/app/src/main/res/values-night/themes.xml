@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.McMotd" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#9cd67d</item>
+        <item name="colorOnPrimary">#10330b</item>
+        <item name="colorPrimaryContainer">#2c4a24</item>
+        <item name="colorOnPrimaryContainer">#d7f0cf</item>
+        <item name="colorSurface">#11140f</item>
+        <item name="colorOnSurface">#e2e4d9</item>
+        <item name="colorSurfaceVariant">#3f4a37</item>
+        <item name="colorOnSurfaceVariant">#c1c8b5</item>
+        <item name="colorOutlineVariant">#44513c</item>
+        <item name="android:statusBarColor">#11140f</item>
+        <item name="android:navigationBarColor">#11140f</item>
+    </style>
+</resources>

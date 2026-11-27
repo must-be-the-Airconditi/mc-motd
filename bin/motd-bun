@@ -1,0 +1,10 @@
+#!/bin/sh
+# 让 CLI 走 Bun（网页版仍走 Node）：用法同 motd
+self=$(readlink -f "$0")
+root=$(dirname "$self")/..
+for arg in "$@"; do
+    if [ "$arg" = "--web" ]; then
+        exec node "$root/motd.js" "$@"
+    fi
+done
+exec bun "$root/motd.js" "$@"

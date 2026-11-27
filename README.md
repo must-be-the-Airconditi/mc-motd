@@ -54,9 +54,13 @@
 | 🔀 | **代理** | `socks5://`、`socks4://`、`http(s)://` |
 | 🎨 | **主题** | 跟随系统明暗，另带 Catppuccin Mocha / Latte 两套配色 |
 | 💬 | **中英双语** | CLI 与网页版都能切中英文 |
-| 🖥 | **三种形态** | 命令行、本地网页、Java 桌面端 |
+| 🖥 | **三种形态** | 命令行、本地网页、Java 桌面端；另有 Android 客户端 |
 | 🎮 | **双版本** | Java 版（TCP 25565）+ 基岩版（UDP 19132，RakNet） |
 | 📦 | **零依赖** | CLI / 网页只用 Node 内置模块 |
+
+## Android
+
+`android/` 是一个原生 Kotlin 客户端（Material 3，支持跟随系统明暗 + Catppuccin Mocha / Latte、中英双语，Java 版与基岩版都能查）。构建与安装见 [android/README.md](android/README.md)；也可以直接用 Release 里的 `mc-motd-android.apk`。
 
 ## 截图
 
