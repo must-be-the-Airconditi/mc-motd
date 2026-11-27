@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MOTD 查看器</string>
+    <string name="app_name">服务器招牌</string>
     <string name="address_hint">play.example.com 或 host:25565</string>
     <string name="ping">查询</string>
     <string name="edition_java">Java</string>
