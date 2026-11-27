@@ -105,7 +105,6 @@ npm i -g mc-motd && motd play.cubecraft.net   # 全局安装，直接 motd
 
 ```bash
 bun motd.js play.cubecraft.net   # 或者 bunx mc-motd
-bun motd.js --web                # 网页版
 bun test                         # 同一套测试，32 个全过
 ```
 

@@ -106,7 +106,6 @@ You can also run the exact same code with [Bun](https://bun.sh) — no changes n
 
 ```bash
 bun motd.js play.cubecraft.net   # or bunx mc-motd
-bun motd.js --web                # web UI
 bun test                         # same suite, all 32 tests pass
 ```
 
