@@ -38,6 +38,15 @@ jobs:
       - name: 补全脚本测试
         run: npm run test:completion
 
+  bun:
+    name: bun
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - name: 用 Bun 跑同一套测试
+        run: bun test
+
   release:
     name: release
     needs: test

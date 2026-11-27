@@ -96,6 +96,19 @@ npx mc-motd play.cubecraft.net          # 临时跑一次
 npm i -g mc-motd && motd play.cubecraft.net   # 全局安装，直接 motd
 ```
 
+也可以用 [Bun](https://bun.sh) 跑同一份代码（不用改任何东西）。冷启动更快、内存更省——本机实测：
+
+| 运行时 | `--version` | 单次 Ping | 常驻内存（网页版） |
+| :--- | ---: | ---: | ---: |
+| Node 26 | 116 ms | 140 ms | ~66 MB |
+| Bun 1.4 | **54 ms** | **71 ms** | **~28 MB** |
+
+```bash
+bun motd.js play.cubecraft.net   # 或者 bunx mc-motd
+bun motd.js --web                # 网页版
+bun test                         # 同一套测试，32 个全过
+```
+
 桌面版从 [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) 下载对应安装包（自带运行时），
 或者用 `portable.zip` / 通用 jar（需要 Java 17+ 与 JavaFX 21）：
 

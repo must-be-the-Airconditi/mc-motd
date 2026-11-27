@@ -97,6 +97,19 @@ npx mc-motd play.cubecraft.net          # run once
 npm i -g mc-motd && motd play.cubecraft.net   # install globally
 ```
 
+You can also run the exact same code with [Bun](https://bun.sh) — no changes needed. It starts faster and uses less memory (measured here):
+
+| Runtime | `--version` | Single ping | Resident memory (web UI) |
+| :--- | ---: | ---: | ---: |
+| Node 26 | 116 ms | 140 ms | ~66 MB |
+| Bun 1.4 | **54 ms** | **71 ms** | **~28 MB** |
+
+```bash
+bun motd.js play.cubecraft.net   # or bunx mc-motd
+bun motd.js --web                # web UI
+bun test                         # same suite, all 32 tests pass
+```
+
 Grab the installer for your platform from [Releases](https://github.com/must-be-the-Airconditi/mc-motd/releases) (a runtime is bundled), or use the `portable.zip` / universal jar (needs Java 17+ and JavaFX 21):
 
 ```bash
