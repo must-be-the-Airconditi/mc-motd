@@ -30,7 +30,11 @@ import { BASE as base } from '../base';
     var btn = document.getElementById('theme');
     var themes = ['mocha', 'latte'];
     function paint() {
-      btn.textContent = document.documentElement.dataset.theme === 'mocha' ? '☾' : '☀';
+      var t = document.documentElement.dataset.theme === 'mocha' ? 'mocha' : 'latte';
+      // 图标表示「点一下会切到哪」：深色→显示太阳，浅色→显示月亮
+      btn.textContent = t === 'mocha' ? '☀' : '☾';
+      btn.title = t === 'mocha' ? '切换到浅色 Latte' : '切换到深色 Mocha';
+      btn.setAttribute('aria-label', btn.title);
     }
     paint();
     btn.addEventListener('click', function () {
