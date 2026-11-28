@@ -50,10 +50,7 @@ import { BASE as base } from '../base';
         localStorage.setItem('site:theme', next);
         paint();
       }
-      if (document.startViewTransition) {
-        root.classList.add('vt');
-        document.startViewTransition(apply).finished.finally(function () { root.classList.remove('vt'); });
-      } else apply();
+      apply();
     });
   })();
 </script>
