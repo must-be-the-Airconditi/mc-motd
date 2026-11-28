@@ -41,16 +41,25 @@ import { BASE as base } from '../base';
       var next = themes[(themes.indexOf(document.documentElement.dataset.theme) + 1) % themes.length];
       var root = document.documentElement;
       var r = btn.getBoundingClientRect();
-      root.style.setProperty('--tx', (r.left + r.width / 2) + 'px');
-      root.style.setProperty('--ty', (r.top + r.height / 2) + 'px');
-      root.classList.add('switching');
-      setTimeout(function () { root.classList.remove('switching'); }, 360);
+      var x = r.left + r.width / 2;
+      var y = r.top + r.height / 2;
+      // 半径要覆盖到最远的那个角，否则动画结束时角落会「啪」一下
+      var rad = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y)) + 12;
+      root.style.setProperty('--tx', x + 'px');
+      root.style.setProperty('--ty', y + 'px');
+      root.style.setProperty('--r', rad + 'px');
       function apply() {
         root.dataset.theme = next;
         localStorage.setItem('site:theme', next);
         paint();
       }
-      apply();
+      if (document.startViewTransition && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+        root.classList.add('vt');
+        var vt = document.startViewTransition(apply);
+        vt.finished.finally(function () { root.classList.remove('vt'); });
+      } else {
+        apply();
+      }
     });
   })();
 </script>

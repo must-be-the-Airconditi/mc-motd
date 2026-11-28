@@ -75,3 +75,14 @@ code{font-family:var(--mono);font-size:12.5px;color:var(--text)}
   html.switching .icon-btn { transform: rotate(180deg); }
   /* View Transition 期间关掉颜色过渡，否则新快照会拍到过渡起点，收尾时闪一下 */
 }
+
+/* 主题切换：圆形扩散（半径由 JS 按点击点到最远角计算，保证收尾时整屏已被覆盖） */
+@media (prefers-reduced-motion: no-preference) {
+  html.vt, html.vt *, html.vt *::before, html.vt *::after { transition: none !important; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  ::view-transition-new(root) { animation: vt-circle .5s cubic-bezier(.4, 0, .2, 1) both; }
+  @keyframes vt-circle {
+    from { clip-path: circle(0 at var(--tx) var(--ty)); }
+    to   { clip-path: circle(var(--r) at var(--tx) var(--ty)); }
+  }
+}
