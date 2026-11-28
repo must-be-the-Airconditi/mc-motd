@@ -39,9 +39,18 @@ import { BASE as base } from '../base';
     paint();
     btn.addEventListener('click', function () {
       var next = themes[(themes.indexOf(document.documentElement.dataset.theme) + 1) % themes.length];
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem('site:theme', next);
-      paint();
+      var root = document.documentElement;
+      var r = btn.getBoundingClientRect();
+      root.style.setProperty('--tx', (r.left + r.width / 2) + 'px');
+      root.style.setProperty('--ty', (r.top + r.height / 2) + 'px');
+      root.classList.add('switching');
+      setTimeout(function () { root.classList.remove('switching'); }, 360);
+      function apply() {
+        root.dataset.theme = next;
+        localStorage.setItem('site:theme', next);
+        paint();
+      }
+      if (document.startViewTransition) document.startViewTransition(apply); else apply();
     });
   })();
 </script>

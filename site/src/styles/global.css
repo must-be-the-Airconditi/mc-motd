@@ -65,3 +65,23 @@ code{font-family:var(--mono);font-size:12.5px;color:var(--text)}
 .swatch.auto{background:linear-gradient(90deg,#1e1e2e 50%,#eff1f5 50%);color:var(--text)}
 .footer{border-top:1px solid var(--outline);margin-top:64px;padding:24px 22px 40px;text-align:center;color:var(--muted);font-size:13px}
 @media (max-width:720px){.nav{display:none}.hero{padding-top:36px}.themes{grid-template-columns:1fr}}
+
+/* 主题切换：颜色过渡 + View Transition 圆形扩散 */
+@media (prefers-reduced-motion: no-preference) {
+  html, body, .app-bar, .card, .section, .feature, .chip, .btn, .text-btn, h1, h2, h3, p, a, code {
+    transition: background-color .32s ease, color .32s ease, border-color .32s ease, box-shadow .32s ease;
+  }
+  .icon-btn { transition: transform .32s ease, background-color .32s ease, color .32s ease; }
+  html.switching .icon-btn { transform: rotate(180deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  ::view-transition-new(root) {
+    animation: theme-reveal .45s ease-out;
+    clip-path: circle(0 at var(--tx, 90%) var(--ty, 24px));
+  }
+  @keyframes theme-reveal {
+    from { clip-path: circle(0 at var(--tx, 90%) var(--ty, 24px)); }
+    to   { clip-path: circle(140% at var(--tx, 90%) var(--ty, 24px)); }
+  }
+}
