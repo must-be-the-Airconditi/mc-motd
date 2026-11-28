@@ -6,6 +6,7 @@ const { lang } = Astro.props;
 const tr = t(lang);
 import { BASE as base } from '../base';
 const gh = 'https://github.com/must-be-the-Airconditi/mc-motd';
+const demo = lang === 'en' ? 'demo-en.gif' : 'demo.gif';
 ---
 <main>
   <section class="hero">
@@ -22,7 +23,7 @@ const gh = 'https://github.com/must-be-the-Airconditi/mc-motd';
       <img alt="node" src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
     </div>
     <div class="shot-frame">
-      <img class="demo" src={`${base}/assets/demo.gif`} alt="demo" />
+      <img class="demo" src={`${base}/assets/${demo}`} alt="demo" />
     </div>
   </section>
 
