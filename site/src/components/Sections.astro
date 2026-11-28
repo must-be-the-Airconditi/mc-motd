@@ -1,0 +1,95 @@
+---
+import type { Lang } from '../i18n';
+import { t } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+import { BASE as base } from '../base';
+const gh = 'https://github.com/must-be-the-Airconditi/mc-motd';
+---
+<main>
+  <section class="hero">
+    <p class="pill">{tr('hero.pill')}</p>
+    <h1>{tr('hero.title')}</h1>
+    <p class="lead">{tr('hero.lead')}</p>
+    <div class="cta">
+      <a class="btn primary" href="#install">{tr('hero.cta1')}</a>
+      <a class="btn" href={`${gh}/releases/latest`}>{tr('hero.cta2')}</a>
+    </div>
+    <div class="badges">
+      <img alt="release" src="https://img.shields.io/github/v/release/must-be-the-Airconditi/mc-motd?label=release&style=flat-square" />
+      <img alt="license" src="https://img.shields.io/badge/license-MIT-4a9e5c?style=flat-square" />
+      <img alt="node" src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
+    </div>
+    <div class="shot-frame">
+      <img class="demo" src={`${base}/assets/demo.gif`} alt="demo" />
+    </div>
+  </section>
+
+  <section id="features" class="section">
+    <h2>{tr('features.title')}</h2>
+    <div class="grid">
+      {[1,2,3,4,5,6].map((i) => (
+        <article class="card">
+          <h3>{tr(`f${i}.t`)}</h3>
+          <p>{tr(`f${i}.d`)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="shots" class="section">
+    <h2>{tr('shots.title')}</h2>
+    <div class="shots">
+      <figure>
+        <img src={`${base}/assets/screenshot-mocha.png`} alt="web" />
+        <figcaption>{tr('shots.web')}</figcaption>
+      </figure>
+      <figure>
+        <img src={`${base}/assets/gui-screenshot-mocha.png`} alt="desktop" />
+        <figcaption>{tr('shots.gui')}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="install" class="section">
+    <h2>{tr('install.title')}</h2>
+    <div class="grid two">
+      <article class="card">
+        <h3>{tr('i1.t')}</h3><p>{tr('i1.d')}</p>
+        <pre><code>npx mc-motd play.cubecraft.net
+npm i -g mc-motd &amp;&amp; motd --web</code></pre>
+      </article>
+      <article class="card">
+        <h3>{tr('i2.t')}</h3><p>{tr('i2.d')}</p>
+        <pre><code><a href={`${gh}/releases/latest`}>github.com/.../mc-motd/releases</a></code></pre>
+      </article>
+      <article class="card">
+        <h3>{tr('i3.t')}</h3><p>{tr('i3.d')}</p>
+        <pre><code>adb install mc-motd-android-*.apk</code></pre>
+      </article>
+      <article class="card">
+        <h3>{tr('i4.t')}</h3><p>{tr('i4.d')}</p>
+        <pre><code>git clone {gh}
+cd mc-motd &amp;&amp; node motd.js --web</code></pre>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>{tr('themes.title')}</h2>
+    <div class="themes">
+      <div class="swatch mocha"><span>Mocha</span></div>
+      <div class="swatch latte"><span>Latte</span></div>
+      <div class="swatch auto"><span>{tr('themes.auto')}</span></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>
+    {tr('footer.made')} ·
+    <a href={gh}>GitHub</a> ·
+    <a href={`${gh}/blob/main/README.md`}>README</a>
+  </p>
+</footer>

@@ -1,0 +1,30 @@
+---
+import '../styles/global.css';
+import type { Lang } from '../i18n';
+interface Props { lang: Lang; title: string; desc: string }
+const { lang, title, desc } = Astro.props;
+---
+<!doctype html>
+<html lang={lang === 'en' ? 'en' : 'zh-CN'} data-theme="mocha">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={desc} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={desc} />
+  <meta property="og:image" content="/mc-motd/assets/banner.svg" />
+  <link rel="icon" href="/mc-motd/assets/icon.png" />
+  <link rel="alternate" hreflang="zh-CN" href="/mc-motd/" />
+  <link rel="alternate" hreflang="en" href="/mc-motd/en/" />
+  <script is:inline>
+    (function () {
+      var t = localStorage.getItem('site:theme');
+      if (t) document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <slot />
+</body>
+</html>

@@ -1,0 +1,43 @@
+---
+import type { Lang } from '../i18n';
+import { t } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+const other = lang === 'en' ? '/' : '/en/';
+import { BASE as base } from '../base';
+---
+<header class="app-bar">
+  <a class="brand" href={base}>
+    <img src={`${base}/assets/icon.png`} alt="" width="28" height="28" />
+    <span>{tr('brand')}</span>
+  </a>
+  <nav class="nav">
+    <a href="#features">{tr('nav.features')}</a>
+    <a href="#shots">{tr('nav.shots')}</a>
+    <a href="#install">{tr('nav.install')}</a>
+    <a href="https://github.com/must-be-the-Airconditi/mc-motd">{tr('nav.source')}</a>
+  </nav>
+  <div class="actions">
+    <button id="theme" class="icon-btn" title="Theme">☾</button>
+    <a class="text-btn" href={`${base}${other.replace(/^\//, '')}`} style="display:inline-flex;align-items:center;text-decoration:none">
+      {lang === 'en' ? '中文' : 'EN'}
+    </a>
+  </div>
+</header>
+<script>
+  (function () {
+    var btn = document.getElementById('theme');
+    var themes = ['mocha', 'latte'];
+    function paint() {
+      btn.textContent = document.documentElement.dataset.theme === 'mocha' ? '☾' : '☀';
+    }
+    paint();
+    btn.addEventListener('click', function () {
+      var next = themes[(themes.indexOf(document.documentElement.dataset.theme) + 1) % themes.length];
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('site:theme', next);
+      paint();
+    });
+  })();
+</script>
