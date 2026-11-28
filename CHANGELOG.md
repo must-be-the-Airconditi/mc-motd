@@ -6,6 +6,25 @@
 
 ## [Unreleased]
 
+## [cli-v1.6.0] - 2026-11-28
+
+### Added
+
+- 支持用 Bun 运行 CLI：同一份代码零改动，`bun motd.js` 启动约快 2 倍、常驻内存约一半
+- 新增 `bin/motd-bun` 启动器：把 `motd` 指向它即可让 CLI 走 Bun（`--web` 仍用 Node）
+
+### Changed
+
+- CI 增加 bun 测试 job（`oven-sh/setup-bun`），与 Node 测试跑同一套用例
+- README 中英双语补充 Bun 说明（只承诺 CLI，网页版仍走 Node）
+
+## [gui-v1.6.0] - 2026-11-28
+
+### Added
+
+- Android 原生客户端（Kotlin + Material 3，五档主题、中英双语、Java/基岩双版本），源码在 `android/`
+- 桌面端本版无功能改动，与 CLI 同步版本号；Release 附件新增 `mc-motd-android.apk`
+
 ## [cli-v1.5.1] - 2026-11-22
 
 ### Fixed

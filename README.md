@@ -32,8 +32,10 @@
 - [截图](#截图)
 - [快速开始](#快速开始)
 - [命令行](#命令行)
+- [Shell 补全](#shell-补全)
 - [网页版](#网页版)
 - [桌面版 GUI](#桌面版-gui)
+- [Android](#android)
 - [连不上怎么办](#连不上怎么办)
 - [离线自测](#离线自测)
 - [项目结构](#项目结构)
@@ -57,10 +59,6 @@
 | 🖥 | **三种形态** | 命令行、本地网页、Java 桌面端；另有 Android 客户端 |
 | 🎮 | **双版本** | Java 版（TCP 25565）+ 基岩版（UDP 19132，RakNet） |
 | 📦 | **零依赖** | CLI / 网页只用 Node 内置模块 |
-
-## Android
-
-`android/` 是一个原生 Kotlin 客户端（Material 3，支持跟随系统明暗 + Catppuccin Mocha / Latte、中英双语，Java 版与基岩版都能查）。构建与安装见 [android/README.md](android/README.md)；也可以直接用 Release 里的 `mc-motd-android.apk`。
 
 ## 截图
 
@@ -128,7 +126,7 @@ npm link          # 之后直接用 motd <地址>
 ## 命令行
 
 ```
-mc-motd 1.5.1 — 看 Minecraft Java / 基岩版服务器的 MOTD
+mc-motd 1.6.0 — 看 Minecraft Java / 基岩版服务器的 MOTD
 
 用法:
   motd <地址...> [选项]        查询服务器（可一次查多个）
@@ -245,6 +243,10 @@ java --module-path gui/.javafx/lib --add-modules javafx.controls -jar gui/dist/m
 想双击 jar 就开（类似 HMCL）：`bash gui/build.sh --fat` 会生成自带 JavaFX 的 `gui/dist/mc-motd-gui-fat.jar`，双击即可（需要 Java 17+）。
 
 更多见 [gui/README.md](gui/README.md)。
+
+## Android
+
+`android/` 是一个原生 Kotlin 客户端（Material 3，支持跟随系统明暗 + Catppuccin Mocha / Latte、中英双语，Java 版与基岩版都能查）。构建与安装见 [android/README.md](android/README.md)；也可以直接用 Release 里的 `mc-motd-android.apk`。
 
 ## 连不上怎么办
 

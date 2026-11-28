@@ -33,8 +33,10 @@
 - [Screenshots](#screenshots)
 - [Quick start](#quick-start)
 - [CLI](#cli)
+- [Shell completion](#shell-completion)
 - [Web UI](#web-ui)
 - [Desktop GUI](#desktop-gui)
+- [Android](#android)
 - [Can't connect?](#cant-connect)
 - [Offline testing](#offline-testing)
 - [Project layout](#project-layout)
@@ -58,10 +60,6 @@
 | 🖥 | **Three shapes** | Terminal, local web UI, Java desktop app, plus an Android client |
 | 🎮 | **Both editions** | Java (TCP 25565) and Bedrock (UDP 19132, RakNet) |
 | 📦 | **Zero dependencies** | CLI / web: Node built-ins only; desktop: JavaFX only (bundled) |
-
-## Android
-
-`android/` is a native Kotlin client (Material 3, follows the system light/dark scheme, plus Catppuccin Mocha / Latte, bilingual, both Java and Bedrock servers). See [android/README.md](android/README.md) to build; the signed APK ships with the release as `mc-motd-android.apk`.
 
 ## Screenshots
 
@@ -128,7 +126,7 @@ npm link          # then simply: motd <address>
 ## CLI
 
 ```
-mc-motd 1.5.1 — view Minecraft Java and Bedrock server MOTDs
+mc-motd 1.6.0 — view Minecraft Java and Bedrock server MOTDs
 
 Usage:
   motd <address...> [options]   query one or more servers
@@ -245,6 +243,10 @@ Or use `gui/launcher/mc-motd` (`mc-motd.bat` on Windows), which picks up a `java
 For a double-clickable jar (like HMCL), `bash gui/build.sh --fat` writes `gui/dist/mc-motd-gui-fat.jar` with JavaFX and its native libraries bundled — double-click to run (Java 17+ required).
 
 See [gui/README.md](gui/README.md) for more.
+
+## Android
+
+`android/` is a native Kotlin client (Material 3, follows the system light/dark scheme, plus Catppuccin Mocha / Latte, bilingual, both Java and Bedrock servers). See [android/README.md](android/README.md) to build; the signed APK ships with the release as `mc-motd-android.apk`.
 
 ## Can't connect?
 

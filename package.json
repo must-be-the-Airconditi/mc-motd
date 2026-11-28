@@ -1,6 +1,6 @@
 {
   "name": "mc-motd",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "private": false,
   "description": "Minecraft Java & Bedrock server MOTD viewer: zero-dependency CLI + local web UI, plus a JavaFX desktop app",
   "bin": {
