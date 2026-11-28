@@ -15,6 +15,10 @@
 </p>
 
 <p align="center">
+  <a href="https://must-be-the-airconditi.github.io/mc-motd/">Website</a>
+</p>
+
+<p align="center">
   A tiny tool for reading Minecraft <b>Java and Bedrock</b> server MOTDs — CLI, local web UI and desktop GUI,<br />
   built directly on the Server List Ping protocol — zero Node dependencies for the CLI and web UI.
 </p>

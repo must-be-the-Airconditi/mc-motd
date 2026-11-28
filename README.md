@@ -15,7 +15,11 @@
 </p>
 
 <p align="center">
-  看 Minecraft <b>Java / 基岩版</b>服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI 三种形态，<br />
+  <a href="https://must-be-the-airconditi.github.io/mc-motd/">主页</a>
+</p>
+
+<p align="center">
+  看 Minecraft <b>Java / 基岩版</b>服务器 MOTD 的小工具：命令行、本地网页版、桌面 GUI、Android 四种形态，<br />
   直接实现服务器列表 Ping（Server List Ping）协议，零运行时依赖。
 </p>
 
